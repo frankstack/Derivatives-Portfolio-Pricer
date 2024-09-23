@@ -2,7 +2,7 @@
 
 ## Description
 
-This Monte Carlo simulator is designed to estimate the price of European options (both call and put) and calculate the option Greeks: Delta, Gamma, Vega, Theta, and Rho. The simulator supports **Antithetic Variates**, **Control Variates**, and **Van der Corput low-discrepancy sequences** to enhance the accuracy and efficiency of the results. The control variate technique significantly reduces the variance of the simulation, providing more reliable estimates.
+This Monte Carlo simulator is designed to estimate the price of European options (both call and put) and calculate the option Greeks: Delta, Gamma, Vega, Theta, and Rho. The simulator supports **Antithetic Variates**, **Delta Control Variates**, and **Van der Corput low-discrepancy sequences** to enhance the accuracy and efficiency of the results. The control variate technique significantly reduces the variance of the simulation, providing more reliable estimates.
 
 ## Components
 
