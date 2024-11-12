@@ -151,3 +151,8 @@ Follow these steps to interact with the API using Postman:
          "rho": 0.23456789
      }
      ```
+
+Example of API Response:
+
+![WhatsApp Image 2024-11-12 at 00 25 02_6ea6f5ec](https://github.com/user-attachments/assets/909b4392-7d1c-49c9-a86f-9b2f3d80611c)
+
