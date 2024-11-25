@@ -124,6 +124,11 @@ cd MonteCarloSimulator
 
     Then, navigate to the URL provided by `http-server` (e.g., `http://127.0.0.1:8080`).
 
+   Example of response for `index.html`:
+
+    ![image](https://github.com/user-attachments/assets/4a99dca1-53e4-4894-aba9-482a152f83d0)
+
+
 ## API Documentation
 
 The API comes with integrated Swagger UI for easy exploration and testing.
