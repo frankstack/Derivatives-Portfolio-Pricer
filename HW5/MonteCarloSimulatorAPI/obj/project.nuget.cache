@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "Em4Lvs9ytc9FbLk3ugN2Otk23qRXUtjwGOtvR/UTdm7S/bb3/wwXxpzd816EgdHsqmGpjr9LFy+Hl2nC7s0Z8g==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\frank\\0 - FM5252 & FM5353 - Financial Modelling II & III\\CSharpFiles\\Hw6_DeltaBasedControlVariateMC\\MCSimulator\\MonteCarloSimulatorAPI\\MonteCarloSimulatorAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\frank\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.6\\microsoft.aspnetcore.openapi.8.0.6.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\microsoft.openapi\\1.6.22\\microsoft.openapi.1.6.22.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\swashbuckle.aspnetcore.annotations\\7.1.0\\swashbuckle.aspnetcore.annotations.7.1.0.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\7.1.0\\swashbuckle.aspnetcore.swagger.7.1.0.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\7.1.0\\swashbuckle.aspnetcore.swaggergen.7.1.0.nupkg.sha512",
+    "C:\\Users\\frank\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.4.0\\swashbuckle.aspnetcore.swaggerui.6.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\MonteCarloSimulatorAPI.props" />
+</Project>
