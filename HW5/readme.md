@@ -1,4 +1,3 @@
-```markdown
 # Monte Carlo Simulator
 
 An integrated project consisting of an ASP.NET Core Web API and a JavaScript-based Web Application for pricing various types of options using Monte Carlo simulation. The API allows remote access and integration, while the Web App provides a user-friendly interface for interacting with the simulator.
