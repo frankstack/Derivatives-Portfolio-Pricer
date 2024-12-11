@@ -1,0 +1,28 @@
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\bin\Debug\net8.0\MCSimulator.exe
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\bin\Debug\net8.0\MCSimulator.deps.json
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\bin\Debug\net8.0\MCSimulator.runtimeconfig.json
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\bin\Debug\net8.0\MCSimulator.dll
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\bin\Debug\net8.0\MCSimulator.pdb
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.AssemblyInfoInputs.cache
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.AssemblyInfo.cs
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.csproj.CoreCompileInputs.cache
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.dll
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\refint\MCSimulator.dll
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.pdb
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\MCSimulator.genruntimeconfig.cache
+C:\Users\frank\0 - FM5252 - Financial Modelling II\CSharpFiles\Hw5_CSharp_MonteCarlo\MCSimulator\obj\Debug\net8.0\ref\MCSimulator.dll
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\bin\Debug\net8.0\MCSimulator.exe
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\bin\Debug\net8.0\MCSimulator.deps.json
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\bin\Debug\net8.0\MCSimulator.runtimeconfig.json
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\bin\Debug\net8.0\MCSimulator.dll
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\bin\Debug\net8.0\MCSimulator.pdb
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.AssemblyInfoInputs.cache
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.AssemblyInfo.cs
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.csproj.CoreCompileInputs.cache
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.dll
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\refint\MCSimulator.dll
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.pdb
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\MCSimulator.genruntimeconfig.cache
+C:\Users\frank\0 - FM5252 & FM5353 - Financial Modelling II & III\CSharpFiles\Hw6_DeltaBasedControlVariateMC\MCSimulator\obj\Debug\net8.0\ref\MCSimulator.dll
