@@ -1,5 +1,3 @@
-# YGNACIO-FM5353
+# Derivatives Portfolio Pricer
 
-Student: Frank Ygnacio Rosas (U Card: 5915356)
-
-Email: ygnac001@umn.edu
+Please check HW5 and HW6 for details.
