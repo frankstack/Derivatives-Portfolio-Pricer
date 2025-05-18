@@ -1,5 +1,5 @@
 
-## Derivatives-Portfolio-Pricer ( “HW6 – Final Project” )
+# Derivatives-Portfolio-Pricer ( “HW6 – Final Project” )
 
 A self-contained demo platform for **pricing and managing an options portfolio with Monte-Carlo simulation**.
 It consists of:
