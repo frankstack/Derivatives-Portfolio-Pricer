@@ -6,17 +6,17 @@ This folder contains the deployable application for my Derivatives Portfolio Pri
 
 
 
-- \*\*UI\*\*: Static HTML/CSS/JS pages for running Monte Carlo option pricing and basic portfolio workflows.
+- **UI**: Static HTML/CSS/JS pages for running Monte Carlo option pricing and basic portfolio workflows.
 
-- \*\*API\*\*: An ASP.NET API that receives simulation requests and returns pricing results.
-
-
-
-\## Deployment model (EC2)
+- **API**: An ASP.NET API that receives simulation requests and returns pricing results.
 
 
 
-The production setup uses \*\*Nginx as the single entry point\*\*:
+## Deployment model (EC2)
+
+
+
+The production setup uses **Nginx as the single entry point**:
 
 
 
