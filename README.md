@@ -1,3 +1,3 @@
 # Derivatives Portfolio Pricer
 
-Please check HW5 and HW6 for details.
+Please, check `dpp-app` folder for more information about the web app.
