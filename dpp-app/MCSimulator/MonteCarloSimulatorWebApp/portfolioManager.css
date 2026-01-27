@@ -1,0 +1,239 @@
+/* portfolioManager.css */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #eef1f3;
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.5;
+}
+
+.pm-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #ffffff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* Author info in top-right corner */
+.pm-author-info {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    font-size: 14px;
+    text-align: right;
+    color: #2c3e50;
+}
+
+.pm-author-info a {
+    color: #3498db;
+    text-decoration: none;
+}
+.pm-author-info a:hover {
+    text-decoration: underline;
+}
+
+.pm-container h1 {
+    text-align: center;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-size: 28px;
+}
+
+/* Sub-description under title */
+.pm-description {
+    text-align: center;
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 30px;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+}
+
+.pm-nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pm-nav-button {
+    background: #2c3e50;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.pm-nav-button:hover {
+    background: #22303a;
+}
+
+.pm-nav-button.active {
+    background: #16a085;
+}
+
+.pm-section {
+    margin-bottom: 50px;
+}
+
+.hidden {
+    display: none;
+}
+
+.pm-form {
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 30px;
+}
+
+.pm-form h3 {
+    margin-top: 0;
+    color: #34495e;
+}
+
+.pm-form-group {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.pm-form-group label {
+    width: 200px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.pm-form-group input, .pm-form-group select, .pm-form-group textarea {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.pm-form-group textarea {
+    resize: vertical;
+}
+
+.pm-cancel-btn {
+    background: #e74c3c !important;
+    margin-left: 10px;
+}
+
+.pm-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.pm-table thead {
+    background: #bdc3c7;
+}
+
+.pm-table thead th {
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.pm-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    vertical-align: middle;
+}
+
+.pm-table tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.pm-table button {
+    background: #8e44ad;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 2px;
+    font-size: 12px;
+}
+
+.pm-table button:hover {
+    background: #71368a;
+}
+
+.pm-valuation-select {
+    margin-bottom: 10px;
+}
+
+.pm-valuation-select button {
+    background: #34495e;
+    margin-right: 10px;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.pm-valuation-select button:hover {
+    background: #2c3e50;
+}
+
+/* Detailed Information section... maybe to improve it later? */
+.pm-details-section {
+    background: #ecf0f1;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 30px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.pm-details-section h3 {
+    margin-top: 0;
+    color: #34495e;
+    margin-bottom: 15px;
+}
+
+.pm-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.pm-details-table th, .pm-details-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.pm-details-table th {
+    background: #bdc3c7;
+    text-align: left;
+    font-weight: bold;
+}
+
+.pm-details-chart {
+    width: 100%;
+    max-height: 300px;
+}
+
+/* PLOT Design-Section: Responsive adjustments */
+@media (max-width: 768px) {
+    .pm-details-section {
+        flex-direction: column;
+    }
+}

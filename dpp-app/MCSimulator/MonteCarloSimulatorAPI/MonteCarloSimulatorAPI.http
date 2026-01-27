@@ -1,0 +1,6 @@
+@MonteCarloSimulatorAPI_HostAddress = http://localhost:5022
+
+GET {{MonteCarloSimulatorAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

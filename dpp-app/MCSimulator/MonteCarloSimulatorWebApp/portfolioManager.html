@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio Management and Valuation</title>
+    <link rel="stylesheet" href="portfolioManager.css">
+</head>
+<body>
+    <div class="pm-container">
+        <div class="pm-author-info">
+            Designed by:<br>
+            Frank Ygnacio Rosas<br>
+            <a href="mailto:ygnac001@umn.edu">ygnac001@umn.edu</a>
+        </div>
+        <h1>Portfolio Management and Valuation</h1>
+        <p class="pm-description">
+            This interface allows you to manage financial instruments (underlyings, derivatives, trades, and rate curves), 
+            and perform Monte Carlo simulations to value your portfolio of derivatives. You can inspect underlying historical prices, 
+            define rate curves, and evaluate trades to see prices and Greeks.
+        </p>
+        <nav class="pm-nav">
+            <button class="pm-nav-button active" data-section="underlyingsSection">Underlyings</button>
+            <button class="pm-nav-button" data-section="derivativesSection">Derivatives</button>
+            <button class="pm-nav-button" data-section="tradesSection">Trades</button>
+            <button class="pm-nav-button" data-section="ratesSection">Rates</button>
+            <button class="pm-nav-button" data-section="valuationSection">Valuation</button>
+        </nav>
+
+        <!-- SECTION 1: Underlyings Section -->
+        <section id="underlyingsSection" class="pm-section">
+            <h2>Manage Underlyings</h2>
+            <form id="underlyingsForm" class="pm-form">
+                <h3>Create / Edit Underlying</h3>
+                <div class="pm-form-group">
+                    <label for="underlyingSymbol">Symbol:</label>
+                    <input type="text" id="underlyingSymbol" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="underlyingName">Name:</label>
+                    <input type="text" id="underlyingName">
+                </div>
+                <div class="pm-form-group">
+                    <label for="underlyingHistPrices">Historical Prices (JSON array):</label>
+                    <textarea id="underlyingHistPrices" rows="5"></textarea>
+                </div>
+                <input type="hidden" id="underlyingId">
+                <button type="submit" id="saveUnderlyingButton">Save Underlying</button>
+                <button type="button" id="cancelUnderlyingEditButton" class="pm-cancel-btn hidden">Cancel Edit</button>
+            </form>
+            <h3>Existing Underlyings</h3>
+            <table class="pm-table" id="underlyingsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Historical Prices Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+
+            <div class="pm-details-section" id="underlyingDetailsSection" style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+                <div style="flex:1; min-width:250px;">
+                    <h3>Detailed Information</h3>
+                    <table class="pm-details-table hidden" id="underlyingDetailsTable" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Date</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div style="flex:1; min-width:250px;">
+                    <canvas id="underlyingChart" class="pm-details-chart hidden" style="max-height:300px;"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Derivatives (Option Entities) Section -->
+        <section id="derivativesSection" class="pm-section hidden">
+            <h2>Manage Derivatives (Option Entities)</h2>
+            <form id="derivativesForm" class="pm-form">
+                <h3>Create / Edit Derivative</h3>
+                <div class="pm-form-group">
+                    <label for="derivativeSymbol">Symbol:</label>
+                    <input type="text" id="derivativeSymbol" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeName">Name:</label>
+                    <input type="text" id="derivativeName">
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeStrikePrice">Strike Price:</label>
+                    <input type="number" step="any" id="derivativeStrikePrice" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeExpirationDate">Expiration Date (UTC):</label>
+                    <input type="datetime-local" id="derivativeExpirationDate" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeOptionStyle">Option Style:</label>
+                    <input type="number" id="derivativeOptionStyle" required min="1" max="6">
+                    <small>(1:European,2:Asian,3:Digital,4:Barrier,5:Lookback,6:Range)</small>
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeIsCall">Is Call:</label>
+                    <select id="derivativeIsCall">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeUnderlyingId">Underlying ID:</label>
+                    <input type="number" id="derivativeUnderlyingId" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="derivativeOptionType">Option Type:</label>
+                    <select id="derivativeOptionType">
+                        <option value="1">European</option>
+                        <option value="2">Asian</option>
+                        <option value="3">Digital</option>
+                        <option value="4">Barrier</option>
+                        <option value="5">Lookback</option>
+                        <option value="6">Range</option>
+                    </select>
+                </div>
+                <div class="pm-form-group" id="derivativeExtraFields">
+                    <!-- Extra fields for Digital and Barrier will appear here -->
+                </div>
+                <input type="hidden" id="derivativeId">
+                <button type="submit" id="saveDerivativeButton">Save Derivative</button>
+                <button type="button" id="cancelDerivativeEditButton" class="pm-cancel-btn hidden">Cancel Edit</button>
+            </form>
+            <h3>Existing Derivatives</h3>
+            <table class="pm-table" id="derivativesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Strike</th>
+                        <th>Expiration</th>
+                        <th>OptionStyle</th>
+                        <th>IsCall</th>
+                        <th>Underlying</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECTION 3: Trades Section -->
+        <section id="tradesSection" class="pm-section hidden">
+            <h2>Manage Trades</h2>
+            <form id="tradesForm" class="pm-form">
+                <h3>Create / Edit Trade</h3>
+                <div class="pm-form-group">
+                    <label for="tradeInstrumentId">Instrument ID (Underlying or Option):</label>
+                    <input type="number" id="tradeInstrumentId" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="tradeQuantity">Quantity:</label>
+                    <input type="number" step="1" id="tradeQuantity" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="tradeDate">Trade Date (UTC):</label>
+                    <input type="datetime-local" id="tradeDate" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="tradePrice">Price:</label>
+                    <input type="number" step="any" id="tradePrice" required>
+                </div>
+                <input type="hidden" id="tradeId">
+                <button type="submit" id="saveTradeButton">Save Trade</button>
+                <button type="button" id="cancelTradeEditButton" class="pm-cancel-btn hidden">Cancel Edit</button>
+            </form>
+            <h3>Existing Trades</h3>
+            <table class="pm-table" id="tradesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Instrument ID</th>
+                        <th>Instrument Symbol</th>
+                        <th>Instrument Name</th>
+                        <th>Quantity</th>
+                        <th>Trade Date</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SECTION 4: Rates Section -->
+        <section id="ratesSection" class="pm-section hidden">
+            <h2>Manage Rate Curves</h2>
+            <form id="ratesForm" class="pm-form">
+                <h3>Create Rate Curve</h3>
+                <div class="pm-form-group">
+                    <label for="rateCurveName">Curve Name:</label>
+                    <input type="text" id="rateCurveName" required>
+                </div>
+                <button type="submit" id="createRateCurveButton">Create Rate Curve</button>
+            </form>
+
+            <h3>Edit Rate Curve</h3>
+            <form id="editRateCurveForm" class="pm-form hidden">
+                <input type="hidden" id="editRateCurveId">
+                <div class="pm-form-group">
+                    <label for="editRateCurveName">Curve Name:</label>
+                    <input type="text" id="editRateCurveName" required>
+                </div>
+                <button type="submit" id="updateRateCurveButton">Update Rate Curve</button>
+                <button type="button" id="cancelEditRateCurveButton" class="pm-cancel-btn">Cancel Edit</button>
+            </form>
+
+            <h3>Retrieve Rate Curves</h3>
+            <div class="pm-form" style="display:flex; gap:10px; align-items:center;">
+                <button type="button" id="getAllRateCurvesButton">Get All Rate Curves</button>
+                <input type="number" id="getRateCurveByIdInput" placeholder="Enter Curve ID" style="width:200px;">
+                <button type="button" id="getRateCurveByIdButton">Get RateCurve by ID</button>
+            </div>
+
+            <h3>Existing Rate Curves</h3>
+            <table class="pm-table" id="rateCurvesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Rate Points Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+
+            <h3>Add Rate Points to a Curve</h3>
+            <form id="ratePointsForm" class="pm-form">
+                <div class="pm-form-group">
+                    <label for="ratePointsCurveId">RateCurve ID:</label>
+                    <input type="number" id="ratePointsCurveId" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="ratePointsJson">Rate Points (JSON array):</label>
+                    <textarea id="ratePointsJson" rows="5" placeholder='Example: [{"tenor":0.5,"rate":0.03},{"tenor":1.0,"rate":0.05}]'></textarea>
+                </div>
+                <button type="submit" id="addRatePointsButton">Add Rate Points</button>
+            </form>
+
+            <div class="pm-details-section" id="rateCurveDetailsSection" style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+                <div style="flex:1; min-width:250px;">
+                    <h3>Detailed Information</h3>
+                    <table class="pm-details-table hidden" id="rateCurveDetailsTable" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Tenor</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div style="flex:1; min-width:250px;">
+                    <canvas id="rateCurveChart" class="pm-details-chart hidden" style="max-height:300px;"></canvas>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 5: Valuation Section -->
+        <section id="valuationSection" class="pm-section hidden">
+            <h2>Portfolio Valuation</h2>
+            <p>Select the trades you want to valuate:</p>
+            <div class="pm-valuation-select">
+                <button type="button" id="selectAllTradesButton">Select All</button>
+                <button type="button" id="clearAllTradesButton">Clear All</button>
+            </div>
+            <table class="pm-table" id="valuationTradesTable">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>ID</th>
+                        <th>Instrument Symbol</th>
+                        <th>Instrument Name</th>
+                        <th>Quantity</th>
+                        <th>Trade Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+            <form id="valuationForm" class="pm-form">
+                <h3>Valuation Parameters</h3>
+                <div class="pm-form-group">
+                    <label for="valSteps">Steps:</label>
+                    <input type="number" id="valSteps" value="100" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="valSimulations">Simulations:</label>
+                    <input type="number" id="valSimulations" value="10000" required>
+                </div>
+                <div class="pm-form-group">
+                    <label for="valAntithetic">Antithetic:</label>
+                    <select id="valAntithetic">
+                        <option value="true">Yes</option>
+                        <option value="false" selected>No</option>
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="valControlVariate">Control Variate:</label>
+                    <select id="valControlVariate">
+                        <option value="true">Yes</option>
+                        <option value="false" selected>No</option>
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="valMultithreaded">Multithreaded:</label>
+                    <select id="valMultithreaded">
+                        <option value="true">Yes</option>
+                        <option value="false" selected>No</option>
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="valUseVDCSequence">Use VDC Sequence:</label>
+                    <select id="valUseVDCSequence">
+                        <option value="true">Yes</option>
+                        <option value="false" selected>No</option>
+                    </select>
+                </div>
+                <div class="pm-form-group">
+                    <label for="valBase1">Base1:</label>
+                    <input type="number" id="valBase1" value="2">
+                </div>
+                <div class="pm-form-group">
+                    <label for="valBase2">Base2:</label>
+                    <input type="number" id="valBase2" value="5">
+                </div>
+
+                <div class="pm-form-group">
+                    <label for="valRateCurve">Rate Curve:</label>
+                    <select id="valRateCurve">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <button type="submit" id="valuateButton">Valuate Selected Trades</button>
+            </form>
+
+            <h3>Valuation Results</h3>
+            <table class="pm-table" id="valuationResultsTable">
+                <thead>
+                    <tr>
+                        <th>Trade ID</th>
+                        <th>Instrument Symbol</th>
+                        <th>Instrument Name</th>
+                        <th>Value (Estimate Price * Qty)</th>
+                        <th>StdErr</th>
+                        <th>Delta</th>
+                        <th>Gamma</th>
+                        <th>Vega</th>
+                        <th>Theta</th>
+                        <th>Rho</th>
+                        <th>Underlying Volatility</th>
+                        <th>Market Interest Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>            
+        </section>
+    </div>
+
+    <!-- CHART/Plot for Rates-Underlyings - Include Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="portfolioManager.js"></script>
+</body>
+</html>
