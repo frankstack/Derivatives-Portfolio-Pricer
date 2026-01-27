@@ -1,4 +1,4 @@
-\# dpp-app — Derivatives Portfolio Pricer (AWS Deployment App)
+# dpp-app — Derivatives Portfolio Pricer (AWS Deployment App)
 
 
 
@@ -6,9 +6,9 @@ This folder contains the deployable application for my Derivatives Portfolio Pri
 
 
 
-\- \*\*UI\*\*: Static HTML/CSS/JS pages for running Monte Carlo option pricing and basic portfolio workflows.
+- \*\*UI\*\*: Static HTML/CSS/JS pages for running Monte Carlo option pricing and basic portfolio workflows.
 
-\- \*\*API\*\*: An ASP.NET API that receives simulation requests and returns pricing results.
+- \*\*API\*\*: An ASP.NET API that receives simulation requests and returns pricing results.
 
 
 
@@ -20,9 +20,9 @@ The production setup uses \*\*Nginx as the single entry point\*\*:
 
 
 
-\- `/` serves the static UI files (HTML/CSS/JS).
+- `/` serves the static UI files (HTML/CSS/JS).
 
-\- `/api/\*` is reverse-proxied by Nginx to the ASP.NET API running in \*\*Docker\*\* on an internal host port (planned: `127.0.0.1:5022`).
+- `/api/\*` is reverse-proxied by Nginx to the ASP.NET API running in \*\*Docker\*\* on an internal host port (planned: `127.0.0.1:5022`).
 
 
 
@@ -30,25 +30,25 @@ This keeps everything under one base URL, avoids CORS issues, and prevents expos
 
 
 
-\## Key paths
+## Key paths
 
 
 
-\- UI: `dpp-app/MCSimulator/MonteCarloSimulatorWebApp/`
+- UI: `dpp-app/MCSimulator/MonteCarloSimulatorWebApp/`
 
-\- API: `dpp-app/MCSimulator/MonteCarloSimulatorAPI/`
+- API: `dpp-app/MCSimulator/MonteCarloSimulatorAPI/`
 
-\- Nginx config: `dpp-app/infra/nginx/dpp.conf`
-
-
-
-\## Notes
+- Nginx config: `dpp-app/infra/nginx/dpp.conf`
 
 
 
-\- The UI should call the API through a relative base path: `BASE\_URL = "/api"`.
+## Notes
 
-\- The API host port used by Docker must match the Nginx `proxy\_pass` port.
+
+
+- The UI should call the API through a relative base path: `BASE\_URL = "/api"`.
+
+- The API host port used by Docker must match the Nginx `proxy\_pass` port.
 
 
 
