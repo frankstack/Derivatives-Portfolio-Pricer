@@ -66,7 +66,7 @@ The system is organized into six layers, each with a clear responsibility:
 | **Application** | ASP.NET 8 (C#) | REST endpoints for underlyings, derivatives, trades, rate curves, simulation, and valuation |
 | **Database** | PostgreSQL 16 | Relational store for instruments, trades, historical prices, and rate curves |
 | **Pricing** | C# Monte Carlo engine | Computes prices and Greeks for all supported contract types |
-| **Data engineering** | AWS Lambda + S3 + Glue + Athena | Scheduled ingestion of equity prices (yfinance) and yield curves (FRED), with append-only S3 snapshots and Athena SQL for audits |
+| **Data engineering** | AWS Lambda + S3 + Glue + Athena | Scheduled ingestion of equity prices (yfinance) and yield curves (FRED) using Python, with append-only S3 snapshots and Athena SQL for audits |
 | **Observability** | CloudWatch | Centralized logs from Nginx, the API container, and Lambda; dashboards for CPU, network, and disk |
 
 All components run on a single EC2 instance (t3.small). The API and database are bound to `localhost`, keeping only port 80/443 public. Ingestion authenticates via a header-based API key (`X-DPP-INGEST-KEY`), avoiding any exposure of database credentials outside the host.
