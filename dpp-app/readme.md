@@ -5,7 +5,7 @@ An open-source, full-stack derivatives portfolio valuation platform deployed on 
 **Live demo:** [derivativespricer.com](https://derivativespricer.com/)
 
 <p align="center">
-  <img src="Derivatives-Portfolio-Pricer/overview-architecture.png" alt="DPP end-to-end architecture" width="850">
+  <img src="overview-architecture.png" alt="DPP end-to-end architecture" width="850">
 </p>
 
 ---
