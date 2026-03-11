@@ -202,7 +202,9 @@ namespace MonteCarloSimulatorAPI.Controllers
                 response.Valuations.Add(tradeValuation);
             }
 
-            return Ok(response);
+            response.PortfolioValue = response.Valuations.Sum(v => v.Price);
+	    
+	    return Ok(response);
         }
 
         private async Task<double?> GetLatestUnderlyingPrice(int underlyingId)

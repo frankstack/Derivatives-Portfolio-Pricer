@@ -1,0 +1,50 @@
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv*/
+venv/
+
+# .NET
+bin/
+obj/
+
+# Node
+node_modules/
+.next/
+.open-next/
+
+# SST / CDK
+.sst/
+cdk.out/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Backup files
+*.bak
+*.bak_*
+*.bad
+*.save
+*.orig
+*.old
+
+# Logs
+*.log
+
+# Credentials
+*.pem
+*.key

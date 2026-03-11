@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonteCarloSimulatorAPI.Data;
 using MonteCarloSimulatorAPI.Models;
+using MonteCarloSimulatorAPI.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -85,6 +86,143 @@ namespace MonteCarloSimulatorAPI.Controllers
 
             return NoContent();
         }
+
+
+        // PUT: api/RateCurves/{rateCurveId}/RatePoints/Replace
+        // Body: [{ "tenor": 0.25, "rate": 0.0475 }, ...]
+        [HttpPut("{rateCurveId}/RatePoints/Replace")]
+        public async Task<IActionResult> ReplaceRatePointsById(int rateCurveId, [FromBody] List<RatePointUpsertDto> ratePoints)
+        {
+            var authResult = RejectIfIngestUnauthorized();
+            if (authResult != null)
+            {
+                return authResult;
+            }
+
+            if (ratePoints == null || ratePoints.Count == 0)
+            {
+                return BadRequest("Body must be a non-empty JSON array.");
+            }
+
+            var curve = await _context.RateCurves.FirstOrDefaultAsync(rc => rc.Id == rateCurveId);
+            if (curve == null)
+            {
+                return BadRequest("RateCurve not found.");
+            }
+
+            await using var tx = await _context.Database.BeginTransactionAsync();
+
+            var existing = await _context.RatePoints
+                .Where(rp => rp.RateCurveId == curve.Id)
+                .ToListAsync();
+
+            _context.RatePoints.RemoveRange(existing);
+
+            foreach (var rp in ratePoints)
+            {
+                _context.RatePoints.Add(new RatePoint
+                {
+                    RateCurveId = curve.Id,
+                    Tenor = rp.Tenor,
+                    Rate = rp.Rate
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return Ok(new
+            {
+                curveId = curve.Id,
+                curveName = curve.Name,
+                removed = existing.Count,
+                inserted = ratePoints.Count
+            });
+        }
+
+        // PUT: api/RateCurves/ByName/{curveName}/RatePoints/Replace
+        // Body: [{ "tenor": 0.25, "rate": 0.0475 }, ...]
+        [HttpPut("ByName/{curveName}/RatePoints/Replace")]
+        public async Task<IActionResult> ReplaceRatePointsByName(string curveName, [FromBody] List<RatePointUpsertDto> ratePoints)
+        {
+            var authResult = RejectIfIngestUnauthorized();
+            if (authResult != null)
+            {
+                return authResult;
+            }
+
+            curveName = (curveName ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(curveName))
+            {
+                return BadRequest("curveName is required.");
+            }
+
+            if (ratePoints == null || ratePoints.Count == 0)
+            {
+                return BadRequest("Body must be a non-empty JSON array.");
+            }
+
+            await using var tx = await _context.Database.BeginTransactionAsync();
+
+            var curve = await _context.RateCurves.FirstOrDefaultAsync(rc => rc.Name == curveName);
+            if (curve == null)
+            {
+                curve = new RateCurve { Name = curveName };
+                _context.RateCurves.Add(curve);
+                await _context.SaveChangesAsync();
+            }
+
+            var existing = await _context.RatePoints
+                .Where(rp => rp.RateCurveId == curve.Id)
+                .ToListAsync();
+
+            _context.RatePoints.RemoveRange(existing);
+
+            foreach (var rp in ratePoints)
+            {
+                _context.RatePoints.Add(new RatePoint
+                {
+                    RateCurveId = curve.Id,
+                    Tenor = rp.Tenor,
+                    Rate = rp.Rate
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return Ok(new
+            {
+                curveId = curve.Id,
+                curveName = curve.Name,
+                removed = existing.Count,
+                inserted = ratePoints.Count
+            });
+        }
+
+        private IActionResult? RejectIfIngestUnauthorized()
+        {
+            var expectedKey = Environment.GetEnvironmentVariable("DPP_INGEST_KEY");
+
+            if (string.IsNullOrWhiteSpace(expectedKey))
+            {
+                return StatusCode(500, "DPP_INGEST_KEY is not configured on the API container.");
+            }
+
+            if (!Request.Headers.TryGetValue("X-DPP-INGEST-KEY", out var providedKey))
+            {
+                return Unauthorized("Missing X-DPP-INGEST-KEY header.");
+            }
+
+            if (providedKey != expectedKey)
+            {
+                return Unauthorized("Invalid X-DPP-INGEST-KEY.");
+            }
+
+            return null;
+        }
+
+
 
         // POST: api/RateCurves/{rateCurveId}/RatePoints
         [HttpPost("{rateCurveId}/RatePoints")]

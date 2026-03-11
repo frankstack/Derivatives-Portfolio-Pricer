@@ -5,5 +5,6 @@ namespace MonteCarloSimulatorAPI.Models
     public class ValuationResponseDto
     {
         public List<TradeValuationDto> Valuations { get; set; } = new List<TradeValuationDto>();
+	public double PortfolioValue { get; set; }
     }
 }

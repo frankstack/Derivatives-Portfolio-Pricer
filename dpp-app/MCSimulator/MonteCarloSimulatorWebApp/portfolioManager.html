@@ -1,400 +1,1173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Portfolio Management and Valuation</title>
-    <link rel="stylesheet" href="portfolioManager.css">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Derivatives Portfolio Pricer</title>
+  <meta name="description" content="Open Source web platform to manage underlyings, options, trades, yield curves, and run portfolio valuation with Monte Carlo pricing.">
+
+  <link rel="canonical" href="https://derivativespricer.com/">
+  <meta name="robots" content="index,follow">
+
+  <link rel="stylesheet" href="portfolioManager.css">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Derivatives Portfolio Pricer">
+  <meta property="og:title" content="Derivatives Portfolio Pricer">
+  <meta property="og:description" content="Manage underlyings, options, trades, yield curves, and run portfolio valuation.">
+  <meta property="og:url" content="https://derivativespricer.com/">
+  <meta property="og:image" content="https://derivativespricer.com/og-logo-512.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="Derivatives Portfolio Pricer logo">
+
+</head>
+
+
 </head>
 <body>
-    <div class="pm-container">
-        <div class="pm-author-info">
-            Designed by:<br>
-            Frank Ygnacio Rosas<br>
-            <a href="mailto:ygnac001@umn.edu">ygnac001@umn.edu</a>
-        </div>
-        <h1>Portfolio Management and Valuation</h1>
-        <p class="pm-description">
-            This interface allows you to manage financial instruments (underlyings, derivatives, trades, and rate curves), 
-            and perform Monte Carlo simulations to value your portfolio of derivatives. You can inspect underlying historical prices, 
-            define rate curves, and evaluate trades to see prices and Greeks.
-        </p>
-        <nav class="pm-nav">
+    <div class="layout">
+        <!-- Sidebar navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <!-- Logo and title aligned horizontally -->
+                <div class="logo-title">
+                    <img src="pm-logo.svg" alt="Logo" class="logo">
+                    <h2>Derivatives Portfolio Pricer</h2>
+                </div>
+                <!-- Main description; removed daily‑updated mention -->
+                <p class="sidebar-desc">
+                    Portfolio valuation platform for managing underlyings, options, trades, and yield curves.
+                    Multi‑method Monte Carlo engine computes derivative prices, portfolio value &amp; risk metrics.
+                </p>
+            </div>
+            <!-- Primary navigation buttons -->
             <button class="pm-nav-button active" data-section="underlyingsSection">Underlyings</button>
             <button class="pm-nav-button" data-section="derivativesSection">Derivatives</button>
             <button class="pm-nav-button" data-section="tradesSection">Trades</button>
             <button class="pm-nav-button" data-section="ratesSection">Rates</button>
             <button class="pm-nav-button" data-section="valuationSection">Valuation</button>
+            <!-- Overview button separated for informational purposes -->
+            <div class="overview-container">
+                <button class="pm-nav-button pm-overview-btn" data-section="overviewSection">Overview</button>
+            </div>
+            <!-- Footer with author information -->
+            <div class="sidebar-footer">
+                <p>
+                    Designed &amp; Developed by<br>
+                    Frank Ygnacio Rosas<br>
+                    <a href="https://linktr.ee/fsyrosas" target="_blank">linktr.ee/fsyrosas</a><br>
+                    &copy; 2026
+                </p>
+            </div>
         </nav>
+        <!-- Main content area -->
+        <div class="content-area">
+            <!-- SECTION 1: Underlyings Section -->
+            <section id="underlyingsSection" class="pm-section">
+                <div class="section-header">
+                    <h2 class="section-title">Underlyings</h2>
+                    <p class="section-desc">
+                        Manage underlying assets by creating entries or editing existing ones with symbols, names and historical price data. Browse underlyings, explore details with tables and interactive charts. Predefined underlyings are updated daily and cannot be edited.
+                    </p>
+                </div>
+                <!-- Form card -->
+                <div class="card">
+                    <h3>Create / Edit Underlying</h3>
+                    <form id="underlyingsForm" class="pm-form">
+                        <div class="pm-form-group">
+                            <label for="underlyingSymbol">Symbol</label>
+                            <input type="text" id="underlyingSymbol" required>
+                        </div>
+                        <div class="pm-form-group">
+                            <label for="underlyingName">Name</label>
+                            <input type="text" id="underlyingName">
+                        </div>
 
-        <!-- SECTION 1: Underlyings Section -->
-        <section id="underlyingsSection" class="pm-section">
-            <h2>Manage Underlyings</h2>
-            <form id="underlyingsForm" class="pm-form">
-                <h3>Create / Edit Underlying</h3>
-                <div class="pm-form-group">
-                    <label for="underlyingSymbol">Symbol:</label>
-                    <input type="text" id="underlyingSymbol" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="underlyingName">Name:</label>
-                    <input type="text" id="underlyingName">
-                </div>
-                <div class="pm-form-group">
-                    <label for="underlyingHistPrices">Historical Prices (JSON array):</label>
-                    <textarea id="underlyingHistPrices" rows="5"></textarea>
-                </div>
-                <input type="hidden" id="underlyingId">
-                <button type="submit" id="saveUnderlyingButton">Save Underlying</button>
-                <button type="button" id="cancelUnderlyingEditButton" class="pm-cancel-btn hidden">Cancel Edit</button>
-            </form>
-            <h3>Existing Underlyings</h3>
-            <table class="pm-table" id="underlyingsTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Symbol</th>
-                        <th>Name</th>
-                        <th>Historical Prices Count</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
+                        <div class="pm-form-group">
+                            <label for="underlyingHistPrices">Historical Prices (JSON array)</label>
+                            <textarea id="underlyingHistPrices" rows="5" placeholder='[{"symbol":"SYNTH_UP","date":"2026-02-10","price":103.04},{"symbol":"SYNTH_UP","date":"2026-02-11","price":103.22}]'></textarea>
+			    <small>Paste a JSON array as indicated. JSON is used instead of .xlsx/.csv uploads to reduce security risks.</small>
+                        </div>
 
-            <div class="pm-details-section" id="underlyingDetailsSection" style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
-                <div style="flex:1; min-width:250px;">
+                        <input type="hidden" id="underlyingId">
+                        <div class="form-actions">
+                            <button type="submit" id="saveUnderlyingButton">Save Underlying</button>
+                            <button type="button" id="cancelUnderlyingEditButton" class="pm-cancel-btn hidden">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Existing underlyings card -->
+                <div class="card">
+                    <h3>Existing Underlyings</h3>
+                    <div class="two-columns">
+                        <!-- Predefined underlyings -->
+                        <div class="column">
+                            <h4>Predefined Underlyings</h4>
+                            <div class="table-wrapper">
+                                <table class="pm-table" id="predefinedUnderlyingsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Symbol</th>
+                                            <th>Name</th>
+                                            <th>Historical Prices</th>
+					    <th>Actions</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- User-defined underlyings -->
+                        <div class="column">
+                            <h4>User Underlyings</h4>
+                            <div class="table-wrapper">
+                                <table class="pm-table" id="userUnderlyingsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Symbol</th>
+                                            <th>Name</th>
+                                            <th>Historical Prices</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Details card -->
+                <div class="card pm-details">
                     <h3>Detailed Information</h3>
-                    <table class="pm-details-table hidden" id="underlyingDetailsTable" style="width:100%;">
-                        <thead>
-                            <tr>
-                                <th>Symbol</th>
-                                <th>Date</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                    <div class="details-layout">
+                        <div class="table-wrapper small">
+                            <table class="pm-details-table hidden" id="underlyingDetailsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Date</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="underlyingChart" class="pm-details-chart hidden"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div style="flex:1; min-width:250px;">
-                    <canvas id="underlyingChart" class="pm-details-chart hidden" style="max-height:300px;"></canvas>
+            </section>
+            <!-- SECTION 2: Derivatives Section -->
+            <section id="derivativesSection" class="pm-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">Derivatives</h2>
+                    <p class="section-desc">Define and manage derivative contracts with configurable strike, expiration, option style and underlying asset. Review existing contracts in a table with edit and delete actions available when permitted.</p>
                 </div>
-            </div>
-        </section>
+                <div class="card">
+                    <h3>Create / Edit Derivative</h3>
+                    <form id="derivativesForm" class="pm-form">
+                        <div class="pm-form-group">
+                            <label for="derivativeSymbol">Symbol</label>
+                            <input type="text" id="derivativeSymbol" required>
+                        </div>
+                        <div class="pm-form-group">
+                            <label for="derivativeName">Name</label>
+                            <input type="text" id="derivativeName">
+                        </div>
+                        <div class="pm-form-group">
+                            <label for="derivativeStrikePrice">Strike Price</label>
+                            <input type="number" step="any" id="derivativeStrikePrice" required>
+                        </div>
+                        <div class="pm-form-group">
+                            <label for="derivativeExpirationDate">Expiration Date (UTC)</label>
+                            <input type="date" id="derivativeExpirationDate" required>
+                        </div>
+                        <div class="pm-form-group">
+                            <label for="derivativeIsCall">Is Call</label>
+                            <select id="derivativeIsCall">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
 
-        <!-- SECTION 2: Derivatives (Option Entities) Section -->
-        <section id="derivativesSection" class="pm-section hidden">
-            <h2>Manage Derivatives (Option Entities)</h2>
-            <form id="derivativesForm" class="pm-form">
-                <h3>Create / Edit Derivative</h3>
-                <div class="pm-form-group">
-                    <label for="derivativeSymbol">Symbol:</label>
-                    <input type="text" id="derivativeSymbol" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeName">Name:</label>
-                    <input type="text" id="derivativeName">
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeStrikePrice">Strike Price:</label>
-                    <input type="number" step="any" id="derivativeStrikePrice" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeExpirationDate">Expiration Date (UTC):</label>
-                    <input type="datetime-local" id="derivativeExpirationDate" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeOptionStyle">Option Style:</label>
-                    <input type="number" id="derivativeOptionStyle" required min="1" max="6">
-                    <small>(1:European,2:Asian,3:Digital,4:Barrier,5:Lookback,6:Range)</small>
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeIsCall">Is Call:</label>
-                    <select id="derivativeIsCall">
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                    </select>
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeUnderlyingId">Underlying ID:</label>
-                    <input type="number" id="derivativeUnderlyingId" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="derivativeOptionType">Option Type:</label>
-                    <select id="derivativeOptionType">
-                        <option value="1">European</option>
-                        <option value="2">Asian</option>
-                        <option value="3">Digital</option>
-                        <option value="4">Barrier</option>
-                        <option value="5">Lookback</option>
-                        <option value="6">Range</option>
-                    </select>
-                </div>
-                <div class="pm-form-group" id="derivativeExtraFields">
-                    <!-- Extra fields for Digital and Barrier will appear here -->
-                </div>
-                <input type="hidden" id="derivativeId">
-                <button type="submit" id="saveDerivativeButton">Save Derivative</button>
-                <button type="button" id="cancelDerivativeEditButton" class="pm-cancel-btn hidden">Cancel Edit</button>
-            </form>
-            <h3>Existing Derivatives</h3>
-            <table class="pm-table" id="derivativesTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Symbol</th>
-                        <th>Name</th>
-                        <th>Strike</th>
-                        <th>Expiration</th>
-                        <th>OptionStyle</th>
-                        <th>IsCall</th>
-                        <th>Underlying</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
-        </section>
+                        <div class="pm-form-group pm-has-dropdown" id="derivativeUnderlyingIdGroup">
+			  <label for="derivativeUnderlyingId">Underlying ID</label>
+			  <input type="number" id="derivativeUnderlyingId" required autocomplete="off">
+			  <div id="derivativeUnderlyingDropdown" class="pm-suggest-dropdown hidden"></div>
+			</div>
 
-        <!-- SECTION 3: Trades Section -->
-        <section id="tradesSection" class="pm-section hidden">
-            <h2>Manage Trades</h2>
-            <form id="tradesForm" class="pm-form">
-                <h3>Create / Edit Trade</h3>
-                <div class="pm-form-group">
-                    <label for="tradeInstrumentId">Instrument ID (Underlying or Option):</label>
-                    <input type="number" id="tradeInstrumentId" required>
+                        <div class="pm-form-group">
+                            <label for="derivativeOptionType">Option Type</label>
+                            <select id="derivativeOptionType">
+                                <option value="1">European</option>
+                                <option value="2">Asian</option>
+                                <option value="3">Digital</option>
+                                <option value="4">Barrier</option>
+                                <option value="5">Lookback</option>
+                                <option value="6">Range</option>
+                            </select>
+			    <small>IDs: 1 (European), 2 (Asian), 3 (Digital), 4 (Barrier) 5 (Lookback) or 6 (Range).</small>
+                        </div>
+                        <div class="pm-form-group" id="derivativeExtraFields">
+                            <!-- Extra fields appear here -->
+                        </div>
+                        <input type="hidden" id="derivativeId">
+                        <div class="form-actions">
+                            <button type="submit" id="saveDerivativeButton">Save Derivative</button>
+                            <button type="button" id="cancelDerivativeEditButton" class="pm-cancel-btn hidden">Cancel</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="pm-form-group">
-                    <label for="tradeQuantity">Quantity:</label>
-                    <input type="number" step="1" id="tradeQuantity" required>
+                <div class="card">
+                    <h3>Existing Derivatives</h3>
+                    <div class="table-wrapper">
+                        <table class="pm-table" id="derivativesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Symbol</th>
+                                    <th>Name</th>
+                                    <th>Strike</th>
+                                    <th>Expiration</th>
+                                    <th>Option Type</th>
+                                    <th>IsCall</th>
+                                    <th>Underlying</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="pm-form-group">
-                    <label for="tradeDate">Trade Date (UTC):</label>
-                    <input type="datetime-local" id="tradeDate" required>
+            </section>
+            <!-- SECTION 3: Trades Section -->
+            <section id="tradesSection" class="pm-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">Trades</h2>
+                    <p class="section-desc">Record and manage trades by associating instruments with quantities, dates and prices. Create or update positions for underlyings and derivatives. Review trades in a table with sorting and edit options.</p>
                 </div>
-                <div class="pm-form-group">
-                    <label for="tradePrice">Price:</label>
-                    <input type="number" step="any" id="tradePrice" required>
-                </div>
-                <input type="hidden" id="tradeId">
-                <button type="submit" id="saveTradeButton">Save Trade</button>
-                <button type="button" id="cancelTradeEditButton" class="pm-cancel-btn hidden">Cancel Edit</button>
-            </form>
-            <h3>Existing Trades</h3>
-            <table class="pm-table" id="tradesTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Instrument ID</th>
-                        <th>Instrument Symbol</th>
-                        <th>Instrument Name</th>
-                        <th>Quantity</th>
-                        <th>Trade Date</th>
-                        <th>Price</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
-        </section>
+                <div class="card">
+                    <h3>Create / Edit Trade</h3>
+                    <form id="tradesForm" class="pm-form">
+                        
+			<div class="pm-form-group pm-has-dropdown" id="tradeInstrumentIdGroup">
+			  <label for="tradeInstrumentId">Instrument ID</label>
+			  <input type="number" id="tradeInstrumentId" required min="1" step="1" autocomplete="off">
+			  <div id="tradeInstrumentDropdown" class="pm-suggest-dropdown hidden"></div>
+			</div>
 
-        <!-- SECTION 4: Rates Section -->
-        <section id="ratesSection" class="pm-section hidden">
-            <h2>Manage Rate Curves</h2>
-            <form id="ratesForm" class="pm-form">
-                <h3>Create Rate Curve</h3>
-                <div class="pm-form-group">
-                    <label for="rateCurveName">Curve Name:</label>
-                    <input type="text" id="rateCurveName" required>
+                        <div class="pm-form-group">
+                            <label for="tradeQuantity">Quantity</label>
+                            <input type="number" step="1" id="tradeQuantity" required>
+			    <small>Negative quantity indicates a short position; positive indicates a long position.</small>
+                        </div>
+
+
+                        <div class="pm-form-group">
+				<label for="tradeDate">Trade Date (UTC)</label>
+				<input type="date" id="tradeDate" required autocomplete="off">
+
+				<label for="tradeTime" style="margin-top:6px;">Trade Time (UTC) (optional)</label>
+				<input type="time" id="tradeTime" step="60" autocomplete="off">
+
+				<small>If time is blank, we assume 23:00 UTC by default.</small>
+                        </div>
+
+
+                        <div class="pm-form-group">
+                            <label for="tradePrice">Price</label>
+                            <input type="number" step="any" id="tradePrice" required>
+                        </div>
+                        <input type="hidden" id="tradeId">
+                        <div class="form-actions">
+                            <button type="submit" id="saveTradeButton">Save Trade</button>
+                            <button type="button" id="cancelTradeEditButton" class="pm-cancel-btn hidden">Cancel</button>
+                        </div>
+                    </form>
                 </div>
-                <button type="submit" id="createRateCurveButton">Create Rate Curve</button>
-            </form>
-
-            <h3>Edit Rate Curve</h3>
-            <form id="editRateCurveForm" class="pm-form hidden">
-                <input type="hidden" id="editRateCurveId">
-                <div class="pm-form-group">
-                    <label for="editRateCurveName">Curve Name:</label>
-                    <input type="text" id="editRateCurveName" required>
+                <div class="card">
+                    <h3>Existing Trades</h3>
+                    <div class="table-wrapper">
+                        <table class="pm-table" id="tradesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Instrument ID</th>
+                                    <th>Instrument Symbol</th>
+                                    <th>Instrument Name</th>
+                                    <th>Quantity</th>
+                                    <th>Trade Date</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <button type="submit" id="updateRateCurveButton">Update Rate Curve</button>
-                <button type="button" id="cancelEditRateCurveButton" class="pm-cancel-btn">Cancel Edit</button>
-            </form>
-
-            <h3>Retrieve Rate Curves</h3>
-            <div class="pm-form" style="display:flex; gap:10px; align-items:center;">
-                <button type="button" id="getAllRateCurvesButton">Get All Rate Curves</button>
-                <input type="number" id="getRateCurveByIdInput" placeholder="Enter Curve ID" style="width:200px;">
-                <button type="button" id="getRateCurveByIdButton">Get RateCurve by ID</button>
-            </div>
-
-            <h3>Existing Rate Curves</h3>
-            <table class="pm-table" id="rateCurvesTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Rate Points Count</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
-
-            <h3>Add Rate Points to a Curve</h3>
-            <form id="ratePointsForm" class="pm-form">
-                <div class="pm-form-group">
-                    <label for="ratePointsCurveId">RateCurve ID:</label>
-                    <input type="number" id="ratePointsCurveId" required>
+            </section>
+            <!-- SECTION 4: Rates Section -->
+            <section id="ratesSection" class="pm-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">Rates</h2>
+                    <p class="section-desc">
+                        Manage yield curves by creating, renaming and loading rate curves. Edit rate points in a grid, view curves list and inspect detailed information through tables and charts for comprehensive analysis. Predefined rates are updated daily and cannot be edited.
+                    </p>
                 </div>
-                <div class="pm-form-group">
-                    <label for="ratePointsJson">Rate Points (JSON array):</label>
-                    <textarea id="ratePointsJson" rows="5" placeholder='Example: [{"tenor":0.5,"rate":0.03},{"tenor":1.0,"rate":0.05}]'></textarea>
-                </div>
-                <button type="submit" id="addRatePointsButton">Add Rate Points</button>
-            </form>
+                <!-- Manage Rate Curves -->
+                <div class="card">
+                    <h3>Manage Rate Curves</h3>
+                    <div class="two-columns">
+                        <div class="column">
+                            <form id="ratesForm" class="pm-form">
+                                <h4>Create Curve</h4>
+                                <div class="pm-form-group">
+                                    <label for="rateCurveName">Curve Name</label>
+                                    <input type="text" id="rateCurveName" required>
+                                </div>
+                                <button type="submit" id="createRateCurveButton">Create Curve</button>
+                            </form>
+                            <form id="editRateCurveForm" class="pm-form hidden">
+                                <h4>Rename Curve</h4>
+                                <input type="hidden" id="editRateCurveId">
+                                <div class="pm-form-group">
+                                    <label for="editRateCurveName">Curve Name</label>
+                                    <input type="text" id="editRateCurveName" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" id="updateRateCurveButton">Update</button>
+                                    <button type="button" id="cancelEditRateCurveButton" class="pm-cancel-btn">Cancel</button>
+                                </div>
+                            </form>
+                            <div class="pm-form rate-curves-retrieve">
+                                <h4>Load Curves</h4>
+                                <div class="pm-form-group">
+                                    <button type="button" id="getAllRateCurvesButton">Refresh Curves</button>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="getRateCurveByIdInput">Curve ID</label>
+                                    <input type="number" id="getRateCurveByIdInput" placeholder="Curve ID">
+                                </div>
+                                <div class="pm-form-group">
+                                    <button type="button" id="getRateCurveByIdButton">Load by ID</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <form id="ratePointsForm" class="pm-form">
+                                <h4>Rate Points Editor</h4>
 
-            <div class="pm-details-section" id="rateCurveDetailsSection" style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
-                <div style="flex:1; min-width:250px;">
+				<div class="pm-form-group pm-has-dropdown" id="ratePointsCurveIdGroup">
+				  <label for="ratePointsCurveId">Curve ID</label>
+				  <input type="number" id="ratePointsCurveId" required min="1" step="1" autocomplete="off">
+				  <div id="rateCurveIdDropdown" class="pm-suggest-dropdown hidden"></div>
+				</div>
+
+
+                                <div class="pm-form-group">
+                                    <label for="ratePointsJson">Rate Points (JSON array)</label>
+                                    <textarea id="ratePointsJson" rows="5" placeholder='Example: [{"tenor":0.25,"rate":0.02},{"tenor":0.5,"rate":0.025},{"tenor":1.0,"rate":0.03}]'></textarea>
+                                </div>
+                                <button type="submit" id="addRatePointsButton">Add/Update Points</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Existing curves list -->
+                <div class="card">
+                    <h3>Existing Rate Curves</h3>
+                    <div class="two-columns">
+                        <div class="column">
+                            <h4>Predefined Rate Curves</h4>
+                            <div class="table-wrapper">
+                                <table class="pm-table" id="predefinedRateCurvesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Rate Points</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <h4>User Rate Curves</h4>
+                            <div class="table-wrapper">
+                                <table class="pm-table" id="userRateCurvesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Rate Points</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Rate curve details -->
+                <div class="card pm-details">
                     <h3>Detailed Information</h3>
-                    <table class="pm-details-table hidden" id="rateCurveDetailsTable" style="width:100%;">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Tenor</th>
-                                <th>Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                    <div class="details-layout">
+                        <div class="table-wrapper small">
+                            <table class="pm-details-table hidden" id="rateCurveDetailsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Tenor</th>
+                                        <th>Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="rateCurveChart" class="pm-details-chart hidden"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div style="flex:1; min-width:250px;">
-                    <canvas id="rateCurveChart" class="pm-details-chart hidden" style="max-height:300px;"></canvas>
+            </section>
+            <!-- SECTION 5: Valuation Section -->
+            <section id="valuationSection" class="pm-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">Valuation</h2>
+                    <p class="section-desc">Select trades to value and set parameters for Monte Carlo simulations. Set steps, simulations, variance options and choose a rate curve. View each trade’s result and the portfolio value with risk metrics.</p>
                 </div>
-            </div>
-        </section>
+                <div class="card">
+                    <h3>Select Trades</h3>
+                    <div class="valuation-select">
+                        <button type="button" id="selectAllTradesButton">Select All</button>
+                        <button type="button" id="clearAllTradesButton">Clear All</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="pm-table" id="valuationTradesTable">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>ID</th>
+                                    <th>Instrument Symbol</th>
+                                    <th>Instrument Name</th>
+                                    <th>Quantity</th>
+                                    <th>Trade Date</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Valuation Parameters</h3>
+                    <form id="valuationForm" class="pm-form">
+                        <div class="two-columns">
+                            <div class="column">
+                                <div class="pm-form-group">
+                                    <label for="valSteps">Steps</label>
+                                    <input type="number" id="valSteps" value="100" required>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="valSimulations">Simulations</label>
+                                    <input type="number" id="valSimulations" value="10000" required>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="valAntithetic">Antithetic</label>
+                                    <select id="valAntithetic">
+                                        <option value="true">Yes</option>
+                                        <option value="false" selected>No</option>
+                                    </select>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="valControlVariate">Control Variate</label>
+                                    <select id="valControlVariate">
+                                        <option value="true">Yes</option>
+                                        <option value="false" selected>No</option>
+                                    </select>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="valMultithreaded">Multithreaded</label>
+                                    <select id="valMultithreaded">
+                                        <option value="true">Yes</option>
+                                        <option value="false" selected>No</option>
+                                    </select>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="valUseVDCSequence">Use VDC Sequence</label>
+                                    <select id="valUseVDCSequence">
+                                        <option value="true">Yes</option>
+                                        <option value="false" selected>No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column">
+				<div class="pm-form-group">
+				    <label for="valRateCurve">Rate Curve</label>
+				    <select id="valRateCurve">
+				        <!-- Populated by JS -->
+				    </select>
+				</div>
+				<!-- VDC base inputs are hidden by default and will be shown when VDC sequence is enabled -->
+                                <div class="pm-form-group vdc-base-fields vdc-base-1">
+                                    <label for="valBase1">Base 1</label>
+                                    <input type="number" id="valBase1" value="2">
+                                </div>
+                                <div class="pm-form-group vdc-base-fields">
+                                    <label for="valBase2">Base 2</label>
+                                    <input type="number" id="valBase2" value="5">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" id="valuateButton">Valuate Selected Trades</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h3>Valuation Results</h3>
+                    <div id="portfolioValueRow" class="hidden portfolio-total">
+                        Portfolio Value: <span id="portfolioValueText">—</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="pm-table" id="valuationResultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Trade ID</th>
+                                    <th>Instrument Symbol</th>
+                                    <th>Instrument Name</th>
+                                    <th>Value</th>
+                                    <th>StdErr</th>
+                                    <th>Delta</th>
+                                    <th>Gamma</th>
+                                    <th>Vega</th>
+                                    <th>Theta</th>
+                                    <th>Rho</th>
+                                    <th>Underlying Volatility</th>
+                                    <th>Market Interest Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <!-- SECTION 6: Overview Section -->
+            <section id="overviewSection" class="pm-section hidden">
+                <div class="section-header">
+                    <h2 class="section-title">Overview</h2>
+                    <p class="section-desc">Learn about the Derivatives Portfolio Pricer project: its purpose, architecture and capabilities.</p>
+                </div>
+
+		<!-- START OF CORE OVERVIEW CONTENT SECTION -->
+
+                <div class="card">
+		  <h3>I. The System at a Glance</h3>
+
+		  <h4>1.1. What is this platform about</h4>
+		  <p>  
+		    The <em><strong> Derivatives Portfolio Pricer (DPP) </em></strong> is an 
+			<strong><em> open-source, full-stack derivatives portfolio valuation platform deployed entirely in the cloud </em></strong> 
+			and designed for buy-side valuation workflows. It combines a browser user interface (UI), a pricing API, a relational database, and an automated market-data pipeline. 
+			Its goal is to manage instruments and trades using front-office-grade processes and controls in order to value the portfolio 
+			with a Monte Carlo engine that returns both prices and risk metrics. 
+		  </p>
+
+		<h4>1.2. What the platform does</h4>
+
+		<p>
+		  The workflow mirrors how valuation is handled by practitioners. 
+		  The first step is to define the market inputs; at the minimum, that includes underlyings with historical prices and interest rate curves. 
+		  The second step is to define the instruments, link them to underlyings, and create trades with quantities and dates. 
+		  Finally, the valuation engine uses those inputs to return prices and risk metrics for each trade, allowing an aggregated computation at the portfolio level.
+		</p>
+
+		<p>
+		  The platform supports classical and exotic derivatives. 
+		  The core outputs are driven by a multi-method Monte Carlo engine, and are the following:
+		</p>
+
+		<ul>
+		  <li>
+		    <strong>Price &amp; Standard Error</strong>. These are the theoretical value and estimation error of each trade.
+		  </li>
+
+		  <li>
+		    <strong>Risk Metrics</strong>, such as Delta, Gamma, Vega, Theta, and Rho.
+		  </li>
+		</ul>
 
 
-        <!-- SECTION 5: Valuation Section -->
-        <section id="valuationSection" class="pm-section hidden">
-            <h2>Portfolio Valuation</h2>
-            <p>Select the trades you want to valuate:</p>
-            <div class="pm-valuation-select">
-                <button type="button" id="selectAllTradesButton">Select All</button>
-                <button type="button" id="clearAllTradesButton">Clear All</button>
-            </div>
-            <table class="pm-table" id="valuationTradesTable">
-                <thead>
-                    <tr>
-                        <th>Select</th>
-                        <th>ID</th>
-                        <th>Instrument Symbol</th>
-                        <th>Instrument Name</th>
-                        <th>Quantity</th>
-                        <th>Trade Date</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
-            <form id="valuationForm" class="pm-form">
-                <h3>Valuation Parameters</h3>
-                <div class="pm-form-group">
-                    <label for="valSteps">Steps:</label>
-                    <input type="number" id="valSteps" value="100" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="valSimulations">Simulations:</label>
-                    <input type="number" id="valSimulations" value="10000" required>
-                </div>
-                <div class="pm-form-group">
-                    <label for="valAntithetic">Antithetic:</label>
-                    <select id="valAntithetic">
-                        <option value="true">Yes</option>
-                        <option value="false" selected>No</option>
-                    </select>
-                </div>
-                <div class="pm-form-group">
-                    <label for="valControlVariate">Control Variate:</label>
-                    <select id="valControlVariate">
-                        <option value="true">Yes</option>
-                        <option value="false" selected>No</option>
-                    </select>
-                </div>
-                <div class="pm-form-group">
-                    <label for="valMultithreaded">Multithreaded:</label>
-                    <select id="valMultithreaded">
-                        <option value="true">Yes</option>
-                        <option value="false" selected>No</option>
-                    </select>
-                </div>
-                <div class="pm-form-group">
-                    <label for="valUseVDCSequence">Use VDC Sequence:</label>
-                    <select id="valUseVDCSequence">
-                        <option value="true">Yes</option>
-                        <option value="false" selected>No</option>
-                    </select>
-                </div>
-                <div class="pm-form-group">
-                    <label for="valBase1">Base1:</label>
-                    <input type="number" id="valBase1" value="2">
-                </div>
-                <div class="pm-form-group">
-                    <label for="valBase2">Base2:</label>
-                    <input type="number" id="valBase2" value="5">
-                </div>
+		  <h4>1.3. Architecture Overview</h4>
+		  <p>
+		    The most effective way to understand the DPP architecture is thinking of it as two connected "flows": 
+			one flow is the <i>“<strong>interactive valuation</strong>” </i> and the other one is the <i>“<strong>daily data ingestion</strong>.”</i>
+		  </p>
 
-                <div class="pm-form-group">
-                    <label for="valRateCurve">Rate Curve:</label>
-                    <select id="valRateCurve">
-                        <!-- Populated by JS -->
-                    </select>
-                </div>
+		    <ul>
+		    <li>
+		        <strong>Interactive valuation flow</strong>
+		        <p class="li-detail">
+		        This is what the user experiences in the browser. The DPP website is served by a software called "Nginx",
+		        which hosts the UI files and routes any action (like adding instruments, saving trades, etc.) to the API service.
+		        The API then reads from and writes to the Postgres database, and it executes the pricing logic when the user
+		        requests a valuation.
+		        </p>
+		    </li>
+		    </ul>
 
-                <button type="submit" id="valuateButton">Valuate Selected Trades</button>
-            </form>
+		    <ul>
+		    <li>
+		        <strong>Daily ingestion flow</strong>
+		        <p class="li-detail">
+		        This is what keeps the system current. We use an Amazon Web Service (AWS) called EventBridge, which triggers a scheduled "job" (AWS Lambda) on a set schedule.
+		        That job pulls market data for our predefined underlyings and yield curves from external sources, writes raw snapshots into a centralized cloud storage (S3), and then pushes a cleaned version of the data into the API so the database stays up to date. 
+		        Other AWS services tools involved are Glue crawlers, which scan the new S3 snapshots to infer schema and partitions to update the data catalog, and Athena, which queries the history using SQL for audits, backfills, and quality checks.
+		        </p>
+		    </li>
+		    </ul>
 
-            <h3>Valuation Results</h3>
-            <table class="pm-table" id="valuationResultsTable">
-                <thead>
-                    <tr>
-                        <th>Trade ID</th>
-                        <th>Instrument Symbol</th>
-                        <th>Instrument Name</th>
-                        <th>Value (Estimate Price * Qty)</th>
-                        <th>StdErr</th>
-                        <th>Delta</th>
-                        <th>Gamma</th>
-                        <th>Vega</th>
-                        <th>Theta</th>
-                        <th>Rho</th>
-                        <th>Underlying Volatility</th>
-                        <th>Market Interest Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>            
-        </section>
+		  <h4>1.4. What makes this platform “production-style”</h4>
+		  <p>
+		    The intention of this platform is not to be a regular pricing option tool (which, indeed, is not the hard part). 
+		    Instead, it's designed as an <strong>operating system</strong> that is able to perform a specific task reliably at a production level.
+		    In this case, we implemented a <i>valuation task</i>, but the same system layout can be applied for many any other financial task (budgeting, risk management, etc.).
+		  </p>
+		  <p>
+		    In that sense, this platform deliberately prioritizes the <i>efficiency</i>, <i>operability</i> and <i>security</i> of the system by:
+			<ul>
+				<li> Defining a static and fast UI.</li>
+				<li> Building a hidden transactional "shadow" API.</li>
+				<li> Utilize Postgres as the "source of truth" for the app.</li>
+				<li> Implement a data lake (S3) as the append-only historical store for raw data.</li>
+			</ul>
+		  </p>
+		    <p>
+		    Hence, we can summarize the production-style architecture in 6 layers:
+		    </p>
+		  <ul>
+		    <li><strong>Front door:</strong> Nginx serves the DPP UI at <i>https://derivativespricer.com/</i>. That URL returns the other static UI files, 
+			and any request under <strong><code>/api/</code></strong> is then forwarded to the internal API running locally on the same EC2 host.</li>
+		    <li><strong>Application layer:</strong> API endpoints manage underlyings, options, trades, curves, and valuation.</li>
+		    <li><strong>Database layer:</strong> Postgres stores entities and time series (prices, rate points) used for valuation.</li>
+		    <li><strong>Pricing layer:</strong> Monte Carlo engine supports multi-method configurations, such as variance-reduction and/or multi-threaded execution.</li>
+		    <li><strong>Data engineering layer:</strong> scheduled ingestion + S3 raw snapshots + Glue Catalog + Athena SQL.</li>
+		    <li><strong>Observability:</strong> CloudWatch centralizes logs and operational visibility across the stack.</li>
+		  </ul>
+
+		  <p>
+		    Each layer will be discussed in further sections.
+		  </p>
+		  <h4>1.5. How security is handled by DPP</h4>
+		  <p>
+		    In DPP, only the web ports are public, while the API and database are kept private behind Nginx and localhost routing. 
+		 	Thus, regular ingestion uses an authenticated API key header rather than exposing database credentials outside the host.
+			This is a common practice among internal systems designed to keep the public surface area small, concentrate trust in a single entry point, 
+			and make control points explicit (authentication, logging, and permission boundaries).  
+		  </p>
+
+		  <img src="overview-architecture.png" alt="DPP architecture diagram" style="width:90%; max-width:1100px; height:auto; display:block; margin:12px auto; border-radius:12px; border:1px solid rgba(0,0,0,0.10);" onerror="this.style.display='none'">
+
+		<p style="text-align:center; margin-top:8px;">
+		  <strong> Figure 1. End-to-end DPP's system architecture</strong><br>
+		  <em> Diagram divided by operating task: user traffic, VM/host functionality, and Data Pipeline.</em>
+
+		</div>
+
+		<div class="card">
+		  <h3>II. Layer 1: Front Door</h3>
+
+<h4>2.1. What “Front Door” means in DPP</h4>
+
+<p>
+  In DPP, the front door is the only public entry point of the platform. 
+It receives a browser request, decides whether the request is asking for a static file (the UI) or an application action (an API call), 
+and then routes it safely to the correct internal component. In other words, this layer is the perimeter that defines what the internet can and cannot touch.
+</p>
+
+<p>
+  We implemented this with <strong>Nginx</strong> since it is a mature and production‑standard web server for hosting static sites and acting as a reverse proxy. 
+That dual role matters here. The UI should be fast and cacheable, while the API should be reachable only through a controlled gateway 
+that can enforce consistent routing and keep the public surface area small.
+</p>
+
+<h4>2.2. How traffic is routed</h4>
+
+<p>
+  A practical way to understand the routing is that DPP has two “types” of HTTP requests, and Nginx handles both deterministically:
+</p>
+
+<ol>
+  <li>
+    <strong>Static asset requests</strong>: the browser asks for HTML, CSS, JavaScript, and images. These are returned directly as files, with no application logic involved.
+  </li>
+  <li>
+    <strong>Application requests</strong>: the browser performs actions like creating a trade, saving a curve, 
+or requesting a valuation. In the UI, these actions are implemented as calls under <strong><code>/api/</code></strong>.
+  </li>
+  <li>
+    <strong>Reverse proxy boundary</strong>: when Nginx sees an <code>/api/</code> request, it forwards the request to the internal API service, which is intentionally not exposed directly to the public internet.
+  </li>
+</ol>
+
+<p>
+  This split is deliberate. Applications usually loads a lightweight UI once, and then the browser makes small, explicit API calls as needed. 
+That is a common pattern in internal trading and risk tools because it keeps the UI responsive while preserving a clean transactional boundary on the server side.
+</p>
+
+
+<h4>2.3. Why this layer is a control point</h4>
+
+<p>
+  The most important design decision is that <strong>only web traffic is public</strong>. Internal services are treated as private components and are reachable only through the application’s routing rules. This keeps secrets and write access paths out of the public network path. In that sense, the system is easier to reason about: if something is reachable from the internet, it is reachable through one door, under one hostname, with one routing policy.
+</p>
+
+<p>
+  From an operability perspective, this also accelerates debugging. For instance, if the UI loads but API actions fail, 
+the problem is downstream in the application tier. If the UI itself does not load, the issue is at the web server level (deployment, routing, or static assets). 
+That separation reduces the scope of failure and makes outages more diagnosable.
+</p>
+
+
+		</div>
+
+
+		<div class="card">
+		  <h3>III. Layer 2: Application Layer</h3>
+
+
+<h4>3.1. The API as the platform’s transactional “shadow”</h4>
+
+<p>
+  The application layer is where DPP stops being a static website and becomes a system. 
+The browser UI is intentionally lightweight; i.e., every meaningful action the user takes 
+(creating an underlying, defining an option contract, saving a trade, updating a curve, or running a valuation) 
+becomes an API request that is validated, persisted, and executed server‑side.
+</p>
+
+<p>
+  This is exactly how production tools are typically structured. The UI should be fast and user‑friendly, 
+but the “truth” must live behind a transactional boundary, where inputs can be validated consistently and where results can be reproduced later from stored records.
+</p>
+
+<h4>3.2. What the API is responsible for</h4>
+
+<p>
+  We think of the API as having two jobs. The first is <strong>portfolio and market‑data management</strong>: it enforces the relationships between objects 
+(an option references a valid underlying; a trade references a valid instrument; a curve contains coherent rate points). 
+The second job is <strong>valuation orchestration</strong>: it reads the current portfolio state and market inputs from the database, 
+calls the pricing engine with the selected simulation settings, and returns structured results back to the UI.
+</p>
+
+<p>
+  The practical advantage is consistency. The API is the only write path to the database, so the system can enforce the same validation rules regardless of whether the request originated from a browser click or from the automated ingestion pipeline.
+</p>
+
+<h4>3.3. Swagger as an explicit contract surface</h4>
+
+<p>
+  For transparency and testability, the API exposes interactive documentation through Swagger at <strong><code>/swagger</code></strong>. 
+  Each endpoint has a defined request/response shape, which makes the platform auditable and reduces the “black box” problem that often exists in financial tooling.
+</p>
+
+<img src="api-ui-screenshot.png" alt="DPP API Swagger UI screenshot" style="width:90%; max-width:1100px; height:auto; display:block; margin:12px auto; border-radius:12px; border:1px solid rgba(0,0,0,0.10);" onerror="this.style.display='none'">
+
+<p style="text-align:center; margin-top:8px;">
+  <strong>Figure 2. DPP API documentation via Swagger UI</strong><br>
+  <em>Interactive endpoint testing for entity management and valuation workflows.</em>
+</p>
+
+<h4>3.4. A typical valuation lifecycle</h4>
+
+<p>
+An example of a valuation cycle across the platform can be summarized in 4 steps:
+</p>
+
+<ol>
+  <li><strong>Define market inputs</strong>: user creates or selects underlyings with historical prices, and select an interest rate curve.</li>
+  <li><strong>Define instruments</strong>: user creates option contracts linked to the chosen underlyings, including strike and expiration details.</li>
+  <li><strong>Create trades</strong>: user records positions with quantities and trade dates, which makes valuation portfolio‑aware rather than “one‑off.”</li>
+  <li><strong>Run valuation</strong>: user submits simulation settings and selected trades; the API runs pricing and returns prices plus risk metrics.</li>
+</ol>
+
+<p>
+  The key point is that this lifecycle is <strong>stateful</strong>; i.e., 
+  the API persists the objects so valuation is reproducible, and it returns results in a way that supports aggregation at the portfolio level. 
+  That is the difference between a simple calculator and an operating platform.
+</p>
+
+
+		</div>
+
+
+		<div class="card">
+		  <h3>IV. Layer 3: Database Layer</h3>
+
+<h4>4.1. Postgres as the system’s “source of truth”</h4>
+
+<p>
+  The database layer is what makes DPP reliable and repeatable. 
+  In a valuation workflow, the hardest operational problem is not computing a price once; it is ensuring that users can reproduce a valuation later using the same portfolio state and the same market inputs. 
+  DPP addresses that by using <strong>Postgres</strong> as the persistent store for both “portfolio objects” and the time series that drive pricing.
+</p>
+
+<p>
+  Importantly, the database is treated as a private component. The UI never talks to Postgres directly, and the ingestion pipeline does not bypass the API. All writes flow through one controlled path, which keeps schema rules, validation logic, and permission boundaries centralized.
+</p>
+
+<img src="database-diagram.svg" alt="DPP database schema diagram" style="width:90%; max-width:1100px; height:auto; display:block; margin:12px auto; border-radius:12px; border:1px solid rgba(0,0,0,0.10);" onerror="this.style.display='none'">
+
+<p style="text-align:center; margin-top:8px;">
+  <strong>Figure 3. Core DPP database model</strong><br>
+  <em>Entities and relationships of DPP's database.</em>
+</p>
+
+<h4>4.2. What is stored and why</h4>
+
+<p>
+  At a high level, the schema has two connected domains: 
+(1) portfolio objects that define what is held, and 
+(2) market inputs that define how those holdings should be valued. 
+The following summary reflects the intent of the model rather than an exhaustive listing of every column:
+</p>
+
+<div class="table-wrapper" style="margin-top:10px;">
+  <table class="pm-table">
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>What it represents</th>
+        <th>Why it matters</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Instruments</strong></td>
+        <td>Underlyings plus option contracts (classical and exotic)</td>
+        <td>Preserves contract terms so trades can be re‑valued consistently</td>
+      </tr>
+      <tr>
+        <td><strong>Trades</strong></td>
+        <td>Positions that reference an instrument with quantity and dates</td>
+        <td>Makes valuation portfolio‑aware rather than “one‑off” pricing</td>
+      </tr>
+      <tr>
+        <td><strong>Historical prices</strong></td>
+        <td>Time series linked to an underlying</td>
+        <td>Supports volatility estimates and scenario generation</td>
+      </tr>
+      <tr>
+        <td><strong>Rate curves</strong></td>
+        <td>A curve header plus rate points across maturities</td>
+        <td>Enables discounting and rate sensitivity measurement</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+  Under the hood, the model relies on basic relational guarantees: trades must reference a valid instrument, historical price rows must reference a valid underlying, and curve points must reference a valid curve. Those constraints may sound mundane, but they are exactly what prevents “silent data corruption” in practice. Thus, if a dependency is missing, the system fails loudly instead of producing a misleading valuation.
+</p>
+
+<p>
+  In that sense, the database is the integrity layer that turns the platform into a controllable system and keeps the UI simple.
+</p>
+
+<p>
+  A subtle but important design choice is how option contracts are represented. DPP keeps common option parameters centralized while allowing contract‑specific fields (barriers, averaging windows, lookback logic, digitals, and range constraints) to live in structured extensions. This preserves clarity and makes it straightforward to add new exotic features without turning the schema into one oversized table.
+</p>
+
+<h4>4.3. Operational state versus historical archive</h4>
+
+<p>
+  In the interactive flow, Postgres holds the operational state the application needs to function quickly. In parallel, the raw historical snapshots live in the data lake (S3). In that sense, Postgres is optimized for “what the system needs right now,” while the data lake is optimized for “what the system has ever seen,” which is critical for audits and backfills.
+</p>
+
+		</div>
+
+
+		<div class="card">
+		  <h3>V. Layer 4: Pricing Layer</h3>
+
+<h4>5.1. What the pricing layer does (and what it intentionally does not do)</h4>
+
+<p>
+  The pricing layer is the computational core of DPP. Its job is to take a well‑defined contract, a well‑defined set of market inputs, and a well‑defined simulation configuration, and then produce a valuation result that is both interpretable and reproducible. In practice, that means a <strong>Monte Carlo engine</strong> that generates price paths, maps them into payoffs, discounts them, and aggregates them into a price estimate with an explicit measure of uncertainty.
+</p>
+
+<img src="montecarlo-reference.svg" alt="Monte Carlo simulation reference diagram" style="width:90%; max-width:1100px; height:auto; display:block; margin:12px auto; border-radius:12px; border:1px solid rgba(0,0,0,0.10);" onerror="this.style.display='none'">
+
+<p style="text-align:center; margin-top:8px;">
+  <strong>Figure 4. Monte Carlo pricing intuition</strong><br>
+  <em>Simulated paths → payoff mapping → discounting → aggregation into price and uncertainty.</em>
+</p>
+
+<p>
+  What this layer intentionally <i>does not do</i> is “guess” the portfolio state. The portfolio (trades and instruments) and market inputs (prices and curves) 
+are retrieved from the database through the API. 
+This separation keeps the engine focused on the mathematics, while the application layer remains responsible for validation, persistence, and orchestration.
+</p>
+
+<h4>5.2. How the simulation is executed</h4>
+
+<p>
+  Conceptually, every valuation run follows a repeatable sequence: generate random shocks, evolve the underlying price through time, 
+compute the payoff at maturity (or along the path for path‑dependent contracts), discount the payoff back to today, 
+and then average across paths. 
+The same run also produces a <strong>standard error</strong>, which is a practical diagnostic: it tells the user whether the number of paths should be increased, or whether the estimate is already stable.
+</p>
+
+<p>
+  In addition, because the platform supports multiple option styles, the payoff logic is modular. 
+  Thus, a European payoff depends only on the terminal price, while an Asian or lookback payoff depends on the full path. 
+  Also, barrier and digital contracts introduce discontinuities, which is exactly where variance reduction and better sampling can materially improve stability.
+</p>
+
+<h4>5.3. The methods embedded in the engine</h4>
+
+<p>
+  DPP’s implementation supports practical Monte Carlo enhancements that are common in production settings. 
+  These include antithetic sampling, control variates, optional low‑discrepancy sequences, and parallel execution to accelerate runtime. 
+  The objective is not to overwhelm the user with theory; it is to expose the knobs that matter when users have to balance accuracy, stability, and compute cost.
+</p>
+
+<h4>5.4. The outputs the platform returns</h4>
+
+<p> As a general outline, the platform returns the following information:</p>
+
+<dl>
+  <dt><strong>Price &amp; Standard Error</strong></dt>
+  <dd>
+    The estimated fair value and the Monte Carlo estimation error. This tells not only “the price,” but also “how stable the estimate is.”
+  </dd>
+
+  <dt><strong>Greeks (risk metrics)</strong></dt>
+  <dd>
+    Trade‑level sensitivities such as Delta, Gamma, Vega, Theta, and Rho. These are essential for interpreting valuation changes under market moves.
+  </dd>
+
+  <dt><strong>Portfolio aggregation</strong></dt>
+  <dd>
+    Once each selected trade is valued, the system can aggregate results into a portfolio‑level view, which is the natural end goal in buy‑side valuation workflows.
+  </dd>
+</dl>
+
+<p>
+  In that sense, pricing in DPP is a callable service inside a system, with persisted inputs and structured outputs. 
+That is what makes the platform “production‑style”: <i>the engine is operationally embedded and fully available for users</i>.
+</p>
+
+		</div>
+
+
+		<div class="card">
+		  <h3>VI. Layer 5: Data Engineering Layer</h3>
+
+<h4>6.1. Why a data engineering layer exists in a valuation system</h4>
+
+<p>
+  A valuation engine is only as good as the inputs it consumes. 
+If market data becomes stale, the system becomes misleading even if the model is mathematically correct. 
+For that reason, DPP includes a <i>dedicated data engineering layer that refreshes predefined market inputs on a schedule and keeps an auditable history of what was ingested and when</i>.
+</p>
+
+<p>
+  Notice that the overall goal is not “big data”, but <strong>operational continuity</strong>; i.e., the platform should be usable on any day without manual data loading, while still retaining the ability to trace and audit the snapshots that supported a given valuation.
+</p>
+
+<img src="data-engineer-screenshot.png" alt="AWS data ingestion pipeline screenshot" style="width:90%; max-width:1100px; height:auto; display:block; margin:12px auto; border-radius:12px; border:1px solid rgba(0,0,0,0.10);" onerror="this.style.display='none'">
+
+<p style="text-align:center; margin-top:8px;">
+  <strong>Figure 5. DPP ingestion control plane (AWS)</strong><br>
+  <em>Core EventBridge schedule rule, and base Lambda target.</em>
+</p>
+
+<h4>6.2. The ingestion workflow, end to end</h4>
+
+<p> As a general outline, the ingestion workflow can be summarized in the following steps:</p>
+
+<ol>
+  <li>
+    <strong>Schedule</strong>: an AWS EventBridge rule defines when the ingestion runs, making the cadence deterministic and inspectable.
+  </li>
+  <li>
+    <strong>Extraction + normalization</strong>: an AWS Lambda job pulls external market data (prices for predefined underlyings and rate series for curves) and normalizes it into a consistent schema.
+  </li>
+  <li>
+    <strong>Raw persistence</strong>: each run writes "append‑only" raw snapshots into S3, together with a manifest‑style record that captures “what was produced.”
+  </li>
+  <li>
+    <strong>Operational upsert</strong>: the job pushes a cleaned “latest snapshot” into the DPP API so Postgres reflects the current operational state used by the UI and the pricing engine.
+  </li>
+</ol>
+
+<h4>6.3. Why S3 + Glue + Athena are included</h4>
+
+<p>
+  In the current configuration, S3 stores raw snapshots as partitioned files using a <code>dt=YYYY-MM-DD</code> convention. 
+  Equity price extracts are written under <code>raw/prices_ndx50/</code>, and rate series extracts are written under <code>raw/rates_fred/</code>, 
+  with filenames that include a UTC run identifier so each execution produces a unique, append-only artifact.
+</p>
+
+<p>
+  Each run also writes a lightweight manifest under <code>raw/manifests/</code>. The manifest records the run timestamp, the “as-of” dates used for prices and rates, 
+row counts sent to the API, the curve names updated, and the exact S3 keys produced in that run. Glue crawlers catalog these prefixes and recognize the <code>dt=</code> partitions, 
+which keeps Athena queries stable and efficient. 
+In particular, in Athena, partition pruning can filter by snapshot date, and the manifest table can be joined back to the snapshot 
+tables to reconstruct the precise market inputs generated by a specific ingestion run.
+</p>
+
+<p>
+  This design also keeps concerns separated: 
+the application database stays lean and focused on operational needs, while the data lake retains the full ingestion lineage. 
+That is the same separation seen in production analytics stacks, even when the underlying dataset is small (like, arguably, in this case).
+</p>
+
+<h4>6.4. Reliability and auditability details</h4>
+
+<p>
+  In practice, ingestion has to be resilient to real‑world data issues: 
+intermittent upstream outages, throttling, and partial responses. 
+That is why the job is designed around repeatable runs, retries, and clear “what happened” artifacts. 
+Mainly, the manifest records act as the bridge between the operational system (Postgres) and the historical archive (S3). 
+In that sense, we can always point to a specific run and see what datasets were produced, instead of treating the data lake as an opaque folder.
+</p>
+
+<p>
+  Over time, this becomes a governance tool. 
+  If a valuation is questioned, we can trace the market snapshot that supported it. 
+Similarly, if a backfill is required, Athena can query historical partitions without touching the operational database. 
+In that sense, the data engineering layer is both a refresh mechanism and an audit mechanism.
+</p>
+
+
+		</div>
+
+
+		<div class="card">
+		  <h3>VII. Layer 6: Observability</h3>
+
+
+<h4>7.1. Observability as an operational requirement</h4>
+
+<p>
+  Observability is what makes DPP operable day to day. In a valuation platform, a silent failure is worse than an obvious one: if a scheduled ingestion does not run or if an application regression is introduced, the system can drift without the user noticing. For that reason, we treat observability as a first‑class layer rather than an afterthought.
+</p>
+
+<img src="cloudwatch-screenshot.png" alt="CloudWatch screenshot for the DPP platform" style="width:90%; max-width:1100px; height:auto; display:block; margin:12px auto; border-radius:12px; border:1px solid rgba(0,0,0,0.10);" onerror="this.style.display='none'">
+
+<p style="text-align:center; margin-top:8px;">
+  <strong>Figure 6. CloudWatch operational visibility</strong><br>
+  <em>Logs, metrics, and alarms used to validate ingestion runs and monitor runtime errors.</em>
+</p>
+
+<h4>7.2. The three questions this layer must answer</h4>
+
+<ol>
+  <li>
+    <strong>Did the ingestion run successfully?</strong><br>
+    This is the minimum requirement for keeping predefined underlyings and curves current, and it is also the fastest signal that “today’s state” is trustworthy.
+  </li>
+  <li>
+    <strong>If something failed, where did it fail?</strong><br>
+    Logs must be searchable and timestamped so a failure can be tied to a specific run, not guessed from symptoms.
+  </li>
+  <li>
+    <strong>Is the platform behaving normally over time?</strong><br>
+    Error counts, latency patterns, and runtime duration should make anomalies visible even when the UI still appears healthy.
+  </li>
+</ol>
+
+<h4>7.3. What signals are captured</h4>
+
+<p>
+  DPP produces operational signals at each boundary. At the edge, web server logs capture request volume and failures. 
+In the application tier, API logs capture validation failures and runtime exceptions. 
+In the ingestion tier, each scheduled run emits a structured timeline that can be tied back to the artifacts written into the data lake. 
+None of these streams are useful in isolation; the value comes from having them centralized so we can reconstruct the sequence of events across layers.
+</p>
+
+<h4>7.4. How we structure monitoring in practice</h4>
+
+<p>
+  DPP centralizes logs from the ingestion runtime, the web server edge, and the API runtime, which provides a coherent timeline of system behavior. In addition, basic metrics (invocations, errors, and duration) allow for alarms when something deviates from the expected pattern. The objective is to reduce “time to diagnosis”: when something breaks, the system should reveal the problem quickly and with enough context to fix it.
+</p>
+
+<p>
+  From the user’s perspective, this shows up as predictability and faster fixes. If ingestion fails, it is visible immediately and can be corrected before it affects the next valuation. If the API begins returning errors, the logs can be traced to the exact endpoint and request path involved. In that sense, observability is not “extra”; it is the mechanism that makes the platform trustworthy as an operating system rather than a fragile demo.
+</p>
+
+<p>
+  Finally, this layer closes the loop with security. When the public surface area is intentionally small, logs become the audit trail that proves the boundary is working. Over time, that auditability is what enables stricter controls (authentication, user roles, change tracking) without losing the ability to diagnose issues quickly.
+</p>
+
+		</div>
+
+
+		<div class="card">
+		  <h3>VIII. What I would build next</h3>
+
+		  <p>
+		    DPP is intentionally “small but complete.” It proves an end-to-end valuation workflow, and it proves the ability to operate that workflow on cloud infrastructure. The natural next step is to deepen governance and market realism without losing clarity.
+		  </p>
+
+		  <p> In that sense, DPP as a software has some <strong>natural extensions and improvements </strong>:
+		  </p>
+
+		  <ul>
+		    <li><strong>Separate the application and database residence </strong>. So far, both the UI + API and the database live in the same EC2 instance. 
+				This is sensible since we were trying to save resources (AWS credits) for this implementation; however, a more well-designed instructure
+				involves the use of separate instances. 
+		    <li><strong>Richer market models</strong>. This is more a theoretical/academic improvement. In practice, we could add 
+				volatility surfaces, stochastic volatility, and calibration workflows to improve the overall user experience and the deliverable pricing product.</li>
+		    <li><strong>User access controls</strong>. This could be possible by adding authentication and role-based permissions so different users (or teams) see only the portfolios, 
+				trades, and market inputs they are allowed to manage, with changes tracked per user.</li>
+		  </ul>
+
+		  <p>
+		    In that sense, the project is both a valuation tool and a financial database & software architecture. 
+			It connects instrument mechanics, data engineering, and cloud deployment into one coherent that, at least in this implementation, is completely open source.
+		  </p>
+		</div>
+
+	    	<!-- END OF CORE OVERVIEW CONTENT SECTION-->
+            </section>
+        </div>
     </div>
-
-    <!-- CHART/Plot for Rates-Underlyings - Include Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js library / Includes Zoom functionality. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="chartjs-plugin-zoom.min.js"></script>
     <script src="portfolioManager.js"></script>
 </body>
 </html>

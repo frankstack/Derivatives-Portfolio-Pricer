@@ -46,7 +46,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Monte Carlo Simulator API v1");
-    c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    c.RoutePrefix = "swagger"; // invoke swagger to be ready for production (not just deployment)
     c.DocumentTitle = "Monte Carlo Simulator API Documentation";
 });
 

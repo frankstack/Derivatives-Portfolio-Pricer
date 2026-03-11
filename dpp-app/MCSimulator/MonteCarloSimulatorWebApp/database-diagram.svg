@@ -1,0 +1,288 @@
+<svg width="1347pt" height="1113pt" viewBox="0.00 0.00 1347.00 1113.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(36 1076.6)">
+<title>ApplicationDbContextSchema</title>
+<polygon fill="#f5f7fa" stroke="none" points="-36,36 -36,-1076.6 1311,-1076.6 1311,36 -36,36"/>
+<text xml:space="preserve" text-anchor="start" x="332.78" y="-1014.2" font-family="Times,serif" font-size="14.00">    </text>
+<text xml:space="preserve" text-anchor="start" x="346.78" y="-1014.2" font-family="Inter, Helvetica, Arial, sans-serif" font-size="26.00" fill="#2e3a46">      </text>
+<text xml:space="preserve" text-anchor="start" x="385.78" y="-1014.2" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="26.00" fill="#2e3a46">Derivatives Portfolio Pricer - Database Schema</text>
+<text xml:space="preserve" text-anchor="start" x="909.22" y="-1014.2" font-family="Inter, Helvetica, Arial, sans-serif" font-size="26.00" fill="#2e3a46">    </text>
+<text xml:space="preserve" text-anchor="start" x="935.22" y="-1014.2" font-family="Times,serif" font-size="14.00">  </text>
+<!-- Instruments -->
+<g id="node1" class="node">
+<title>Instruments</title>
+<polygon fill="#2e3a46" stroke="none" points="352,-645.8 352,-680.2 572,-680.2 572,-645.8 352,-645.8"/>
+<text xml:space="preserve" text-anchor="start" x="417.61" y="-658.9" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">Instruments</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-611.4 352,-645.8 572,-645.8 572,-611.4 352,-611.4"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-624.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="375.07" y="-624.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="379.32" y="-624.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-577 352,-611.4 572,-611.4 572,-577 352,-577"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-589.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Symbol</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-542.6 352,-577 572,-577 572,-542.6 352,-542.6"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-554.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Name</text>
+<polygon fill="none" stroke="#2e3a46" points="351,-541.6 351,-681.2 573,-681.2 573,-541.6 351,-541.6"/>
+</g>
+<!-- Underlyings -->
+<g id="node3" class="node">
+<title>Underlyings</title>
+<polygon fill="#2e3a46" stroke="none" points="703,-826.4 703,-860.8 923,-860.8 923,-826.4 703,-826.4"/>
+<text xml:space="preserve" text-anchor="start" x="768.6" y="-839.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">Underlyings</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-792 703,-826.4 923,-826.4 923,-792 703,-792"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-805.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="726.07" y="-805.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="730.32" y="-805.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="none" stroke="#2e3a46" points="702,-791 702,-861.8 924,-861.8 924,-791 702,-791"/>
+</g>
+<!-- Instruments&#45;&gt;Underlyings -->
+<g id="edge1" class="edge">
+<title>Instruments-&gt;Underlyings</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M583.31,-685.52C641.41,-721.31 708.4,-762.58 754.8,-791.16"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="585.23,-682.59 574.88,-680.32 581.56,-688.55 585.23,-682.59"/>
+<text xml:space="preserve" text-anchor="middle" x="637.5" y="-729.55" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- OptionEntities -->
+<g id="node4" class="node">
+<title>OptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="703,-569.4 703,-603.8 923,-603.8 923,-569.4 703,-569.4"/>
+<text xml:space="preserve" text-anchor="start" x="759.63" y="-582.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">OptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-535 703,-569.4 923,-569.4 923,-535 703,-535"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-548.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="726.07" y="-548.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="730.32" y="-548.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-500.6 703,-535 923,-535 923,-500.6 703,-500.6"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-513.7" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">UnderlyingId </text>
+<text xml:space="preserve" text-anchor="start" x="812.5" y="-513.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="816.75" y="-513.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-466.2 703,-500.6 923,-500.6 923,-466.2 703,-466.2"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-478.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">StrikePrice</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-431.8 703,-466.2 923,-466.2 923,-431.8 703,-431.8"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-443.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">ExpirationDate</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-397.4 703,-431.8 923,-431.8 923,-397.4 703,-397.4"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-409.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">OptionStyle</text>
+<polygon fill="#f5f7fa" stroke="none" points="703,-363 703,-397.4 923,-397.4 923,-363 703,-363"/>
+<text xml:space="preserve" text-anchor="start" x="710" y="-375.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">IsCall</text>
+<polygon fill="none" stroke="#2e3a46" points="702,-362 702,-604.8 924,-604.8 924,-362 702,-362"/>
+</g>
+<!-- Instruments&#45;&gt;OptionEntities -->
+<g id="edge2" class="edge">
+<title>Instruments-&gt;OptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M584.17,-566.96C622.46,-552.92 664.54,-537.48 702.01,-523.74"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="583.26,-563.56 575.08,-570.29 585.67,-570.14 583.26,-563.56"/>
+<text xml:space="preserve" text-anchor="middle" x="637.5" y="-555.44" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- Trades -->
+<g id="node2" class="node">
+<title>Trades</title>
+<polygon fill="#2e3a46" stroke="none" points="1,-680.2 1,-714.6 221,-714.6 221,-680.2 1,-680.2"/>
+<text xml:space="preserve" text-anchor="start" x="85.5" y="-693.3" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">Trades</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-645.8 1,-680.2 221,-680.2 221,-645.8 1,-645.8"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-658.9" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="24.07" y="-658.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="28.32" y="-658.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-611.4 1,-645.8 221,-645.8 221,-611.4 1,-611.4"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-624.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">InstrumentId </text>
+<text xml:space="preserve" text-anchor="start" x="110.49" y="-624.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="114.74" y="-624.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-577 1,-611.4 221,-611.4 221,-577 1,-577"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-589.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Quantity</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-542.6 1,-577 221,-577 221,-542.6 1,-542.6"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-554.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">TradeDate</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-508.2 1,-542.6 221,-542.6 221,-508.2 1,-508.2"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-520.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Price</text>
+<polygon fill="none" stroke="#2e3a46" points="0,-507.2 0,-715.6 222,-715.6 222,-507.2 0,-507.2"/>
+</g>
+<!-- Trades&#45;&gt;Instruments -->
+<g id="edge9" class="edge">
+<title>Trades-&gt;Instruments</title>
+<path fill="none" stroke="#1abc9c" stroke-width="1.5" d="M221.95,-611.4C259.25,-611.4 301.13,-611.4 339.29,-611.4"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" stroke-width="1.5" points="349.18,-611.4 339.18,-615.9 346.01,-611.65 339.18,-611.65 339.18,-611.4 339.18,-611.15 346.01,-611.15 339.18,-606.9 349.18,-611.4"/>
+<text xml:space="preserve" text-anchor="middle" x="286.5" y="-615.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">*..1</text>
+</g>
+<!-- HistoricalPrices -->
+<g id="node11" class="node">
+<title>HistoricalPrices</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-966 1054,-1000.4 1274,-1000.4 1274,-966 1054,-966"/>
+<text xml:space="preserve" text-anchor="start" x="1105.94" y="-979.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">HistoricalPrices</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-931.6 1054,-966 1274,-966 1274,-931.6 1054,-931.6"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-944.7" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-944.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-944.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-897.2 1054,-931.6 1274,-931.6 1274,-897.2 1054,-897.2"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-910.3" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">UnderlyingId </text>
+<text xml:space="preserve" text-anchor="start" x="1163.5" y="-910.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1167.75" y="-910.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-862.8 1054,-897.2 1274,-897.2 1274,-862.8 1054,-862.8"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-874.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Date</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-828.4 1054,-862.8 1274,-862.8 1274,-828.4 1054,-828.4"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-840.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Price</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,-827.4 1053,-1001.4 1275,-1001.4 1275,-827.4 1053,-827.4"/>
+</g>
+<!-- Underlyings&#45;&gt;HistoricalPrices -->
+<g id="edge11" class="edge">
+<title>Underlyings-&gt;HistoricalPrices</title>
+<path fill="none" stroke="#1abc9c" stroke-width="1.5" d="M935.17,-856.95C973.46,-866.61 1015.54,-877.22 1053.01,-886.67"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" stroke-width="1.5" points="925.72,-854.57 936.52,-852.65 928.86,-855.1 935.48,-856.77 935.42,-857.01 935.35,-857.26 928.73,-855.59 934.32,-861.38 925.72,-854.57"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-877.24" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..*</text>
+</g>
+<!-- OptionEntities&#45;&gt;Underlyings -->
+<g id="edge10" class="edge">
+<title>OptionEntities-&gt;Underlyings</title>
+<path fill="none" stroke="#1abc9c" stroke-width="1.5" d="M813,-604.33C813,-664.75 813,-734.37 813,-779.31"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" stroke-width="1.5" points="813,-789.2 808.5,-779.2 812.75,-786.03 812.75,-779.2 813,-779.2 813.25,-779.2 813.25,-786.03 817.5,-779.2 813,-789.2"/>
+<text xml:space="preserve" text-anchor="middle" x="801.6" y="-693.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">*..1</text>
+</g>
+<!-- EuropeanOptionEntities -->
+<g id="node5" class="node">
+<title>EuropeanOptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-742.4 1054,-776.8 1274,-776.8 1274,-742.4 1054,-742.4"/>
+<text xml:space="preserve" text-anchor="start" x="1074.73" y="-755.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">EuropeanOptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-708 1054,-742.4 1274,-742.4 1274,-708 1054,-708"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-721.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-721.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-721.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,-707 1053,-777.8 1275,-777.8 1275,-707 1053,-707"/>
+</g>
+<!-- OptionEntities&#45;&gt;EuropeanOptionEntities -->
+<g id="edge3" class="edge">
+<title>OptionEntities-&gt;EuropeanOptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M932.93,-581.93C992.87,-631.58 1053,-681.4 1053,-681.4 1053,-681.4 1075.01,-693.6 1099.33,-707.09"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="935.39,-579.42 925.46,-575.74 930.92,-584.81 935.39,-579.42"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-637.75" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- AsianOptionEntities -->
+<g id="node6" class="node">
+<title>AsianOptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-621.4 1054,-655.8 1274,-655.8 1274,-621.4 1054,-621.4"/>
+<text xml:space="preserve" text-anchor="start" x="1089.84" y="-634.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">AsianOptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-587 1054,-621.4 1274,-621.4 1274,-587 1054,-587"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-600.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-600.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-600.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,-586 1053,-656.8 1275,-656.8 1275,-586 1053,-586"/>
+</g>
+<!-- OptionEntities&#45;&gt;AsianOptionEntities -->
+<g id="edge4" class="edge">
+<title>OptionEntities-&gt;AsianOptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M935.1,-531.28C980.66,-549.3 1031.59,-569.44 1073.73,-586.1"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="936.64,-528.13 926.06,-527.71 934.07,-534.64 936.64,-528.13"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-560.74" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- DigitalOptionEntities -->
+<g id="node7" class="node">
+<title>DigitalOptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-500.6 1054,-535 1274,-535 1274,-500.6 1054,-500.6"/>
+<text xml:space="preserve" text-anchor="start" x="1086.08" y="-513.7" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">DigitalOptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-466.2 1054,-500.6 1274,-500.6 1274,-466.2 1054,-466.2"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-479.3" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-479.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-479.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-431.8 1054,-466.2 1274,-466.2 1274,-431.8 1054,-431.8"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-443.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Rebate</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,-430.8 1053,-536 1275,-536 1275,-430.8 1053,-430.8"/>
+</g>
+<!-- OptionEntities&#45;&gt;DigitalOptionEntities -->
+<g id="edge5" class="edge">
+<title>OptionEntities-&gt;DigitalOptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M936.15,-483.4C974.18,-483.4 1015.86,-483.4 1053.01,-483.4"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="936.22,-479.9 926.22,-483.4 936.22,-486.9 936.22,-479.9"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-487.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- BarrierOptionEntities -->
+<g id="node8" class="node">
+<title>BarrierOptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-345.8 1054,-380.2 1274,-380.2 1274,-345.8 1054,-345.8"/>
+<text xml:space="preserve" text-anchor="start" x="1083.26" y="-358.9" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">BarrierOptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-311.4 1054,-345.8 1274,-345.8 1274,-311.4 1054,-311.4"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-324.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-324.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-324.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-277 1054,-311.4 1274,-311.4 1274,-277 1054,-277"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-289.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">BarrierLevel</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-242.6 1054,-277 1274,-277 1274,-242.6 1054,-242.6"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-254.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">BarrierType</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,-241.6 1053,-381.2 1275,-381.2 1275,-241.6 1053,-241.6"/>
+</g>
+<!-- OptionEntities&#45;&gt;BarrierOptionEntities -->
+<g id="edge6" class="edge">
+<title>OptionEntities-&gt;BarrierOptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M934.67,-423.93C973.1,-404.99 1015.38,-384.15 1053.01,-365.61"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="933.41,-420.65 925.98,-428.21 936.5,-426.93 933.41,-420.65"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-406.76" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- LookbackOptionEntities -->
+<g id="node9" class="node">
+<title>LookbackOptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-156.4 1054,-190.8 1274,-190.8 1274,-156.4 1054,-156.4"/>
+<text xml:space="preserve" text-anchor="start" x="1074.26" y="-169.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">LookbackOptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-122 1054,-156.4 1274,-156.4 1274,-122 1054,-122"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-135.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-135.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-135.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,-121 1053,-191.8 1275,-191.8 1275,-121 1053,-121"/>
+</g>
+<!-- OptionEntities&#45;&gt;LookbackOptionEntities -->
+<g id="edge7" class="edge">
+<title>OptionEntities-&gt;LookbackOptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M930.82,-352.9C991.45,-285.16 1053,-216.4 1053,-216.4 1053,-216.4 1074.43,-204.71 1098.38,-191.65"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="928.24,-350.53 924.17,-360.32 933.45,-355.2 928.24,-350.53"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-299.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- RangeOptionEntities -->
+<g id="node10" class="node">
+<title>RangeOptionEntities</title>
+<polygon fill="#1abc9c" stroke="none" points="1054,-35.4 1054,-69.8 1274,-69.8 1274,-35.4 1054,-35.4"/>
+<text xml:space="preserve" text-anchor="start" x="1087.49" y="-48.5" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">RangeOptionEntities</text>
+<polygon fill="#f5f7fa" stroke="none" points="1054,-1 1054,-35.4 1274,-35.4 1274,-1 1054,-1"/>
+<text xml:space="preserve" text-anchor="start" x="1061" y="-14.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="1077.07" y="-14.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="1081.32" y="-14.1" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK, FK)</text>
+<polygon fill="none" stroke="#2e3a46" points="1053,0 1053,-70.8 1275,-70.8 1275,0 1053,0"/>
+</g>
+<!-- OptionEntities&#45;&gt;RangeOptionEntities -->
+<g id="edge8" class="edge">
+<title>OptionEntities-&gt;RangeOptionEntities</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.5" stroke-dasharray="5,2" d="M895.39,-351.6C964.66,-239.45 1053,-96.4 1053,-96.4 1053,-96.4 1075.01,-84.2 1099.33,-70.71"/>
+<polygon fill="none" stroke="#2e3a46" stroke-width="1.5" points="892.43,-349.73 890.16,-360.08 898.39,-353.41 892.43,-349.73"/>
+<text xml:space="preserve" text-anchor="middle" x="988.5" y="-214.95" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..1</text>
+</g>
+<!-- RateCurves -->
+<g id="node12" class="node">
+<title>RateCurves</title>
+<polygon fill="#1abc9c" stroke="none" points="1,-835.6 1,-870 221,-870 221,-835.6 1,-835.6"/>
+<text xml:space="preserve" text-anchor="start" x="68.04" y="-848.7" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">RateCurves</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-801.2 1,-835.6 221,-835.6 221,-801.2 1,-801.2"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-814.3" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="24.07" y="-814.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="28.32" y="-814.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-766.8 1,-801.2 221,-801.2 221,-766.8 1,-766.8"/>
+<text xml:space="preserve" text-anchor="start" x="8" y="-778.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Name</text>
+<polygon fill="none" stroke="#2e3a46" points="0,-765.8 0,-871 222,-871 222,-765.8 0,-765.8"/>
+</g>
+<!-- RatePoints -->
+<g id="node13" class="node">
+<title>RatePoints</title>
+<polygon fill="#1abc9c" stroke="none" points="352,-870 352,-904.4 572,-904.4 572,-870 352,-870"/>
+<text xml:space="preserve" text-anchor="start" x="422.34" y="-883.1" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00" fill="#f5f7fa">RatePoints</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-835.6 352,-870 572,-870 572,-835.6 352,-835.6"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-848.7" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">Id</text>
+<text xml:space="preserve" text-anchor="start" x="375.07" y="-848.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="379.32" y="-848.7" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(PK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-801.2 352,-835.6 572,-835.6 572,-801.2 352,-801.2"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-814.3" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="17.00">RateCurveId </text>
+<text xml:space="preserve" text-anchor="start" x="458.63" y="-814.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00"> </text>
+<text xml:space="preserve" text-anchor="start" x="462.88" y="-814.3" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00" fill="#1abc9c">(FK)</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-766.8 352,-801.2 572,-801.2 572,-766.8 352,-766.8"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-778.9" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Tenor</text>
+<polygon fill="#f5f7fa" stroke="none" points="352,-732.4 352,-766.8 572,-766.8 572,-732.4 352,-732.4"/>
+<text xml:space="preserve" text-anchor="start" x="359" y="-744.5" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17.00">Rate</text>
+<polygon fill="none" stroke="#2e3a46" points="351,-731.4 351,-905.4 573,-905.4 573,-731.4 351,-731.4"/>
+</g>
+<!-- RateCurves&#45;&gt;RatePoints -->
+<g id="edge12" class="edge">
+<title>RateCurves-&gt;RatePoints</title>
+<path fill="none" stroke="#1abc9c" stroke-width="1.5" d="M233.66,-818.4C271.82,-818.4 313.7,-818.4 351.01,-818.4"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" stroke-width="1.5" points="223.77,-818.4 233.77,-813.9 226.95,-818.15 233.77,-818.15 233.77,-818.4 233.77,-818.65 226.95,-818.65 233.77,-822.9 223.77,-818.4"/>
+<text xml:space="preserve" text-anchor="middle" x="286.5" y="-822.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14.00">1..*</text>
+</g>
+</g>
+</svg>

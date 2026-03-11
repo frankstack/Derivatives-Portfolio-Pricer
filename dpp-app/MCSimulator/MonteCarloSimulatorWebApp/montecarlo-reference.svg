@@ -1,0 +1,127 @@
+<svg width="1753pt" height="189pt" viewBox="0.00 0.00 1753.00 189.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(0 189.2)">
+<title>MonteCarloPricingIntuition</title>
+<polygon fill="#f5f7fa" stroke="none" points="0,0 0,-189.2 1753.35,-189.2 1753.35,0 0,0"/>
+<text xml:space="preserve" text-anchor="start" x="621.36" y="-162.8" font-family="Times,serif" font-size="14.00">    </text>
+<text xml:space="preserve" text-anchor="start" x="635.36" y="-162.8" font-family="Inter, Helvetica, Arial, sans-serif" font-size="26.00" fill="#2e3a46">      </text>
+<text xml:space="preserve" text-anchor="start" x="674.36" y="-162.8" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="26.00" fill="#2e3a46">Monte Carlo Pricing Engine Worklow</text>
+<text xml:space="preserve" text-anchor="start" x="1098.99" y="-162.8" font-family="Inter, Helvetica, Arial, sans-serif" font-size="26.00" fill="#2e3a46">    </text>
+<text xml:space="preserve" text-anchor="start" x="1124.99" y="-162.8" font-family="Times,serif" font-size="14.00">  </text>
+<!-- Paths -->
+<g id="node1" class="node">
+<title>Paths</title>
+<polygon fill="#1abc9c" stroke="none" points="336.33,-115.1 336.33,-141.3 586.33,-141.3 586.33,-115.1 336.33,-115.1"/>
+<text xml:space="preserve" text-anchor="start" x="384.25" y="-125.15" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="418" y="-125.15" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="13.50" fill="#f5f7fa">Simulated paths</text>
+<text xml:space="preserve" text-anchor="start" x="511.4" y="-125.15" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="#f5f7fa" stroke="none" points="336.33,-72.7 336.33,-115.1 586.33,-115.1 586.33,-72.7 336.33,-72.7"/>
+<text xml:space="preserve" text-anchor="start" x="341.33" y="-97.95" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">Random draws generate many possible</text>
+<text xml:space="preserve" text-anchor="start" x="341.33" y="-81.75" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">price paths for the same underlying.</text>
+<polygon fill="#f5f7fa" stroke="none" points="336.33,-8.7 336.33,-72.7 586.33,-72.7 586.33,-8.7 336.33,-8.7"/>
+<text xml:space="preserve" text-anchor="start" x="343.18" y="-56.55" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="376.93" y="-56.55" font-family="Courier New" font-size="13.50" fill="#2e3a46">Path 1: S0 → … → ST</text>
+<text xml:space="preserve" text-anchor="start" x="360.06" y="-43.05" font-family="Courier New" font-size="13.50" fill="#2e3a46">Path 2: S0 → … → ST</text>
+<text xml:space="preserve" text-anchor="start" x="360.06" y="-29.55" font-family="Courier New" font-size="13.50" fill="#2e3a46">Path 3: S0 → … → ST</text>
+<text xml:space="preserve" text-anchor="start" x="395.17" y="-16.05" font-family="Courier New" font-size="13.50" fill="#2e3a46">… (N paths)</text>
+<text xml:space="preserve" text-anchor="start" x="500.48" y="-16.05" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="none" stroke="#2e3a46" points="335.33,-7.7 335.33,-142.3 587.33,-142.3 587.33,-7.7 335.33,-7.7"/>
+</g>
+<!-- Payoff -->
+<g id="node2" class="node">
+<title>Payoff</title>
+<polygon fill="#2e3a46" stroke="none" points="682.98,-101.6 682.98,-127.8 937.37,-127.8 937.37,-101.6 682.98,-101.6"/>
+<text xml:space="preserve" text-anchor="start" x="733.86" y="-111.65" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="767.61" y="-111.65" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="13.50" fill="#f5f7fa">Payoff mapping</text>
+<text xml:space="preserve" text-anchor="start" x="859.49" y="-111.65" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="#f5f7fa" stroke="none" points="682.98,-59.2 682.98,-101.6 937.37,-101.6 937.37,-59.2 682.98,-59.2"/>
+<text xml:space="preserve" text-anchor="start" x="687.98" y="-84.45" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">Each path is translated into a payoff</text>
+<text xml:space="preserve" text-anchor="start" x="687.98" y="-68.25" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">using the contract definition.</text>
+<polygon fill="#f5f7fa" stroke="none" points="682.98,-22.2 682.98,-59.2 937.37,-59.2 937.37,-22.2 682.98,-22.2"/>
+<text xml:space="preserve" text-anchor="start" x="687.98" y="-43.05" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="721.73" y="-43.05" font-family="Courier New" font-size="13.50" fill="#2e3a46">Payoff(Path i) = g(S path)</text>
+<text xml:space="preserve" text-anchor="start" x="695.41" y="-29.55" font-family="Courier New" font-size="13.50" fill="#2e3a46">Example: max(ST − K, 0)</text>
+<text xml:space="preserve" text-anchor="start" x="897.94" y="-29.55" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="none" stroke="#2e3a46" points="681.98,-21.2 681.98,-128.8 938.37,-128.8 938.37,-21.2 681.98,-21.2"/>
+</g>
+<!-- Paths&#45;&gt;Payoff -->
+<g id="edge1" class="edge">
+<title>Paths-&gt;Payoff</title>
+<path fill="none" stroke="#1abc9c" d="M587.06,-75C614.32,-75 643.33,-75 671.08,-75"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" points="680.83,-75 670.83,-79.5 677.05,-75 670.83,-75 670.83,-75 670.83,-75 677.05,-75 670.83,-70.5 680.83,-75"/>
+<text xml:space="preserve" text-anchor="middle" x="634.66" y="-78.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="12.00" fill="#2e3a46">simulate</text>
+</g>
+<!-- Discount -->
+<g id="node3" class="node">
+<title>Discount</title>
+<polygon fill="#1abc9c" stroke="none" points="1048.35,-101.6 1048.35,-127.8 1310.83,-127.8 1310.83,-101.6 1048.35,-101.6"/>
+<text xml:space="preserve" text-anchor="start" x="1114.71" y="-111.65" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="1148.46" y="-111.65" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="13.50" fill="#f5f7fa">Discounting</text>
+<text xml:space="preserve" text-anchor="start" x="1217.47" y="-111.65" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="#f5f7fa" stroke="none" points="1048.35,-59.2 1048.35,-101.6 1310.83,-101.6 1310.83,-59.2 1048.35,-59.2"/>
+<text xml:space="preserve" text-anchor="start" x="1053.35" y="-84.45" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">Payoffs are converted to present value</text>
+<text xml:space="preserve" text-anchor="start" x="1053.35" y="-68.25" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">using the rate curve for the horizon.</text>
+<polygon fill="#f5f7fa" stroke="none" points="1048.35,-22.2 1048.35,-59.2 1310.83,-59.2 1310.83,-22.2 1048.35,-22.2"/>
+<text xml:space="preserve" text-anchor="start" x="1053.35" y="-43.05" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="1087.1" y="-43.05" font-family="Courier New" font-size="13.50" fill="#2e3a46">PV(Path i) = Payoff(Path i)</text>
+<text xml:space="preserve" text-anchor="start" x="1133.68" y="-29.55" font-family="Courier New" font-size="13.50" fill="#2e3a46">· DF(T)</text>
+<text xml:space="preserve" text-anchor="start" x="1198.5" y="-29.55" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="none" stroke="#2e3a46" points="1047.35,-21.2 1047.35,-128.8 1311.83,-128.8 1311.83,-21.2 1047.35,-21.2"/>
+</g>
+<!-- Payoff&#45;&gt;Discount -->
+<g id="edge2" class="edge">
+<title>Payoff-&gt;Discount</title>
+<path fill="none" stroke="#1abc9c" d="M938.13,-75C969.91,-75 1004.19,-75 1036.64,-75"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" points="1046.35,-75 1036.35,-79.5 1042.57,-75 1036.35,-75 1036.35,-75 1036.35,-75 1042.57,-75 1036.35,-70.5 1046.35,-75"/>
+<text xml:space="preserve" text-anchor="middle" x="992.86" y="-78.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="12.00" fill="#2e3a46">map payoff</text>
+</g>
+<!-- Aggregate -->
+<g id="node4" class="node">
+<title>Aggregate</title>
+<polygon fill="#2e3a46" stroke="none" points="1407.5,-122.8 1407.5,-149 1752.35,-149 1752.35,-122.8 1407.5,-122.8"/>
+<text xml:space="preserve" text-anchor="start" x="1513.93" y="-132.85" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="1547.68" y="-132.85" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="13.50" fill="#f5f7fa">Aggregation</text>
+<text xml:space="preserve" text-anchor="start" x="1618.92" y="-132.85" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="#f5f7fa" stroke="none" points="1407.5,-80.4 1407.5,-122.8 1752.35,-122.8 1752.35,-80.4 1407.5,-80.4"/>
+<text xml:space="preserve" text-anchor="start" x="1412.5" y="-105.65" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">The price is the average of discounted</text>
+<text xml:space="preserve" text-anchor="start" x="1412.5" y="-89.45" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">outcomes across all simulated paths.</text>
+<polygon fill="#f5f7fa" stroke="none" points="1407.5,-43.4 1407.5,-80.4 1752.35,-80.4 1752.35,-43.4 1407.5,-43.4"/>
+<text xml:space="preserve" text-anchor="start" x="1457.73" y="-64.25" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="1491.48" y="-64.25" font-family="Courier New" font-size="13.50" fill="#2e3a46">Price ≈ mean(PV(Path i))</text>
+<text xml:space="preserve" text-anchor="start" x="1412.5" y="-50.75" font-family="Courier New" font-size="13.50" fill="#2e3a46">Uncertainty ≈ std(PV(Path i)) / √N</text>
+<text xml:space="preserve" text-anchor="start" x="1720.35" y="-50.75" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="#f5f7fa" stroke="none" points="1407.5,-1 1407.5,-43.4 1752.35,-43.4 1752.35,-1 1407.5,-1"/>
+<text xml:space="preserve" text-anchor="start" x="1412.5" y="-26.25" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">Output: point estimate and a precision</text>
+<text xml:space="preserve" text-anchor="start" x="1412.5" y="-10.05" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">measure (standard error / confidence band).</text>
+<polygon fill="none" stroke="#2e3a46" points="1406.5,0 1406.5,-150 1753.35,-150 1753.35,0 1406.5,0"/>
+</g>
+<!-- Discount&#45;&gt;Aggregate -->
+<g id="edge3" class="edge">
+<title>Discount-&gt;Aggregate</title>
+<path fill="none" stroke="#1abc9c" d="M1311.57,-75C1338.51,-75 1367.35,-75 1395.75,-75"/>
+<polygon fill="#1abc9c" stroke="#1abc9c" points="1405.39,-75 1395.39,-79.5 1401.61,-75 1395.39,-75 1395.39,-75 1395.39,-75 1401.61,-75 1395.39,-70.5 1405.39,-75"/>
+<text xml:space="preserve" text-anchor="middle" x="1359.16" y="-78.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="12.00" fill="#2e3a46">discount</text>
+</g>
+<!-- Noise -->
+<g id="node5" class="node">
+<title>Noise</title>
+<polygon fill="#2e3a46" stroke="none" points="1,-88.1 1,-114.3 251,-114.3 251,-88.1 1,-88.1"/>
+<text xml:space="preserve" text-anchor="start" x="51.56" y="-98.15" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="85.31" y="-98.15" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="bold" font-size="13.50" fill="#f5f7fa">Random draws</text>
+<text xml:space="preserve" text-anchor="start" x="173.44" y="-98.15" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-61.9 1,-88.1 251,-88.1 251,-61.9 1,-61.9"/>
+<text xml:space="preserve" text-anchor="start" x="6" y="-70.95" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">Noise term feeding the simulation.</text>
+<polygon fill="#f5f7fa" stroke="none" points="1,-35.7 1,-61.9 251,-61.9 251,-35.7 1,-35.7"/>
+<text xml:space="preserve" text-anchor="start" x="47.02" y="-45.75" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">          </text>
+<text xml:space="preserve" text-anchor="start" x="80.77" y="-45.75" font-family="Courier New" font-size="13.50" fill="#2e3a46">ε ~ N(0, 1)</text>
+<text xml:space="preserve" text-anchor="start" x="177.98" y="-45.75" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13.50">        </text>
+<polygon fill="none" stroke="#2e3a46" points="0,-34.7 0,-115.3 252,-115.3 252,-34.7 0,-34.7"/>
+</g>
+<!-- Noise&#45;&gt;Paths -->
+<g id="edge4" class="edge">
+<title>Noise-&gt;Paths</title>
+<path fill="none" stroke="#2e3a46" stroke-width="1.2" stroke-dasharray="5,2" d="M251.59,-75C275.22,-75 300.05,-75 324.02,-75"/>
+<polygon fill="#2e3a46" stroke="#2e3a46" stroke-width="1.2" points="333.87,-75 323.87,-79.5 330.33,-75.1 323.87,-75.1 323.87,-75 323.87,-74.9 330.33,-74.9 323.87,-70.5 333.87,-75"/>
+<text xml:space="preserve" text-anchor="middle" x="293.66" y="-78.6" font-family="Inter, Helvetica, Arial, sans-serif" font-size="12.00" fill="#2e3a46">drives</text>
+</g>
+</g>
+</svg>

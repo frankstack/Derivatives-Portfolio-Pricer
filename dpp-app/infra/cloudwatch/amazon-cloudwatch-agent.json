@@ -1,0 +1,23 @@
+{
+  "logs": {
+    "force_flush_interval": 5,
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/nginx/dpp.access.log",
+            "log_group_name": "/dpp/nginx/access",
+            "log_stream_name": "{instance_id}/nginx-access",
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/nginx/dpp.error.log",
+            "log_group_name": "/dpp/nginx/error",
+            "log_stream_name": "{instance_id}/nginx-error",
+            "timezone": "UTC"
+          }
+        ]
+      }
+    }
+  }
+}

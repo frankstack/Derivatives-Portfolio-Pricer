@@ -1,155 +1,323 @@
 /* portfolioManager.css */
 
+/* Color palette and sizing variables for the redesigned UI */
+:root {
+    --sidebar-bg: #2E3A46;
+    --sidebar-hover: #3C4F65;
+    --primary-color: #1ABC9C;
+    --danger-color: #E74C3C;
+    --bg-color: #F5F7FA;
+    --card-bg: #FFFFFF;
+    --text-color: #333333;
+    --secondary-text: #6F7D8A;
+    --border-radius: 8px;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 body {
     margin: 0;
     padding: 0;
-    background: #eef1f3;
-    font-family: Arial, sans-serif;
-    color: #333;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: "Segoe UI", Tahoma, sans-serif;
     line-height: 1.5;
 }
 
-.pm-container {
-    max-width: 1200px;
-    margin: 20px auto;
-    background: #ffffff;
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    position: relative;
+/* Layout structure */
+.layout {
+    display: flex;
+    min-height: 100vh;
 }
 
-/* Author info in top-right corner */
-.pm-author-info {
-    position: absolute;
-    top: 10px;
-    right: 30px;
-    font-size: 14px;
-    text-align: right;
-    color: #2c3e50;
+/* Sidebar navigation */
+.sidebar {
+    width: 240px;
+    background: var(--sidebar-bg);
+    color: #ecf0f1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 15px;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
 }
 
-.pm-author-info a {
-    color: #3498db;
+.sidebar-logo h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #ecf0f1;
+}
+
+/* Logo inside sidebar */
+.sidebar-logo .logo {
+    display: block;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 10px auto;
+}
+
+/* Description text in sidebar */
+.sidebar-desc {
+    color: #bdc3c7;
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 10px 0 20px 0;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #95a5a6;
+}
+
+.sidebar-footer a {
+    color: var(--primary-color);
     text-decoration: none;
 }
-.pm-author-info a:hover {
+
+.sidebar-footer a:hover {
     text-decoration: underline;
 }
 
-.pm-container h1 {
-    text-align: center;
-    margin-bottom: 5px;
-    color: #2c3e50;
-    font-size: 28px;
-}
-
-/* Sub-description under title */
-.pm-description {
-    text-align: center;
-    color: #555;
-    font-size: 16px;
-    margin-bottom: 30px;
-    max-width: 800px;
-    margin: 0 auto 30px auto;
-}
-
-.pm-nav {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
 .pm-nav-button {
-    background: #2c3e50;
-    color: #fff;
+    display: block;
+    width: 100%;
+    background: none;
     border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 4px;
+    padding: 12px 10px;
+    margin: 2px 0;
+    text-align: left;
+    color: #ecf0f1;
     font-size: 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.2s, border-left-color 0.2s;
 }
 
 .pm-nav-button:hover {
-    background: #22303a;
+    background: var(--sidebar-hover);
 }
 
 .pm-nav-button.active {
-    background: #16a085;
+    background: var(--sidebar-hover);
+    border-left-color: var(--primary-color);
+    color: #ffffff;
 }
 
+/* Overview button styling and separation */
+.overview-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #3C4F65; /* subtle divider above overview */
+}
+
+.pm-overview-btn {
+    /* Override general button styles: transparent background with outline */
+    background: transparent !important;
+    color: var(--primary-color) !important;
+    border-left: 3px solid transparent;
+    border: 1px solid var(--primary-color);
+    text-align: center;
+    margin-top: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.pm-overview-btn:hover {
+    background: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* Active state for overview button: match sidebar hover style but keep primary accent */
+.pm-overview-btn.active {
+    background: var(--sidebar-hover) !important;
+    color: #ffffff !important;
+    /* Override entire left border to ensure color shows despite earlier border-left rule */
+    border-left: 3px solid var(--primary-color) !important;
+    border: 1px solid var(--primary-color) !important;
+}
+
+/* Ensure overview button active state takes precedence over nav default active styling */
+.pm-nav-button.pm-overview-btn.active {
+    background: var(--sidebar-hover) !important;
+    color: #ffffff !important;
+    border-left: 3px solid var(--primary-color) !important;
+    border: 1px solid var(--primary-color) !important;
+}
+
+/* Main content area */
+.content-area {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: var(--text-color);
+}
+
+.description {
+    color: var(--secondary-text);
+    max-width: 800px;
+    margin: 5px 0 30px 0;
+}
+
+/* General section styling */
 .pm-section {
-    margin-bottom: 50px;
+    margin-bottom: 40px;
 }
 
-.hidden {
-    display: none;
+/* Show section titles normally. Previously we hid all h2 inside sections, but
+   now we rely on the .section-header structure to present the title and description. */
+
+/* Section header styling */
+.section-header {
+    margin-bottom: 20px;
+}
+.section-title {
+    font-size: 24px;
+    margin: 0;
+    color: var(--text-color);
+    display: block;
+}
+.section-desc {
+    margin: 5px 0 20px 0;
+    color: var(--secondary-text);
+    font-size: 14px;
+    max-width: 800px;
 }
 
-.pm-form {
-    background: #ecf0f1;
-    padding: 15px;
-    border-radius: 4px;
+/* Align logo next to the title in the sidebar */
+.logo-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.logo-title .logo {
+    /* Increase logo size by ~25% for stronger presence */
+    width: 45px;
+    height: 45px;
+    margin: 0;
+}
+.logo-title h2 {
+    font-size: 18px;
+    margin: 0;
+    color: #ecf0f1;
+}
+
+/* Card element */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 20px;
     margin-bottom: 30px;
+    box-shadow: var(--shadow);
 }
 
-.pm-form h3 {
+.card h3 {
     margin-top: 0;
-    color: #34495e;
+    margin-bottom: 15px;
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+.card h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+/* Forms */
+.pm-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .pm-form-group {
     display: flex;
-    margin-bottom: 15px;
-    align-items: center;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .pm-form-group label {
-    width: 200px;
-    font-weight: bold;
-    margin-right: 10px;
+    font-weight: 600;
+    color: var(--text-color);
 }
 
-.pm-form-group input, .pm-form-group select, .pm-form-group textarea {
-    flex: 1;
-    padding: 8px;
+.pm-form-group input,
+.pm-form-group select,
+.pm-form-group textarea {
+    padding: 8px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
+    color: var(--text-color);
+    background: #fff;
 }
 
 .pm-form-group textarea {
     resize: vertical;
 }
 
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+button[type="submit"],
+button:not(.pm-cancel-btn) {
+    background: var(--primary-color);
+    color: #fff;
+}
+
 .pm-cancel-btn {
-    background: #e74c3c !important;
-    margin-left: 10px;
+    background: var(--danger-color);
+    color: #fff;
+}
+
+button:hover {
+    opacity: 0.92;
+}
+
+/* Table styling */
+.table-wrapper {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 260px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.table-wrapper.small {
+    max-height: 200px;
 }
 
 .pm-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
     font-size: 14px;
 }
 
 .pm-table thead {
-    background: #bdc3c7;
+    background: #ecf0f1;
 }
 
-.pm-table thead th {
-    padding: 10px;
-    text-align: left;
-    font-weight: bold;
-}
-
+.pm-table th,
 .pm-table td {
-    border-bottom: 1px solid #ddd;
-    padding: 8px;
-    vertical-align: middle;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
 }
 
 .pm-table tr:nth-child(even) {
@@ -157,83 +325,146 @@ body {
 }
 
 .pm-table button {
-    background: #8e44ad;
+    background: var(--primary-color);
     color: #fff;
     border: none;
-    padding: 5px 10px;
-    cursor: pointer;
+    padding: 6px 10px;
     border-radius: 4px;
-    margin: 0 2px;
     font-size: 12px;
+    margin-right: 4px;
+    cursor: pointer;
 }
 
 .pm-table button:hover {
-    background: #71368a;
+    opacity: 0.92;
 }
 
-.pm-valuation-select {
-    margin-bottom: 10px;
-}
-
-.pm-valuation-select button {
-    background: #34495e;
-    margin-right: 10px;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-.pm-valuation-select button:hover {
-    background: #2c3e50;
-}
-
-/* Detailed Information section... maybe to improve it later? */
-.pm-details-section {
-    background: #ecf0f1;
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 30px;
+/* Layout helpers */
+.two-columns {
     display: flex;
     gap: 20px;
-    align-items: flex-start;
     flex-wrap: wrap;
 }
 
-.pm-details-section h3 {
-    margin-top: 0;
-    color: #34495e;
-    margin-bottom: 15px;
+.column {
+    flex: 1;
+    min-width: 280px;
+}
+
+.details-layout {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.chart-wrapper {
+    flex: 1;
+    min-width: 280px;
 }
 
 .pm-details-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.pm-details-table th, .pm-details-table td {
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
 }
 
 .pm-details-table th {
-    background: #bdc3c7;
-    text-align: left;
+    background: #ecf0f1;
+    color: var(--text-color);
     font-weight: bold;
+}
+
+.pm-details-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
 }
 
 .pm-details-chart {
     width: 100%;
-    max-height: 300px;
+    height: 260px;
 }
 
-/* PLOT Design-Section: Responsive adjustments */
+/* Valuation specific */
+.valuation-select {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.valuation-select button {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.valuation-select button:hover {
+    opacity: 0.92;
+}
+
+.portfolio-total {
+    margin: 10px 0;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+/* Hide elements by default; JS will toggle .hidden */
+.hidden {
+    display: none;
+}
+
+/* Underlying ID dropdown (Derivatives) */
+.pm-form-group.pm-has-dropdown {
+    position: relative;
+}
+
+.pm-suggest-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    z-index: 2000;
+}
+
+.pm-suggest-item {
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-color);
+}
+
+.pm-suggest-item:hover {
+    background: #ecf0f1;
+}
+
+.pm-suggest-empty {
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--secondary-text);
+}
+
+/* VDC base fields hidden until selected by JS */
+.vdc-base-fields {
+    display: none;
+}
+
+.vdc-base-1 {
+    margin-top: 15px;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .pm-details-section {
-        flex-direction: column;
+    .sidebar {
+        width: 180px;
+    }
+    .pm-nav-button {
+        font-size: 14px;
+        padding: 10px 8px;
     }
 }

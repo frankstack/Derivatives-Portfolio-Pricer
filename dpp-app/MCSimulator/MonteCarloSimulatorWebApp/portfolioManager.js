@@ -2,6 +2,23 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_URL = '/api';
+    let underlyingsCache = [];
+    let derivativesCache = [];
+    let rateCurvesCache = [];
+
+
+    // Register the zoom plugin (needed for Chart.js v3+)
+    // This makes sure the "zoom" options get displayed.
+    if (window.Chart) {
+        const zoomPlugin =
+            window.ChartZoom ||
+            window["chartjs-plugin-zoom"] ||
+            window.zoomPlugin;
+
+        if (zoomPlugin) {
+            try { Chart.register(zoomPlugin); } catch (e) {}
+        }
+    }
 
     // Chart instances
     let underlyingChartInstance = null;
@@ -35,9 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const underlyingName = document.getElementById('underlyingName');
     const underlyingHistPrices = document.getElementById('underlyingHistPrices');
     const underlyingId = document.getElementById('underlyingId');
-    const underlyingsTable = document.getElementById('underlyingsTable').querySelector('tbody');
-    const cancelUnderlyingEditButton = document.getElementById('cancelUnderlyingEditButton');
 
+    const predefinedUnderlyingsTable = document.getElementById('predefinedUnderlyingsTable')?.querySelector('tbody');
+    const userUnderlyingsTable = document.getElementById('userUnderlyingsTable')?.querySelector('tbody');
+
+    const cancelUnderlyingEditButton = document.getElementById('cancelUnderlyingEditButton');
     const underlyingDetailsTable = document.getElementById('underlyingDetailsTable');
     const underlyingDetailsTableBody = underlyingDetailsTable.querySelector('tbody');
     const underlyingChartCanvas = document.getElementById('underlyingChart');
@@ -46,22 +65,43 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`${BASE_URL}/Underlyings`)
             .then(res => res.json())
             .then(data => {
-                underlyingsTable.innerHTML = '';
+		underlyingsCache = Array.isArray(data) ? data : [];
+                // Clear both predefined and user tables
+                if (predefinedUnderlyingsTable) predefinedUnderlyingsTable.innerHTML = '';
+                if (userUnderlyingsTable) userUnderlyingsTable.innerHTML = '';
+
+                // Categorize underlyings: IDs 1 through 50 are considered predefined
                 data.forEach(u => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${u.id}</td>
-                        <td>${u.symbol}</td>
-                        <td>${u.name || ''}</td>
-                        <td>${u.historicalPrices ? u.historicalPrices.length : 0}</td>
-                        <td>
-                            <button data-id="${u.id}" class="edit-underlying-btn">Edit</button>
-                            <button data-id="${u.id}" class="details-underlying-btn">See Details</button>
-                            <button data-id="${u.id}" class="delete-underlying-btn">Delete</button>
-                        </td>
-                    `;
-                    underlyingsTable.appendChild(tr);
+                    const isPredefined = u.id >= 1 && u.id <= 50;
+                    if (isPredefined) {
+                        // Predefined underlyings: display information but no edit/delete actions
+                        tr.innerHTML = `
+                            <td>${u.id}</td>
+                            <td>${u.symbol}</td>
+                            <td>${u.name || ''}</td>
+                            <td>${u.historicalPrices ? u.historicalPrices.length : 0}</td>
+                            <td><button data-id="${u.id}" class="details-underlying-btn">See Details</button></td>
+                        `;
+                        predefinedUnderlyingsTable?.appendChild(tr);
+                    } else {
+                        // User-created underlyings: allow edit and delete actions
+                        tr.innerHTML = `
+                            <td>${u.id}</td>
+                            <td>${u.symbol}</td>
+                            <td>${u.name || ''}</td>
+                            <td>${u.historicalPrices ? u.historicalPrices.length : 0}</td>
+                            <td>
+                                <button data-id="${u.id}" class="edit-underlying-btn">Edit</button>
+                                <button data-id="${u.id}" class="details-underlying-btn">See Details</button>
+                                <button data-id="${u.id}" class="delete-underlying-btn">Delete</button>
+                            </td>
+                        `;
+                        userUnderlyingsTable?.appendChild(tr);
+                    }
                 });
+
+                // Reattach actions for the dynamic buttons
                 attachUnderlyingActions();
             })
             .catch(err => console.error(err));
@@ -232,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctx = underlyingChartCanvas.getContext('2d');
         underlyingChartCanvas.classList.remove('hidden');
         // Extract arrays of values: labels and datapoints to plotting
-        const labels = prices.map(p => p.date);
+        // Date only as MM/DD/YYYY (no time).
+	const labels = prices.map(p => p.date.split('T')[0]);
         const dataPoints = prices.map(p => p.price);
         // PLOT MAIN READING PROCEDURE! Here Chart.js reads the labels and datasets and drawss a line chart.
         // Also, the style is defined properly
@@ -259,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         grid: { color: '#ccc' }
                     },
                     y: {
-                        title: { display: true, text: 'Price', color: '#333' },
+                        title: { display: true, text: 'Price (USD)', color: '#333' },
                         ticks: { color: '#333' },
                         grid: { color: '#ccc' }
                     }
@@ -277,7 +318,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     tooltip: {
                         mode: 'index',
                         intersect: false
-                    }
+                    },
+		    zoom: {
+			pan: {
+			        enabled: true,
+			        mode: 'x'
+			    },
+			zoom: {
+			        wheel: {enabled: true},
+				pinch: {enabled: true},
+        			drag: { enabled: true, modifierKey: 'shift' },
+			        mode: 'x'
+			    }
+			}
                 },
                 interaction: {
                     mode: 'nearest',
@@ -287,6 +340,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 maintainAspectRatio: false
             }
         });
+    	// Double-click on the chart to reset zoom
+    	underlyingChartCanvas.ondblclick = () => {
+        	if (underlyingChartInstance && typeof underlyingChartInstance.resetZoom === 'function') {
+            		underlyingChartInstance.resetZoom();
+        		}
+    		};
     }
 
     // SECTION 2: Derivatives Section
@@ -295,9 +354,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const derivativeName = document.getElementById('derivativeName');
     const derivativeStrikePrice = document.getElementById('derivativeStrikePrice');
     const derivativeExpirationDate = document.getElementById('derivativeExpirationDate');
-    const derivativeOptionStyle = document.getElementById('derivativeOptionStyle');
     const derivativeIsCall = document.getElementById('derivativeIsCall');
+
     const derivativeUnderlyingId = document.getElementById('derivativeUnderlyingId');
+    const derivativeUnderlyingGroup = document.getElementById('derivativeUnderlyingIdGroup');
+    const derivativeUnderlyingDropdown = document.getElementById('derivativeUnderlyingDropdown');
+
+
     const derivativeOptionType = document.getElementById('derivativeOptionType');
     const derivativeId = document.getElementById('derivativeId');
     const derivativeExtraFields = document.getElementById('derivativeExtraFields');
@@ -309,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`${BASE_URL}/OptionEntities`)
             .then(res => res.json())
             .then(data => {
+		derivativesCache = Array.isArray(data) ? data : [];
                 derivativesTable.innerHTML = '';
                 data.forEach(d => {
                     const tr = document.createElement('tr');
@@ -333,6 +397,59 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error(err));
     }
 
+   function formatUnderlyingOption(u) {
+       return `ID ${u.id} : ${u.symbol || ''}`;
+    }
+
+   function ensureUnderlyingsCacheLoaded() {
+    if (underlyingsCache && underlyingsCache.length > 0) return Promise.resolve();
+    return fetch(`${BASE_URL}/Underlyings`)
+        .then(res => res.json())
+        .then(data => { underlyingsCache = Array.isArray(data) ? data : []; })
+        .catch(() => { underlyingsCache = []; });
+    }
+
+   function renderUnderlyingDropdown(filterText = '') {
+      if (!derivativeUnderlyingDropdown) return;
+
+      const raw = (filterText || '').trim().toLowerCase();
+
+      const matches = (underlyingsCache || [])
+        .slice()
+        .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+        .filter(u => {
+            const idStr = String(u.id ?? '');
+            const sym = String(u.symbol ?? '').toLowerCase();
+            if (!raw) return true;
+            return idStr.startsWith(raw) || sym.includes(raw);
+        });
+
+      if (matches.length === 0) {
+        derivativeUnderlyingDropdown.innerHTML = `<div class="pm-suggest-empty">No matches.</div>`;
+        return;
+      }
+
+      derivativeUnderlyingDropdown.innerHTML = matches.map(u => {
+        const label = formatUnderlyingOption(u);
+        return `<div class="pm-suggest-item" data-id="${u.id}">${label}</div>`;
+     }).join('');
+   }
+
+  function showUnderlyingDropdown() {
+      if (!derivativeUnderlyingDropdown) return;
+
+      ensureUnderlyingsCacheLoaded().then(() => {
+        renderUnderlyingDropdown(derivativeUnderlyingId.value);
+        derivativeUnderlyingDropdown.classList.remove('hidden');
+    });
+   }
+
+  function hideUnderlyingDropdown() {
+     if (!derivativeUnderlyingDropdown) return;
+     derivativeUnderlyingDropdown.classList.add('hidden');
+   }
+
+
     function attachDerivativeActions() {
         document.querySelectorAll('.edit-derivative-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -344,12 +461,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         derivativeName.value = d.name || '';
                         derivativeStrikePrice.value = d.strikePrice;
                         derivativeExpirationDate.value = formatDateForInput(d.expirationDate);
-                        derivativeOptionStyle.value = d.optionStyle;
+
                         derivativeIsCall.value = d.isCall ? 'true' : 'false';
                         derivativeUnderlyingId.value = d.underlyingId;
-                        derivativeOptionType.value = d.optionType;
+
+			derivativeOptionType.value = String(d.optionStyle);
+			derivativeOptionType.disabled = true;
+
                         derivativeId.value = d.id;
-                        handleDerivativeOptionTypeChange(d.optionType, d);
+                        handleDerivativeOptionTypeChange(parseInt(d.optionStyle), d);
                         cancelDerivativeEditButton.classList.remove('hidden');
                     })
                     .catch(err => console.error(err));
@@ -403,6 +523,30 @@ document.addEventListener('DOMContentLoaded', () => {
         handleDerivativeOptionTypeChange(typeVal);
     });
 
+    if (derivativeUnderlyingId && derivativeUnderlyingDropdown && derivativeUnderlyingGroup) {
+        derivativeUnderlyingId.addEventListener('focus', showUnderlyingDropdown);
+        derivativeUnderlyingId.addEventListener('click', showUnderlyingDropdown);
+
+        derivativeUnderlyingId.addEventListener('input', () => {
+            showUnderlyingDropdown();
+        });
+
+        derivativeUnderlyingDropdown.addEventListener('click', (e) => {
+            const item = e.target.closest('.pm-suggest-item');
+            if (!item) return;
+
+            derivativeUnderlyingId.value = item.getAttribute('data-id');
+            hideUnderlyingDropdown();
+            derivativeUnderlyingId.focus();
+       });
+
+       document.addEventListener('click', (e) => {
+           const clickedInside = derivativeUnderlyingGroup.contains(e.target);
+           if (!clickedInside) hideUnderlyingDropdown();
+       });
+    }
+
+
     derivativesForm.addEventListener('submit', e => {
         e.preventDefault();
         const body = {
@@ -411,10 +555,12 @@ document.addEventListener('DOMContentLoaded', () => {
             name: derivativeName.value.trim() || null,
             strikePrice: parseFloat(derivativeStrikePrice.value),
             expirationDate: new Date(derivativeExpirationDate.value).toISOString(),
-            optionStyle: parseInt(derivativeOptionStyle.value),
+
+            optionStyle: selectedType,
+            optionType: selectedType,
+
             isCall: (derivativeIsCall.value === 'true'),
-            underlyingId: parseInt(derivativeUnderlyingId.value),
-            optionType: parseInt(derivativeOptionType.value)
+            underlyingId: parseInt(derivativeUnderlyingId.value)
         };
 
         const typeVal = body.optionType;
@@ -456,10 +602,12 @@ document.addEventListener('DOMContentLoaded', () => {
         derivativeName.value = '';
         derivativeStrikePrice.value = '';
         derivativeExpirationDate.value = '';
-        derivativeOptionStyle.value = '1';
+
+	derivativeOptionType.value = '1';
+	derivativeOptionType.disabled = false;
+
         derivativeIsCall.value = 'true';
         derivativeUnderlyingId.value = '';
-        derivativeOptionType.value = '1';
         derivativeId.value = '';
         derivativeExtraFields.innerHTML = '';
         cancelDerivativeEditButton.classList.add('hidden');
@@ -468,8 +616,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // SECTION 3: Trades Section
     const tradesForm = document.getElementById('tradesForm');
     const tradeInstrumentId = document.getElementById('tradeInstrumentId');
+    const tradeInstrumentGroup = document.getElementById('tradeInstrumentIdGroup');
+    const tradeInstrumentDropdown = document.getElementById('tradeInstrumentDropdown');
     const tradeQuantity = document.getElementById('tradeQuantity');
+
+
     const tradeDate = document.getElementById('tradeDate');
+    const tradeTime = document.getElementById('tradeTime');
+
+
     const tradePrice = document.getElementById('tradePrice');
     const tradeId = document.getElementById('tradeId');
     const tradesTable = document.getElementById('tradesTable').querySelector('tbody');
@@ -541,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = {
             instrumentId: parseInt(tradeInstrumentId.value),
             quantity: parseInt(tradeQuantity.value),
-            tradeDate: new Date(tradeDate.value).toISOString(),
+            tradeDate: `${tradeDate.value}T${(tradeTime && tradeTime.value) ? tradeTime.value : '23:00'}:00Z`,
             price: parseFloat(tradePrice.value)
         };
         const idVal = tradeId.value;
@@ -579,6 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tradeInstrumentId.value = '';
         tradeQuantity.value = '';
         tradeDate.value = '';
+	if (tradeTime) tradeTime.value = '';
         tradePrice.value = '';
         tradeId.value = '';
         cancelTradeEditButton.classList.add('hidden');
@@ -587,16 +743,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // SECTION 4: Rates Section
     const ratesForm = document.getElementById('ratesForm');
     const rateCurveName = document.getElementById('rateCurveName');
-    const rateCurvesTable = document.getElementById('rateCurvesTable').querySelector('tbody');
-
+    // Separate table bodies for predefined (system) and user-defined rate curves
+    const predefinedRateCurvesTable = document.getElementById('predefinedRateCurvesTable')?.querySelector('tbody');
+    const userRateCurvesTable = document.getElementById('userRateCurvesTable')?.querySelector('tbody');
+    // Retain a reference for legacy code – point to the user table by default
+    const rateCurvesTable = userRateCurvesTable;
     const ratePointsForm = document.getElementById('ratePointsForm');
     const ratePointsCurveId = document.getElementById('ratePointsCurveId');
+
+
+    const ratePointsCurveGroup = document.getElementById('ratePointsCurveIdGroup');
+    const rateCurveIdDropdown = document.getElementById('rateCurveIdDropdown');
     const ratePointsJson = document.getElementById('ratePointsJson');
+    // Lock ID rate =5
+    const addRatePointsButton = document.getElementById('addRatePointsButton');
+
+    const PREDEFINED_RATE_CURVE_ID = 1;
+
+    function applyRatePointsLock() {
+	    const cid = parseInt(ratePointsCurveId.value, 10);
+
+	    const locked = (cid === PREDEFINED_RATE_CURVE_ID);
+
+	    if (addRatePointsButton) addRatePointsButton.disabled = locked;
+
+	    if (ratePointsJson) {
+	        ratePointsJson.readOnly = locked;
+	        if (locked) {
+	            ratePointsJson.placeholder = "Rate Curve ID 1 is predefined and updated automatically. Editing is disabled.";
+	        }
+	    }
+	}
+
+    ratePointsCurveId.addEventListener('input', applyRatePointsLock);
+    ratePointsCurveId.addEventListener('change', applyRatePointsLock);
+    applyRatePointsLock();
+    // End of modification to lock ID rate =5
+
 
     const getAllRateCurvesButton = document.getElementById('getAllRateCurvesButton');
     const getRateCurveByIdInput = document.getElementById('getRateCurveByIdInput');
     const getRateCurveByIdButton = document.getElementById('getRateCurveByIdButton');
-
+	
     const editRateCurveForm = document.getElementById('editRateCurveForm');
     const editRateCurveId = document.getElementById('editRateCurveId');
     const editRateCurveName = document.getElementById('editRateCurveName');
@@ -649,28 +837,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 return res.json();
             })
             .then(data => {
-                rateCurvesTable.innerHTML = '';
-                if (data.length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="4">No RateCurves found.</td>`;
-                    rateCurvesTable.appendChild(tr);
+        // Clear both predefined and user tables
+	rateCurvesCache = Array.isArray(data) ? data : [];
+        if (predefinedRateCurvesTable) predefinedRateCurvesTable.innerHTML = '';
+        if (userRateCurvesTable) userRateCurvesTable.innerHTML = '';
+        if (data.length === 0) {
+            // Display message on user table when no curves exist
+            if (userRateCurvesTable) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4">No Rate Curves found.</td>`;
+                userRateCurvesTable.appendChild(tr);
+            }
+        } else {
+            data.forEach(rc => {
+                const isPredefined = rc.name && rc.name.toLowerCase().includes('usd') && rc.name.toLowerCase().includes('treasury') && rc.name.toLowerCase().includes('sofr');
+                const tr = document.createElement('tr');
+                if (isPredefined) {
+                    // Predefined curves have only details action
+                    tr.innerHTML = `
+                        <td>${rc.id}</td>
+                        <td>${rc.name || ''}</td>
+                        <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
+                        <td><button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button></td>
+                    `;
+                    if (predefinedRateCurvesTable) predefinedRateCurvesTable.appendChild(tr);
                 } else {
-                    data.forEach(rc => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${rc.id}</td>
-                            <td>${rc.name || ''}</td>
-                            <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
-                            <td>
-                                <button data-id="${rc.id}" class="edit-ratecurve-btn">Edit</button>
-                                <button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button>
-                                <button data-id="${rc.id}" class="delete-ratecurve-btn">Delete</button>
-                            </td>
-                        `;
-                        rateCurvesTable.appendChild(tr);
-                    });
-                    attachRateCurveActions();
+                    tr.innerHTML = `
+                        <td>${rc.id}</td>
+                        <td>${rc.name || ''}</td>
+                        <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
+                        <td>
+                            <button data-id="${rc.id}" class="edit-ratecurve-btn">Edit</button>
+                            <button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button>
+                            <button data-id="${rc.id}" class="delete-ratecurve-btn">Delete</button>
+                        </td>
+                    `;
+                    if (userRateCurvesTable) userRateCurvesTable.appendChild(tr);
                 }
+            });
+            attachRateCurveActions();
+        }
             })
             .catch(err => console.error(err));
     }
@@ -689,19 +895,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 return res.json();
             })
             .then(rc => {
-                rateCurvesTable.innerHTML = '';
+                // Clear both predefined and user tables
+                if (predefinedRateCurvesTable) predefinedRateCurvesTable.innerHTML = '';
+                if (userRateCurvesTable) userRateCurvesTable.innerHTML = '';
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${rc.id}</td>
-                    <td>${rc.name || ''}</td>
-                    <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
-                    <td>
-                        <button data-id="${rc.id}" class="edit-ratecurve-btn">Edit</button>
-                        <button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button>
-                        <button data-id="${rc.id}" class="delete-ratecurve-btn">Delete</button>
-                    </td>
-                `;
-                rateCurvesTable.appendChild(tr);
+                const isPredefined = rc.name && rc.name.toLowerCase().includes('usd') && rc.name.toLowerCase().includes('treasury') && rc.name.toLowerCase().includes('sofr');
+                if (isPredefined) {
+                    tr.innerHTML = `
+                        <td>${rc.id}</td>
+                        <td>${rc.name || ''}</td>
+                        <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
+                        <td><button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button></td>
+                    `;
+                    if (predefinedRateCurvesTable) predefinedRateCurvesTable.appendChild(tr);
+                } else {
+                    tr.innerHTML = `
+                        <td>${rc.id}</td>
+                        <td>${rc.name || ''}</td>
+                        <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
+                        <td>
+                            <button data-id="${rc.id}" class="edit-ratecurve-btn">Edit</button>
+                            <button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button>
+                            <button data-id="${rc.id}" class="delete-ratecurve-btn">Delete</button>
+                        </td>
+                    `;
+                    if (userRateCurvesTable) userRateCurvesTable.appendChild(tr);
+                }
                 attachRateCurveActions();
             })
             .catch(err => {
@@ -814,6 +1033,12 @@ document.addEventListener('DOMContentLoaded', () => {
     ratePointsForm.addEventListener('submit', e => {
         e.preventDefault();
         const cid = parseInt(ratePointsCurveId.value);
+	// Modification for ID rate = 1
+	if (cid === PREDEFINED_RATE_CURVE_ID) {
+    	alert("Rate Curve ID 1 is predefined and updated automatically. Editing is disabled.");
+    		return;
+	}
+	// End of modification for ID rate = 1
         let rpArray = [];
         try {
             if (ratePointsJson.value.trim()) {
@@ -839,13 +1064,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Rate Points added successfully.');
                 ratePointsCurveId.value = '';
                 ratePointsJson.value = '';
-                loadRateCurveById(cid);
+                loadAllRateCurves();
                 loadAllRateCurvesForValuation();
             })
             .catch(err => console.error(err));
     });
 
-    // SECTION 5: Valuation Section
+    // SECTION 5: Valuation Section (fetching section)
     const valuationTradesTable = document.getElementById('valuationTradesTable').querySelector('tbody');
     const selectAllTradesButton = document.getElementById('selectAllTradesButton');
     const clearAllTradesButton = document.getElementById('clearAllTradesButton');
@@ -856,14 +1081,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const valAntithetic = document.getElementById('valAntithetic');
     const valControlVariate = document.getElementById('valControlVariate');
     const valMultithreaded = document.getElementById('valMultithreaded');
+
     const valUseVDCSequence = document.getElementById('valUseVDCSequence');
     const valBase1 = document.getElementById('valBase1');
     const valBase2 = document.getElementById('valBase2');
-    const valuationResultsTable = document.getElementById('valuationResultsTable').querySelector('tbody');
 
-    const valRateCurveSelect = document.getElementById('valRateCurve');
+    // VDC: show/hide Base 1 + Base 2 based on Use VDC Sequence
+    const vdcBaseFields = document.querySelectorAll('.vdc-base-fields');
 
-    function loadValuationTrades() {
+    function syncVdcBaseFieldsVisibility() {
+        const show = (valUseVDCSequence && valUseVDCSequence.value === 'true');
+        vdcBaseFields.forEach(el => {
+        el.style.display = show ? 'block' : 'none';
+      });
+    }
+
+   // Apply once on page load, then on change
+   syncVdcBaseFieldsVisibility();
+   valUseVDCSequence.addEventListener('change', syncVdcBaseFieldsVisibility);
+
+   const valuationResultsTable = document.getElementById('valuationResultsTable').querySelector('tbody');
+   const portfolioValueRow = document.getElementById('portfolioValueRow');
+   const portfolioValueText = document.getElementById('portfolioValueText');
+   const usdFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+   const valRateCurveSelect = document.getElementById('valRateCurve');
+
+   function loadValuationTrades() {
         fetch(`${BASE_URL}/Trades`)
             .then(res => res.json())
             .then(data => {
@@ -943,11 +1186,16 @@ document.addEventListener('DOMContentLoaded', () => {
             antithetic: (valAntithetic.value === 'true'),
             controlVariate: (valControlVariate.value === 'true'),
             multithreaded: (valMultithreaded.value === 'true'),
-            useVDCSequence: (valUseVDCSequence.value === 'true'),
-            base1: parseInt(valBase1.value),
-            base2: parseInt(valBase2.value),
+
+	    UseVDCSequence: (valUseVDCSequence.value === 'true'),
+	    Base1: parseInt(valBase1.value),
+	    Base2: parseInt(valBase2.value),
+
             rateCurveId: selectedCurveId
         };
+
+	portfolioValueRow.classList.add('hidden');
+	portfolioValueText.textContent = '—';
 
         fetch(`${BASE_URL}/Valuation`, {
             method: 'POST',
@@ -962,6 +1210,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 return res.json();
             })
             .then(result => {
+		// Show portfolio value (prefer API field; fallback = sum of row values)
+		let pv = Number(result.portfolioValue ?? result.PortfolioValue);
+
+		if (!Number.isFinite(pv)) {
+    			pv = (result.valuations || []).reduce((sum, v) => sum + (Number(v.price) || 0), 0);
+		}
+
+		portfolioValueText.textContent = usdFormatter.format(pv);
+		portfolioValueRow.classList.remove('hidden');
+
                 valuationResultsTable.innerHTML = '';
                 result.valuations.forEach(v => {
                     const tr = document.createElement('tr');
@@ -1194,29 +1452,197 @@ document.addEventListener('DOMContentLoaded', () => {
                 return res.json();
             })
             .then(data => {
-                rateCurvesTable.innerHTML = '';
-                if (data.length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="4">No RateCurves found.</td>`;
-                    rateCurvesTable.appendChild(tr);
+        // Clear both predefined and user tables
+	rateCurvesCache = Array.isArray(data) ? data : [];
+        if (predefinedRateCurvesTable) predefinedRateCurvesTable.innerHTML = '';
+        if (userRateCurvesTable) userRateCurvesTable.innerHTML = '';
+        if (data.length === 0) {
+            // Display message on user table when no curves exist
+            if (userRateCurvesTable) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4">No Rate Curves found.</td>`;
+                userRateCurvesTable.appendChild(tr);
+            }
+        } else {
+            data.forEach(rc => {
+                const isPredefined = rc.name && rc.name.toLowerCase().includes('usd') && rc.name.toLowerCase().includes('treasury') && rc.name.toLowerCase().includes('sofr');
+                const tr = document.createElement('tr');
+                if (isPredefined) {
+                    tr.innerHTML = `
+                                <td>${rc.id}</td>
+                                <td>${rc.name || ''}</td>
+                                <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
+                                <td><button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button></td>
+                            `;
+                    if (predefinedRateCurvesTable) predefinedRateCurvesTable.appendChild(tr);
                 } else {
-                    data.forEach(rc => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${rc.id}</td>
-                            <td>${rc.name || ''}</td>
-                            <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
-                            <td>
-                                <button data-id="${rc.id}" class="edit-ratecurve-btn">Edit</button>
-                                <button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button>
-                                <button data-id="${rc.id}" class="delete-ratecurve-btn">Delete</button>
-                            </td>
-                        `;
-                        rateCurvesTable.appendChild(tr);
-                    });
-                    attachRateCurveActions(); // Now includes chart functionality...
+                    tr.innerHTML = `
+                                <td>${rc.id}</td>
+                                <td>${rc.name || ''}</td>
+                                <td>${rc.ratePoints ? rc.ratePoints.length : 0}</td>
+                                <td>
+                                    <button data-id="${rc.id}" class="edit-ratecurve-btn">Edit</button>
+                                    <button data-id="${rc.id}" class="details-ratecurve-btn">See Details</button>
+                                    <button data-id="${rc.id}" class="delete-ratecurve-btn">Delete</button>
+                                </td>
+                            `;
+                    if (userRateCurvesTable) userRateCurvesTable.appendChild(tr);
                 }
+            });
+            attachRateCurveActions();
+        }
             })
             .catch(err => console.error(err));
     }
+
+function ensureDerivativesCacheLoaded() {
+    if (derivativesCache && derivativesCache.length > 0) return Promise.resolve();
+    return fetch(`${BASE_URL}/OptionEntities`)
+        .then(res => res.json())
+        .then(data => { derivativesCache = Array.isArray(data) ? data : []; })
+        .catch(() => { derivativesCache = []; });
+}
+
+function getInstrumentOptions() {
+    const u = (underlyingsCache || []).map(x => ({ id: x.id, symbol: x.symbol || '', kind: 'UNDERLYING' }));
+    const d = (derivativesCache || []).map(x => ({ id: x.id, symbol: x.symbol || '', kind: 'DERIVATIVE' }));
+    return u.concat(d).sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+}
+
+function renderTradeInstrumentDropdown(filterText = '') {
+    if (!tradeInstrumentDropdown) return;
+
+    const raw = (filterText || '').trim().toLowerCase();
+    const opts = getInstrumentOptions().filter(o => {
+        if (!raw) return true;
+        return String(o.id ?? '').startsWith(raw) || String(o.symbol ?? '').toLowerCase().includes(raw);
+    });
+
+    if (opts.length === 0) {
+        tradeInstrumentDropdown.innerHTML = `<div class="pm-suggest-empty">No matches.</div>`;
+        return;
+    }
+
+    tradeInstrumentDropdown.innerHTML = opts.map(o => {
+        const label = `ID ${o.id} : ${o.symbol} (${o.kind})`;
+        return `<div class="pm-suggest-item" data-id="${o.id}">${label}</div>`;
+    }).join('');
+}
+
+function showTradeInstrumentDropdown() {
+    if (!tradeInstrumentDropdown) return;
+
+    Promise.all([ensureUnderlyingsCacheLoaded(), ensureDerivativesCacheLoaded()]).then(() => {
+        renderTradeInstrumentDropdown(tradeInstrumentId.value);
+        tradeInstrumentDropdown.classList.remove('hidden');
+    });
+}
+
+function hideTradeInstrumentDropdown() {
+    if (!tradeInstrumentDropdown) return;
+    tradeInstrumentDropdown.classList.add('hidden');
+}
+
+if (tradeInstrumentId && tradeInstrumentDropdown && tradeInstrumentGroup) {
+    tradeInstrumentId.addEventListener('focus', showTradeInstrumentDropdown);
+    tradeInstrumentId.addEventListener('click', showTradeInstrumentDropdown);
+
+    tradeInstrumentId.addEventListener('input', () => {
+        showTradeInstrumentDropdown();
+    });
+
+    tradeInstrumentDropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.pm-suggest-item');
+        if (!item) return;
+
+        tradeInstrumentId.value = item.getAttribute('data-id');
+        hideTradeInstrumentDropdown();
+        tradeInstrumentId.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!tradeInstrumentGroup.contains(e.target)) hideTradeInstrumentDropdown();
+    });
+}
+
+
+
+function ensureRateCurvesCacheLoaded() {
+    if (rateCurvesCache && rateCurvesCache.length > 0) return Promise.resolve();
+    return fetch(`${BASE_URL}/RateCurves`)
+        .then(res => res.json())
+        .then(data => { rateCurvesCache = Array.isArray(data) ? data : []; })
+        .catch(() => { rateCurvesCache = []; });
+}
+
+function renderRateCurveIdDropdown(filterText = '') {
+    if (!rateCurveIdDropdown) return;
+
+    const raw = (filterText || '').trim().toLowerCase();
+
+    const curves = (rateCurvesCache || [])
+     .slice()
+     .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+     .filter(c => (c.id ?? 0) !== PREDEFINED_RATE_CURVE_ID)
+     .filter(c => {
+         if (!raw) return true;
+         return String(c.id ?? '').startsWith(raw) || String(c.name ?? '').toLowerCase().includes(raw);
+     });
+
+
+
+    if (curves.length === 0) {
+        rateCurveIdDropdown.innerHTML = `<div class="pm-suggest-empty">No matches.</div>`;
+        return;
+    }
+
+    rateCurveIdDropdown.innerHTML = curves.map(c => {
+        const label = `ID ${c.id} : ${c.name || ''}`;
+        return `<div class="pm-suggest-item" data-id="${c.id}">${label}</div>`;
+    }).join('');
+}
+
+function showRateCurveIdDropdown() {
+    if (!rateCurveIdDropdown) return;
+
+    ensureRateCurvesCacheLoaded().then(() => {
+        renderRateCurveIdDropdown(ratePointsCurveId.value);
+        rateCurveIdDropdown.classList.remove('hidden');
+    });
+}
+
+function hideRateCurveIdDropdown() {
+    if (!rateCurveIdDropdown) return;
+    rateCurveIdDropdown.classList.add('hidden');
+}
+
+if (ratePointsCurveId && rateCurveIdDropdown && ratePointsCurveGroup) {
+    ratePointsCurveId.addEventListener('focus', showRateCurveIdDropdown);
+    ratePointsCurveId.addEventListener('click', showRateCurveIdDropdown);
+
+    ratePointsCurveId.addEventListener('input', () => {
+        showRateCurveIdDropdown();
+    });
+
+
+rateCurveIdDropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.pm-suggest-item');
+    if (!item) return;
+
+    ratePointsCurveId.value = item.getAttribute('data-id');
+
+    applyRatePointsLock();
+
+    hideRateCurveIdDropdown();
+    ratePointsCurveId.focus();
+});
+
+
+
+    document.addEventListener('click', (e) => {
+        if (!ratePointsCurveGroup.contains(e.target)) hideRateCurveIdDropdown();
+    });
+}
+
+
 });
