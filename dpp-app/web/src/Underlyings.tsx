@@ -142,7 +142,7 @@ export function Underlyings(p: { ctx: Ctx }) {
     try {
       await api.deleteUnderlying(selected.id);
       ctx.setSelUnderlying(null);
-      await Promise.all([ctx.reload('underlyings'), ctx.reload('options'), ctx.reload('trades')]);
+      await ctx.reload('underlyings', 'options', 'trades');
     } catch (err) {
       setMsg((err as Error).message);
     } finally {

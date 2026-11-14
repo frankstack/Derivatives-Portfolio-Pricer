@@ -45,12 +45,20 @@ export default function App() {
     window.location.hash = '#/' + key;
   }, []);
 
-  const reload = useCallback(async (what: Reloadable) => {
+  const reload = useCallback(async (...what: Reloadable[]) => {
     try {
-      if (what === 'underlyings') setUnderlyings(await api.underlyings());
-      else if (what === 'options') setOptions((await api.options()).sort((a, b) => a.id - b.id));
-      else if (what === 'trades') setTrades((await api.trades()).sort((a, b) => a.id - b.id));
-      else setCurves((await api.curves()).sort((a, b) => a.id - b.id));
+      const has = (k: Reloadable) => what.indexOf(k) >= 0;
+      const [u, o, t, c] = await Promise.all([
+        has('underlyings') ? api.underlyings() : null,
+        has('options') ? api.options() : null,
+        has('trades') ? api.trades() : null,
+        has('curves') ? api.curves() : null,
+      ]);
+      // Everything that was asked for lands in one render, so the book is never half updated.
+      if (u) setUnderlyings(u);
+      if (o) setOptions(o.sort((a, b) => a.id - b.id));
+      if (t) setTrades(t.sort((a, b) => a.id - b.id));
+      if (c) setCurves(c.sort((a, b) => a.id - b.id));
       setError('');
     } catch (e) {
       setError((e as Error).message);
@@ -73,6 +81,8 @@ export default function App() {
     return out;
   }, [underlyings]);
 
+  // Only the latest run may write its result: an older, slower answer must not replace a newer one.
+  const runSeq = useRef(0);
   const runValuation = useCallback(
     async (ids?: number[], s?: ValSettings) => {
       const st = s || valSettings;
@@ -85,17 +95,21 @@ export default function App() {
         multithreaded: st.multithreaded, useVDCSequence: st.vdc, base1: st.base1, base2: st.base2, rateCurveId: curveId,
       };
       if (st.asOf) req.valuationDate = st.asOf + 'T23:00:00Z';
+      runSeq.current += 1;
+      const seq = runSeq.current;
       setValBusy(true);
       setValError('');
       const t0 = Date.now();
       try {
         const res = await api.valuate(req);
-        setValuation(res);
-        setValMs(Date.now() - t0);
+        if (seq === runSeq.current) {
+          setValuation(res);
+          setValMs(Date.now() - t0);
+        }
       } catch (e) {
-        setValError((e as Error).message);
+        if (seq === runSeq.current) setValError((e as Error).message);
       } finally {
-        setValBusy(false);
+        if (seq === runSeq.current) setValBusy(false);
       }
     },
     [trades, curves, valSettings],

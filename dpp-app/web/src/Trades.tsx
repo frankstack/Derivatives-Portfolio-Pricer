@@ -41,8 +41,8 @@ export function Trades(p: { ctx: Ctx }) {
     return {
       key: 't' + t.id, id: t.id, instrumentId: t.instrumentId, date: day(t.tradeDate),
       symbol: t.instrument ? t.instrument.symbol : String(t.instrumentId), under: u ? u.symbol : '', net: t.quantity, price: t.price,
-      premium: premium, unit: valued ? v.unitPrice : null, value: valued ? v.price : expired ? 0 : null,
-      pl: valued ? v.price - premium : null, days: days, open: !expired, count: 1,
+      premium: premium, unit: valued ? v.unitPrice : null, value: valued ? v.unitPrice * t.quantity : expired ? 0 : null,
+      pl: valued ? v.unitPrice * t.quantity - premium : null, days: days, open: !expired, count: 1,
     };
   });
 

@@ -19,7 +19,7 @@ export type Ctx = {
   trades: Trade[] | null;
   curves: RateCurve[] | null;
   error: string;
-  reload: (what: Reloadable) => Promise<void>;
+  reload: (...what: Reloadable[]) => Promise<void>;
   valuation: ValuationResult | null;
   valBusy: boolean;
   valError: string;

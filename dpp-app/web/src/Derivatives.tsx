@@ -138,7 +138,7 @@ export function Derivatives(p: { ctx: Ctx }) {
       await api.deleteOption(selected.id);
       ctx.setSelOption(null);
       setDraft(null);
-      await Promise.all([ctx.reload('options'), ctx.reload('trades')]);
+      await ctx.reload('options', 'trades');
     } catch (err) {
       setMsg((err as Error).message);
     } finally {
