@@ -217,7 +217,8 @@ export function Underlyings(p: { ctx: Ctx }) {
                 series={[{ name: '', color: C.teal, values: chart.values, width: 2 }]}
                 height={320}
                 xTicks={chart.xTicks}
-                yFormat={(v) => fmt(v, v < 10 ? 2 : v < 1000 ? 1 : 0)}
+                yFormat={(v) => fmt(v)}
+                yTick={(v) => fmt(v, v < 10 ? 2 : 0)}
                 tip={(i) => chart.dates[i]}
                 area
                 tag

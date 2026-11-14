@@ -75,10 +75,10 @@ export function Rates(p: { ctx: Ctx }) {
     name: tenorLabel(t), color: keyColors[i], width: i === 0 ? 2.5 : 1.5,
     values: timeline.map((c) => { const r = rateAt(c, t); return r === null ? null : r * 100; }),
   }));
-  const step = Math.max(1, Math.ceil(timeline.length / 6));
+  const step = Math.max(1, Math.round(timeline.length / 4));
   const historyTicks = timeline
-    .map((c, i) => ({ i: i, label: live && c.id === live.id ? 'Live' : i === 0 ? monthYear(snapshotDay(c)) : shortDate(snapshotDay(c)) }))
-    .filter((x) => x.i % step === 0 || x.i === timeline.length - 1)
+    .map((c, i) => ({ i: i, label: live && c.id === live.id ? 'Live' : shortDate(snapshotDay(c)) }))
+    .filter((x) => x.i === timeline.length - 1 || (x.i % step === 0 && x.i < timeline.length - 1 - step / 2))
     .map((x) => ({ pos: timeline.length > 1 ? x.i / (timeline.length - 1) : 0.5, label: x.label }));
 
   const ref = snaps[0];
@@ -220,6 +220,7 @@ export function Rates(p: { ctx: Ctx }) {
               categorical
               xTicks={tenors.map((t, i) => ({ pos: (i + 0.5) / tenors.length, label: tenorLabel(t) }))}
               yFormat={(v) => fmt(v, 2) + '%'}
+              yTick={(v) => fmt(v, 1) + '%'}
               tip={(i) => tenorLabel(tenors[i])}
             />
             <Legend items={drawn.map((c) => ({ color: colorOf(c), label: curveKind(c) === 'live' ? 'Live' : curveKind(c) === 'snapshot' ? snapshotDay(c) : c.name }))} />
@@ -237,6 +238,7 @@ export function Rates(p: { ctx: Ctx }) {
               height={220}
               xTicks={historyTicks}
               yFormat={(v) => fmt(v, 2) + '%'}
+              yTick={(v) => fmt(v, 1) + '%'}
               tip={(i) => (live && timeline[i].id === live.id ? 'Live curve' : snapshotDay(timeline[i]))}
             />
             <Legend items={history.map((s) => ({ color: s.color, label: s.name }))} />

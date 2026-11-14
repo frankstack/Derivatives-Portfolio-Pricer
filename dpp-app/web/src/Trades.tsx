@@ -190,10 +190,8 @@ export function Trades(p: { ctx: Ctx }) {
         <Select label="Instrument" value={form.instrumentId} onChange={(v) => set('instrumentId', v)} options={choices} />
         {about ? <p className="note">{about}</p> : null}
         <Seg label="Side" options={['Buy', 'Sell']} value={form.side} onChange={(v) => set('side', v)} />
-        <div className="two">
-          <Field label="Quantity" value={form.qty} onChange={(v) => set('qty', v)} />
-          <Field label="Trade date" type="date" value={form.date} onChange={(v) => set('date', v)} />
-        </div>
+        <Field label="Quantity" value={form.qty} onChange={(v) => set('qty', v)} />
+        <Field label="Trade date" type="date" value={form.date} onChange={(v) => set('date', v)} />
         <Field label="Price per unit" value={form.price} onChange={(v) => set('price', v)} />
         <Btn onClick={modelPrice} disabled={busy}>Use the model price</Btn>
         <div>

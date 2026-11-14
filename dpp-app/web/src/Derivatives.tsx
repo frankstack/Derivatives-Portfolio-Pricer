@@ -200,10 +200,8 @@ export function Derivatives(p: { ctx: Ctx }) {
           options={OPTION_TYPES.slice(1).map((t, i) => ({ value: String(i + 1), label: t }))}
         />
         <Seg label="Call or put" options={['Call', 'Put']} value={draft.side} onChange={(v) => set('side', v)} />
-        <div className="two">
-          <Field label={type === 6 ? 'Strike (not used)' : 'Strike'} value={draft.strike} onChange={(v) => set('strike', v)} />
-          <Field label="Expiry" type="date" value={draft.expiry} onChange={(v) => set('expiry', v)} />
-        </div>
+        <Field label={type === 6 ? 'Strike (not used)' : 'Strike'} value={draft.strike} onChange={(v) => set('strike', v)} />
+        <Field label="Expiry" type="date" value={draft.expiry} onChange={(v) => set('expiry', v)} />
         {type === 3 ? <Field label="Pays, if it ends in the money" value={draft.rebate} onChange={(v) => set('rebate', v)} /> : null}
         {type === 4 ? (
           <>

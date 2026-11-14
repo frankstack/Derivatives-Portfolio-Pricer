@@ -1,6 +1,6 @@
 // Valuation: run the Monte Carlo engine over the book. Run settings sit on the right.
 import { useMemo, useState } from 'react';
-import { curveKind, liveCurve, snapshotDay, today } from './api';
+import { curveKind, liveCurve, shortDate, snapshotDay, today } from './api';
 import type { TradeValuation } from './api';
 import { Shell, underlyingOf } from './shell';
 import type { Ctx, ValSettings } from './shell';
@@ -57,6 +57,8 @@ export function Valuation(p: { ctx: Ctx }) {
       tone: (r) => (!r.v ? 'muted' : r.v.status === 'valued' ? 'pos' : 'warn'),
     },
   ];
+  // Status sits right after the instrument so it stays in view when the grid scrolls sideways.
+  cols.splice(3, 0, cols.pop() as Col<Row>);
 
   const vals = ctx.valuation ? ctx.valuation.valuations : [];
   const valued = vals.filter((v) => v.status === 'valued');
@@ -91,7 +93,7 @@ export function Valuation(p: { ctx: Ctx }) {
     .slice()
     .sort((a, b) => order.indexOf(curveKind(a)) - order.indexOf(curveKind(b)) || (snapshotDay(a) < snapshotDay(b) ? 1 : -1))
     .map((c) => ({ value: String(c.id), label: c.name, group: group(curveKind(c)) }));
-  const when = ctx.valuation ? ctx.valuation.valuationDate.slice(0, 16).replace('T', ' ') : '';
+  const when = ctx.valuation ? shortDate(ctx.valuation.valuationDate.slice(0, 10)) + ', ' + ctx.valuation.valuationDate.slice(11, 16) : '';
 
   const rail = (
     <>

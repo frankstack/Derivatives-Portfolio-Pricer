@@ -46,6 +46,7 @@ type LineProps = {
   height: number;
   xTicks: XTick[];
   yFormat: (v: number) => string;
+  yTick?: (v: number) => string;
   tip: (i: number) => string;
   categorical?: boolean;
   area?: boolean;
@@ -149,7 +150,7 @@ export function LineChart(p: LineProps) {
           ) : null}
         </div>
         <div className="yaxis" aria-hidden="true" style={{ height: H }}>
-          {ticks.map((t) => <span key={t} style={{ top: fy(t) * 100 + '%' }}>{p.yFormat(t)}</span>)}
+          {ticks.map((t) => <span key={t} style={{ top: fy(t) * 100 + '%' }}>{(p.yTick || p.yFormat)(t)}</span>)}
           {p.tag && lastIdx >= 0 ? (
             <span className="tag" style={{ top: fy(first.values[lastIdx] as number) * 100 + '%' }}>{p.yFormat(first.values[lastIdx] as number)}</span>
           ) : null}
