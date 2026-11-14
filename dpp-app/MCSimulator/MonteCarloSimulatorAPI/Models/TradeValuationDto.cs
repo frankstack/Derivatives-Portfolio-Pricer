@@ -21,5 +21,17 @@ namespace MonteCarloSimulatorAPI.Models
         // New fields for displaying volatility and interest rate used in the valuation
         public double Volatility { get; set; }
         public double RiskFreeRate { get; set; }
+
+        // Position context. Price is the position value (UnitPrice times Quantity); the Greeks are per unit.
+        public int Quantity { get; set; }
+        public double UnitPrice { get; set; }
+
+        // What the valuation was computed from
+        public double Spot { get; set; }
+        public DateTime? SpotDate { get; set; }
+        public double TimeToMaturity { get; set; } // Years left at the valuation date
+
+        // "valued", "expired" (nothing left to value) or "not_traded_yet" (traded after the valuation date)
+        public string Status { get; set; } = "valued";
     }
 }
