@@ -159,13 +159,65 @@ The API is documented via Swagger at `/swagger` when the service is running. Key
 
 ## Data pipeline
 
-A containerized AWS Lambda function runs on a cron schedule (Tue-Sat, before market open) via EventBridge:
+A containerized AWS Lambda function runs on a cron schedule (Tue-Sat 03:30 UTC, after the US close) via EventBridge:
 
-1. **Fetch** -- pulls NDX-50 equity close prices from yfinance and Treasury + SOFR rates from FRED.
-2. **Archive** -- writes raw CSV snapshots and a JSON manifest to S3, partitioned by date.
-3. **Upsert** -- pushes the cleaned latest snapshot into the API via authenticated POST/PUT.
+1. **Fetch** -- pulls NDX-50 daily closes from yfinance and Treasury + SOFR rates from FRED.
+2. **Upsert** -- sends every trading day in the window to the API via authenticated POST/PUT. The upsert is idempotent per (symbol, date), so a missed run is repaired by the next one.
+3. **Archive** -- writes raw CSV snapshots to S3, one `dt=YYYY-MM-DD` partition per trading day, plus a JSON manifest per run. A day is archived only after Postgres has accepted it.
 
 Glue crawlers catalog the S3 partitions so Athena can query the full history for audits, backfills, and quality checks.
+
+### Self-healing window
+
+A scheduled run re-sends the last `DPP_LOOKBACK_DAYS` (default 10) days. If the newest price partition in S3 is older than that, the window widens back to it automatically (capped by `DPP_MAX_AUTO_BACKFILL_DAYS`, default 120), so an outage of any length up to the cap closes itself on the first successful run. Sessions still in progress are skipped until 16:30 New York time, so an intraday quote is never stored as a close.
+
+Prices are stored as the exchange close (`DPP_PRICE_FIELD=close`). Yahoo does not rewrite that field after dividends, which is what makes the daily re-send idempotent.
+
+### Splits
+
+A stored close is on the share basis of the day it was captured, so a split would leave every older row on the old basis and blow up the historical volatility. When Yahoo reports a split (or an ADR ratio change) inside the window, the job re-pulls that symbol's full history from `DPP_HISTORY_START` (default 2021-01-01) and upserts it in the same run. If that refresh fails, the rest of the run still completes and the invocation is then reported as failed, so the error alarm fires and Lambda retries. Set `DPP_AUTO_SPLIT_REFRESH=false` to switch this off.
+
+### Manual runs
+
+The function accepts optional event fields:
+
+| Event | Effect |
+|-------|--------|
+| `{"dry_run": true}` | Fetch and validate only. No API calls, no S3 writes. |
+| `{"lookback_days": 45}` | Backfill the last 45 days. |
+| `{"start_date": "2026-07-03", "end_date": "2026-10-08"}` | Backfill an explicit range (inclusive). |
+| `{"skip_rates": true}` / `{"skip_prices": true}` | Run one half of the job. |
+| `{"symbols": ["BKNG"], "start_date": "2021-01-01"}` | Correction run for a subset of the universe: prices only, nothing archived to S3. |
+
+```bash
+aws lambda invoke --function-name dpp-daily-ingest:prod \
+    --cli-binary-format raw-in-base64-out \
+    --payload '{"lookback_days": 45}' out.json && cat out.json
+```
+
+### Deploying the function
+
+EventBridge invokes the `prod` alias, never `$LATEST`. A deploy is: update `$LATEST`, dry-run it, publish a version, then move the alias.
+
+```bash
+aws lambda update-function-code --function-name dpp-daily-ingest --image-uri <ecr-image>
+aws lambda wait function-updated --function-name dpp-daily-ingest
+aws lambda invoke --function-name dpp-daily-ingest --cli-binary-format raw-in-base64-out \
+    --payload '{"dry_run": true}' out.json && cat out.json
+V=$(aws lambda publish-version --function-name dpp-daily-ingest --query Version --output text)
+aws lambda update-alias --function-name dpp-daily-ingest --name prod --function-version "$V"
+```
+
+After any deploy or outage, confirm the alias target is healthy, not just `$LATEST`:
+
+```bash
+aws lambda get-function-configuration --function-name dpp-daily-ingest:prod \
+    --query '[Version,State,StateReasonCode]'
+```
+
+A published version that sits idle long enough goes `Inactive`, and if it cannot be restored it stays that way while `$LATEST` keeps working. The `dpp-lambda-invocations-lt-1-80h-dpp-daily-ingest-prod` alarm is the signal for that case.
+
+Offline tests (no network, no AWS): `pytest infra/lambda/tests -q`
 
 ---
 
