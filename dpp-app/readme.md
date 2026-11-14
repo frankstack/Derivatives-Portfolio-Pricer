@@ -155,6 +155,12 @@ The API is documented via Swagger at `/swagger` when the service is running. Key
 | Simulation | `/api/simulation/price-option` | Price a single option with custom parameters |
 | Valuation | `/api/valuation` | Value selected trades against a rate curve at the portfolio level |
 
+Notes:
+
+- **Valuation date.** `POST /api/valuation` values the book as of now: time to expiry is counted from the moment of the call and the spot is the latest close. Pass an optional `valuationDate` (ISO 8601) to value a past date instead; only closes on or before it are used, and trades done after it come back with status `not_traded_yet`. Every trade in the response carries `status` (`valued`, `expired`, `not_traded_yet`), `quantity`, `unitPrice`, `spot`, `spotDate` and `timeToMaturity`. `price` is the position value (unit price times quantity); the Greeks are per unit.
+- **Derivatives.** `GET /api/OptionEntities` returns `optionType` and `optionTypeName`, the type-specific fields `rebate`, `barrier`, `barrierType` and `barrierTypeName`, and the underlying's id, symbol and name. Price history is served by `/api/Underlyings`.
+- **Barrier types** are 1 Up-and-In, 2 Up-and-Out, 3 Down-and-In, 4 Down-and-Out on every endpoint, including `/api/simulation/price-option`.
+
 ---
 
 ## Data pipeline
@@ -176,6 +182,10 @@ Prices are stored as the exchange close (`DPP_PRICE_FIELD=close`). Yahoo does no
 ### Splits
 
 A stored close is on the share basis of the day it was captured, so a split would leave every older row on the old basis and blow up the historical volatility. When Yahoo reports a split (or an ADR ratio change) inside the window, the job re-pulls that symbol's full history from `DPP_HISTORY_START` (default 2021-01-01) and upserts it in the same run. If that refresh fails, the rest of the run still completes and the invocation is then reported as failed, so the error alarm fires and Lambda retries. Set `DPP_AUTO_SPLIT_REFRESH=false` to switch this off.
+
+### Rate curves
+
+The job takes the latest FRED date on which every required tenor is published and replaces the points of each curve named in `DPP_RATE_CURVE_NAMES` (comma-separated, so a curve name cannot contain a comma; a name that does not exist yet is created). Production updates `USD Treasury + SOFR (FRED Daily)`, the curve the UI lists as predefined, plus `Base1` and `Base2`.
 
 ### Manual runs
 

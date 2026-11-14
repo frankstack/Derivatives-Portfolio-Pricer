@@ -35,6 +35,10 @@ namespace MonteCarloSimulatorAPI.Models
         public int Base2 { get; set; } = 5; // Default to 5 if not provided...
 
         // We'll add... RATE CURVE WE WANT TO USE!
-        public int RateCurveId { get; set; } 
+        public int RateCurveId { get; set; }
+
+        // Optional. Value the book as of this date instead of now: time to expiry is counted from it,
+        // only closes on or before it are used, and trades done after it are left out.
+        public DateTime? ValuationDate { get; set; }
     }
 }

@@ -20,6 +20,9 @@ namespace MonteCarloSimulatorAPI.Controllers
             _context = context;
         }
 
+        // One close of an underlying. Closes are stored at 00:00 UTC of their session date.
+        private readonly record struct PricePoint(DateTime Date, double Price);
+
         [HttpPost]
         [ProducesResponseType(typeof(ValuationResponseDto), 200)]
         [ProducesResponseType(400)]
@@ -29,6 +32,12 @@ namespace MonteCarloSimulatorAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
+
+            // The valuation date is the moment the book is valued at. Time to expiry is counted
+            // from it and only closes on or before it are used. Without one in the request the
+            // book is valued as of now.
+            bool asOfRequested = request.ValuationDate.HasValue;
+            DateTime valuationDate = asOfRequested ? ToUtc(request.ValuationDate!.Value) : DateTime.UtcNow;
 
             // Retrieve trades based on the provided TradeIds
             var trades = await _context.Trades
@@ -55,7 +64,10 @@ namespace MonteCarloSimulatorAPI.Controllers
                 return BadRequest("Selected RateCurve not found or has no RatePoints.");
             }
 
-            var response = new ValuationResponseDto();
+            var response = new ValuationResponseDto { ValuationDate = valuationDate };
+
+            // Price history per underlying, loaded once per request
+            var historyCache = new Dictionary<int, List<PricePoint>>();
 
             // Extract user-defined parameters
             int steps = request.Steps;
@@ -79,20 +91,35 @@ namespace MonteCarloSimulatorAPI.Controllers
                 {
                     TradeId = trade.Id,
                     InstrumentSymbol = instrument.Symbol,
-                    InstrumentName = instrument.Name
+                    InstrumentName = instrument.Name,
+                    Quantity = trade.Quantity,
+                    Status = "valued"
                 };
+
+                // Valuing a past date: a trade done after that date was not in the book yet.
+                if (asOfRequested && ToUtc(trade.TradeDate).Date > valuationDate.Date)
+                {
+                    tradeValuation.Status = "not_traded_yet";
+                    response.Valuations.Add(tradeValuation);
+                    continue;
+                }
 
                 // If instrument is an Underlying
                 if (instrument is Underlying underInstr)
                 {
-                    double? latestPrice = await GetLatestUnderlyingPrice(underInstr.Id);
-                    if (latestPrice == null)
+                    var history = await GetPriceHistory(underInstr.Id, valuationDate, historyCache);
+                    if (history.Count == 0)
                     {
-                        return BadRequest($"No price data available for underlying {underInstr.Id}");
+                        return BadRequest($"No price data available for underlying {underInstr.Id} on or before {valuationDate:yyyy-MM-dd}");
                     }
 
+                    var spot = history[history.Count - 1];
+
                     // Underlying valuation as simple: Price = latest * quantity, Delta=1, no others
-                    tradeValuation.Price = latestPrice.Value * trade.Quantity;
+                    tradeValuation.Spot = spot.Price;
+                    tradeValuation.SpotDate = spot.Date;
+                    tradeValuation.UnitPrice = spot.Price;
+                    tradeValuation.Price = spot.Price * trade.Quantity;
                     tradeValuation.StandardError = 0;
                     tradeValuation.Delta = 1;
                     tradeValuation.Gamma = 0;
@@ -106,42 +133,34 @@ namespace MonteCarloSimulatorAPI.Controllers
                 }
                 else if (instrument is OptionEntity optionEntity)
                 {
-                    var optionUnderlying = await _context.Underlyings.FindAsync(optionEntity.UnderlyingId);
-                    if (optionUnderlying == null)
+                    var history = await GetPriceHistory(optionEntity.UnderlyingId, valuationDate, historyCache);
+                    if (history.Count == 0)
                     {
-                        return BadRequest($"Option {optionEntity.Id} references an invalid underlying {optionEntity.UnderlyingId}");
+                        return BadRequest($"No price data available for underlying {optionEntity.UnderlyingId} on or before {valuationDate:yyyy-MM-dd}");
                     }
 
-                    double? latestPrice = await GetLatestUnderlyingPrice(optionUnderlying.Id);
-                    if (latestPrice == null)
-                    {
-                        return BadRequest($"No price data available for underlying {optionUnderlying.Id}");
-                    }
+                    var spot = history[history.Count - 1];
 
-                    double? volatility = await CalculateVolatility(optionUnderlying.Id);
+                    double? volatility = CalculateVolatility(history);
                     if (volatility == null)
                     {
-                        return BadRequest($"Could not calculate volatility for underlying {optionUnderlying.Id}");
+                        return BadRequest($"Could not calculate volatility for underlying {optionEntity.UnderlyingId}: it needs at least three positive closes on or before {valuationDate:yyyy-MM-dd}");
                     }
 
-                    // Compute time-to-maturity based on TradeDate and ExpirationDate
-                    double daysToMaturity = (optionEntity.ExpirationDate - trade.TradeDate).TotalDays;
-                    double ttm = daysToMaturity / 365.0;
+                    tradeValuation.Spot = spot.Price;
+                    tradeValuation.SpotDate = spot.Date;
+                    tradeValuation.Volatility = volatility.Value;
+
+                    // Time to expiry runs from the valuation date, so a trade done months ago is
+                    // valued with the life the option has left, not the life it had when traded.
+                    double ttm = (ToUtc(optionEntity.ExpirationDate) - valuationDate).TotalDays / 365.0;
+                    tradeValuation.TimeToMaturity = Math.Max(ttm, 0.0);
+
                     if (ttm <= 0)
                     {
-                        // Option expired
-                        tradeValuation.Price = 0;
-                        tradeValuation.StandardError = 0;
-                        tradeValuation.Delta = 0;
-                        tradeValuation.Gamma = 0;
-                        tradeValuation.Vega = 0;
-                        tradeValuation.Theta = 0;
-                        tradeValuation.Rho = 0;
-                        // Even expired, we know volatility and we must find rate
-                        double? expiredRiskFree = GetRiskFreeRateFromCurve(selectedCurve, 1.0); // If expired, just pick 1 year or 0.0...
-                        if (expiredRiskFree == null) expiredRiskFree = 0.0;
-                        tradeValuation.Volatility = volatility.Value;
-                        tradeValuation.RiskFreeRate = expiredRiskFree.Value;
+                        // Expired: there is no position left to value
+                        tradeValuation.Status = "expired";
+                        tradeValuation.RiskFreeRate = GetRiskFreeRateFromCurve(selectedCurve, 1.0) ?? 0.0;
 
                         response.Valuations.Add(tradeValuation);
                         continue;
@@ -170,7 +189,7 @@ namespace MonteCarloSimulatorAPI.Controllers
 
                     var results = GreeksCalculator.CalculateOptionPriceAndGreeks(
                         option,
-                        latestPrice.Value, 
+                        spot.Price,
                         riskFreeRate.Value,
                         volatility.Value,
                         ttm,
@@ -182,6 +201,7 @@ namespace MonteCarloSimulatorAPI.Controllers
                         multithreaded
                     );
 
+                    tradeValuation.UnitPrice = results.Item1;
                     tradeValuation.Price = results.Item1 * trade.Quantity; // Price Returned is the total value, considering Quantity!
                     tradeValuation.StandardError = results.Item2;
                     tradeValuation.Delta = results.Item3;
@@ -190,8 +210,6 @@ namespace MonteCarloSimulatorAPI.Controllers
                     tradeValuation.Theta = results.Item6;
                     tradeValuation.Rho = results.Item7;
 
-                    // Assign new fields for option valuations
-                    tradeValuation.Volatility = volatility.Value;
                     tradeValuation.RiskFreeRate = riskFreeRate.Value;
                 }
                 else
@@ -203,43 +221,53 @@ namespace MonteCarloSimulatorAPI.Controllers
             }
 
             response.PortfolioValue = response.Valuations.Sum(v => v.Price);
-	    
-	    return Ok(response);
+
+            return Ok(response);
         }
 
-        private async Task<double?> GetLatestUnderlyingPrice(int underlyingId)
+        // Dates arrive from JSON with or without a zone and from Postgres as UTC. Treat a date
+        // without a zone as UTC so every comparison below is on the same clock.
+        private static DateTime ToUtc(DateTime value)
         {
-            var price = await _context.HistoricalPrices
-                .Where(hp => hp.UnderlyingId == underlyingId)
-                .OrderByDescending(hp => hp.Date)
-                .Select(hp => hp.Price)
-                .FirstOrDefaultAsync();
+            if (value.Kind == DateTimeKind.Utc) return value;
+            if (value.Kind == DateTimeKind.Local) return value.ToUniversalTime();
+            return DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        }
 
-            if (price == 0)
+        // Closes of one underlying on or before the valuation date, oldest first
+        private async Task<List<PricePoint>> GetPriceHistory(int underlyingId, DateTime valuationDate, Dictionary<int, List<PricePoint>> cache)
+        {
+            if (cache.TryGetValue(underlyingId, out var cached))
             {
-                var count = await _context.HistoricalPrices.Where(hp => hp.UnderlyingId == underlyingId).CountAsync();
-                if (count == 0) return null;
+                return cached;
             }
 
-            return price;
-        }
-
-        private async Task<double?> CalculateVolatility(int underlyingId)
-        {
-            var prices = await _context.HistoricalPrices
+            var rows = await _context.HistoricalPrices
                 .Where(hp => hp.UnderlyingId == underlyingId)
                 .OrderBy(hp => hp.Date)
-                .Select(hp => hp.Price)
+                .Select(hp => new { hp.Date, hp.Price })
                 .ToListAsync();
 
-            if (prices.Count < 2) return null;
+            var history = rows
+                .Select(r => new PricePoint(ToUtc(r.Date), r.Price))
+                .Where(p => p.Date <= valuationDate)
+                .ToList();
 
-            var logReturns = new List<double>();
-            for (int i = 1; i < prices.Count; i++)
+            cache[underlyingId] = history;
+            return history;
+        }
+
+        // Annualized volatility of the daily log returns over the closes given
+        private static double? CalculateVolatility(List<PricePoint> history)
+        {
+            // Two returns are the minimum for a sample standard deviation
+            if (history.Count < 3) return null;
+
+            var logReturns = new List<double>(history.Count - 1);
+            for (int i = 1; i < history.Count; i++)
             {
-                if (prices[i - 1] <= 0) return null;
-                double r = Math.Log(prices[i] / prices[i - 1]);
-                logReturns.Add(r);
+                if (history[i - 1].Price <= 0 || history[i].Price <= 0) return null;
+                logReturns.Add(Math.Log(history[i].Price / history[i - 1].Price));
             }
 
             double mean = logReturns.Average();

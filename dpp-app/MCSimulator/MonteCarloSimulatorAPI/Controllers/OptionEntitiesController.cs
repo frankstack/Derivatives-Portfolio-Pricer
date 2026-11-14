@@ -17,22 +17,25 @@ namespace MonteCarloSimulatorAPI.Controllers
         }
 
         // GET: api/OptionEntities
+        // Returns every derivative with its type-specific fields (rebate, barrier, barrierType)
+        // and its underlying's id, symbol and name. Price history is served by /api/Underlyings.
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OptionEntity>>> GetOptionEntities()
+        public async Task<ActionResult<IEnumerable<OptionEntityResponseDto>>> GetOptionEntities()
         {
-            return await _context.OptionEntities
+            var options = await _context.OptionEntities
                 .Include(o => o.Underlying)
-                    .ThenInclude(u => u!.HistoricalPrices)
+                .OrderBy(o => o.Id)
                 .ToListAsync();
+
+            return options.Select(o => OptionEntityResponseDto.From(o)).ToList();
         }
 
         // GET: api/OptionEntities/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OptionEntity>> GetOptionEntity(int id)
+        public async Task<ActionResult<OptionEntityResponseDto>> GetOptionEntity(int id)
         {
             var optionEntity = await _context.OptionEntities
                 .Include(o => o.Underlying)
-                    .ThenInclude(u => u!.HistoricalPrices)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (optionEntity == null)
@@ -40,12 +43,12 @@ namespace MonteCarloSimulatorAPI.Controllers
                 return NotFound();
             }
 
-            return optionEntity;
+            return OptionEntityResponseDto.From(optionEntity);
         }
 
         // POST: api/OptionEntities
         [HttpPost]
-        public async Task<ActionResult<OptionEntity>> PostOptionEntity([FromBody] OptionEntityDto optionEntityDto)
+        public async Task<ActionResult<OptionEntityResponseDto>> PostOptionEntity([FromBody] OptionEntityDto optionEntityDto)
         {
             if (!ModelState.IsValid)
             {
@@ -145,14 +148,12 @@ namespace MonteCarloSimulatorAPI.Controllers
             _context.OptionEntities.Add(optionEntity);
             await _context.SaveChangesAsync();
 
-            // Re-fetch the saved optionEntity including Underlying and HistoricalPrices for next process
+            // Re-fetch the saved optionEntity with its Underlying for the response
             optionEntity = (await _context.OptionEntities
                 .Include(o => o.Underlying)
-                    .ThenInclude(u => u!.HistoricalPrices)
                 .FirstOrDefaultAsync(o => o.Id == optionEntity.Id))!;
 
-            // Return line to use the null-forgiving operator on optionEntity
-            return CreatedAtAction(nameof(GetOptionEntity), new { id = optionEntity!.Id }, optionEntity);
+            return CreatedAtAction(nameof(GetOptionEntity), new { id = optionEntity.Id }, OptionEntityResponseDto.From(optionEntity));
 
         }
 

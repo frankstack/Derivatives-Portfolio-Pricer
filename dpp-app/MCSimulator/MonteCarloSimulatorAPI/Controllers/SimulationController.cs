@@ -30,7 +30,8 @@ namespace MonteCarloSimulatorAPI.Controllers
                     option = new DigitalOption(parameters.StrikePrice, parameters.IsCall, parameters.Rebate);
                     break;
                 case 4:
-                    BarrierType barrierType = (BarrierType)parameters.BarrierType;
+                    // The request carries 1..4 (1=Up-and-In ... 4=Down-and-Out); the enum is zero-based
+                    BarrierType barrierType = (BarrierType)(parameters.BarrierType - 1);
                     option = new BarrierOption(parameters.StrikePrice, parameters.IsCall, parameters.Barrier, barrierType); 
                     //'parameters.Barrier' is the barrier level
                     break;
