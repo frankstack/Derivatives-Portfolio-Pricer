@@ -18,7 +18,7 @@ if (end < 0) throw new Error('Overview section is not closed in portfolioManager
 const fragment = page.slice(open, end);
 writeFileSync(join(pub, 'overview.html'), fragment);
 
-const assets = new Set(['pm-logo.svg']);
+const assets = new Set(['pm-logo.svg', 'og-logo-512.png']);
 const re = /(?:src|href)="([^"#:]+\.(?:png|svg|jpg|jpeg|gif|webp))"/g;
 let m;
 while ((m = re.exec(fragment)) !== null) assets.add(m[1]);
