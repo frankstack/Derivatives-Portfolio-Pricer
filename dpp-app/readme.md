@@ -90,9 +90,13 @@ dpp-app/
       Dockerfile                      # Multi-stage .NET 8 Docker build
       appsettings.json                # Connection string template
     MonteCarloSimulatorWebApp/
-      portfolioManager.html / .js / .css   # Single-page Portfolio Manager UI
+      portfolioManager.html / .js / .css   # Previous UI, kept at /portfolioManager.html; the Overview text lives here
       index.html                           # Landing page
       *.svg / *.png                        # Diagrams and screenshots
+  web/                                # Workstation UI (React, TypeScript, Vite)
+    src/                              # Screens, charts, API client
+    scripts/prebuild.mjs              # Copies the Overview text and images from the previous UI
+    package.json / vite.config.ts     # Build setup
   infra/
     nginx/dpp.conf                    # Nginx reverse-proxy config
     lambda/
@@ -134,11 +138,30 @@ dotnet ef database update
 cd ../..
 
 # 5. Open the UI
-#    Browse to http://localhost:5022/swagger for the API docs,
-#    or serve the WebApp folder with any static file server.
+#    Browse to http://localhost:5022/swagger for the API docs.
+#    For the UI: cd web && npm install && npm run dev
+#    (the dev server proxies /api to the live site; change the target in
+#    web/vite.config.ts to http://localhost:5022 to use your local API).
 ```
 
 > The `docker-compose.yml` binds Postgres to `127.0.0.1:5432` and the API to `127.0.0.1:5022`. Neither is exposed to the network.
+
+---
+
+## Web UI
+
+The UI in `web/` is a static React app: a fixed navigation rail on the left, the data in the center, and the ticket or settings for the section on the right. It calls the API at the same origin under `/api`, uses hash routes (`#/underlyings`, `#/trades`, ...) and relative asset paths, so one build works at the site root and under a sub-path such as `/next/` for previews. Charts are drawn as plain SVG; there is no UI or chart library.
+
+```bash
+cd web
+npm install
+npm run typecheck   # tsc, prints nothing when clean
+npm run build       # writes web/dist
+```
+
+`npm run build` first runs `scripts/prebuild.mjs`, which copies the Overview text and its images out of `MCSimulator/MonteCarloSimulatorWebApp`, so that folder has to sit next to `web/`.
+
+Deploy: copy `web/dist/` into the Nginx root (`/var/www/dpp-ui`). File names under `assets/` carry a content hash and can be cached for good; `index.html` should always be revalidated. The previous UI stays reachable at `/portfolioManager.html`.
 
 ---
 
@@ -235,7 +258,7 @@ Offline tests (no network, no AWS): `pytest infra/lambda/tests -q`
 
 | Component | Technology |
 |-----------|-----------|
-| UI | HTML / CSS / JavaScript, Chart.js |
+| UI | React 19, TypeScript, Vite; charts as plain SVG |
 | API | ASP.NET 8, Entity Framework Core, C# |
 | Database | PostgreSQL 16 (Alpine) |
 | Pricing engine | C# with `System.Threading.Tasks.Parallel` |
