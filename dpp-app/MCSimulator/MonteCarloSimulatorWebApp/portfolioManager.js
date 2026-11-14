@@ -556,8 +556,8 @@ document.addEventListener('DOMContentLoaded', () => {
             strikePrice: parseFloat(derivativeStrikePrice.value),
             expirationDate: new Date(derivativeExpirationDate.value).toISOString(),
 
-            optionStyle: selectedType,
-            optionType: selectedType,
+            optionStyle: parseInt(derivativeOptionType.value),
+            optionType: parseInt(derivativeOptionType.value),
 
             isCall: (derivativeIsCall.value === 'true'),
             underlyingId: parseInt(derivativeUnderlyingId.value)
