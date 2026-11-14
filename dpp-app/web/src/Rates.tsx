@@ -5,7 +5,7 @@ import { api, curveKind, curvePoints, liveCurve, rateAt, snapshotDay, tenorLabel
 import type { RateCurve } from './api';
 import { Shell } from './shell';
 import type { Ctx } from './shell';
-import { Panel, Kpi, Field, Area, Btn, Check, Select, DataGrid, Notice, fmt, signed, tone } from './ui';
+import { Panel, Kpi, Field, Area, Btn, ConfirmDelete, Check, Select, DataGrid, Notice, fmt, signed, tone, useChartHeight } from './ui';
 import type { Col } from './ui';
 import { LineChart, Legend, C, OVERLAY_COLORS } from './charts';
 import type { Series } from './charts';
@@ -27,6 +27,7 @@ export function Rates(p: { ctx: Ctx }) {
   const [text, setText] = useState('');
   const [manage, setManage] = useState('');
   const [newName, setNewName] = useState('');
+  const chartH = useChartHeight(300, 220);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -151,7 +152,6 @@ export function Rates(p: { ctx: Ctx }) {
   };
   const remove = async () => {
     if (!target) { setMsg('Pick the curve to delete.'); return; }
-    if (!window.confirm('Delete the curve ' + target.name + '? This cannot be undone.')) return;
     setMsg(''); setBusy(true);
     try {
       await api.deleteCurve(target.id);
@@ -190,7 +190,11 @@ export function Rates(p: { ctx: Ctx }) {
           <Field label="New name" mono={false} value={newName} onChange={setNewName} />
           <div className="btns">
             <Btn onClick={rename} disabled={busy}>Rename</Btn>
-            <Btn kind="danger" onClick={remove} disabled={busy}>Delete</Btn>
+            {target ? (
+              <ConfirmDelete key={target.id} warn={'Delete the curve ' + target.name + '? This cannot be undone.'} onConfirm={remove} disabled={busy} />
+            ) : (
+              <Btn kind="danger" onClick={remove} disabled={busy}>Delete</Btn>
+            )}
           </div>
         </>
       ) : null}
@@ -216,7 +220,7 @@ export function Rates(p: { ctx: Ctx }) {
             <LineChart
               label={'Yield curves by tenor for ' + drawn.map((c) => c.name).join(', ')}
               series={series}
-              height={300}
+              height={chartH}
               categorical
               xTicks={tenors.map((t, i) => ({ pos: (i + 0.5) / tenors.length, label: tenorLabel(t) }))}
               yFormat={(v) => fmt(v, 2) + '%'}

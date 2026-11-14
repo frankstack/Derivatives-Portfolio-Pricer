@@ -16,7 +16,7 @@ export function Sparkline(p: { values: number[] }) {
   const span = hi - lo || 1;
   const pts = v.map((y, i) => ((i * 100) / (v.length - 1)).toFixed(1) + ',' + (20 - ((y - lo) / span) * 18).toFixed(1)).join(' ');
   return (
-    <svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true" style={{ display: 'block', width: 104, height: 22 }}>
+    <svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true" style={{ display: 'block', width: 84, height: 22 }}>
       <polyline points={pts} fill="none" stroke={v[v.length - 1] >= v[0] ? C.teal : C.orange} strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -186,7 +186,7 @@ export function BarList(p: { items: { name: string; value: number }[]; format: (
   const span = mx - mn || 1;
   const zero = (-mn / span) * 100;
   return (
-    <div className="bars">
+    <div className={p.items.length > 6 ? 'bars two' : 'bars'} style={{ gridTemplateRows: 'repeat(' + Math.ceil(p.items.length / 2) + ', auto)' }}>
       {p.items.map((it) => {
         const w = (Math.abs(it.value) / span) * 100;
         return (

@@ -5,7 +5,7 @@ import { api, OPTION_TYPES, BARRIER_TYPES, day, daysLeft, liveCurve, nearestRate
 import type { OptionEntity, OptionBody, PriceResult } from './api';
 import { Shell, book } from './shell';
 import type { Ctx } from './shell';
-import { Panel, Seg, Field, Select, Btn, DataGrid, Notice, Kv, fmt, signed, tone } from './ui';
+import { Panel, Seg, Field, Select, Btn, ConfirmDelete, DataGrid, Notice, Kv, fmt, signed, tone } from './ui';
 import type { Col } from './ui';
 
 type Draft = {
@@ -127,11 +127,12 @@ export function Derivatives(p: { ctx: Ctx }) {
     }
   };
 
+  const tradesOn = selected ? (ctx.trades || []).filter((t) => t.instrumentId === selected.id).length : 0;
+  const removeWarn = selected
+    ? 'Delete ' + selected.symbol + '?' + (tradesOn ? ' Its ' + tradesOn + (tradesOn === 1 ? ' trade goes' : ' trades go') + ' with it.' : '') + ' This cannot be undone.'
+    : '';
   const remove = async () => {
     if (!selected) return;
-    const n = (ctx.trades || []).filter((t) => t.instrumentId === selected.id).length;
-    const warn = 'Delete ' + selected.symbol + '?' + (n ? ' Its ' + n + (n === 1 ? ' trade goes' : ' trades go') + ' with it.' : '') + ' This cannot be undone.';
-    if (!window.confirm(warn)) return;
     setMsg(''); setBusy(true);
     try {
       await api.deleteOption(selected.id);
@@ -211,7 +212,7 @@ export function Derivatives(p: { ctx: Ctx }) {
         ) : null}
         <div className="btns">
           <Btn kind="primary" submit disabled={busy}>{busy ? 'Working' : draft.id ? 'Save changes' : 'Create derivative'}</Btn>
-          {draft.id ? <Btn kind="danger" onClick={remove} disabled={busy}>Delete</Btn> : null}
+          {draft.id ? <ConfirmDelete key={draft.id} warn={removeWarn} onConfirm={remove} disabled={busy} /> : null}
         </div>
       </form>
       {msg ? <Notice bad>{msg}</Notice> : null}
@@ -253,7 +254,7 @@ export function Derivatives(p: { ctx: Ctx }) {
         </div>
         <Btn kind="primary" onClick={() => { ctx.setSelOption(null); setQuick(null); setMsg(''); setDraft(blank(stats.length ? String(stats[0].id) : '')); }}>New derivative</Btn>
       </div>
-      <Panel title="Instruments" right={<span className="hint">Values come from the latest valuation of your trades. Click a column to sort.</span>}>
+      <Panel fill title="Instruments" right={<span className="hint">Values come from the latest valuation of your trades. Click a column to sort.</span>}>
         <DataGrid
           cols={cols}
           rows={rows}

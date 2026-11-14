@@ -139,12 +139,13 @@ export function Valuation(p: { ctx: Ctx }) {
         <Kpi label="Portfolio value" value={ctx.valuation ? fmt(ctx.valuation.portfolioValue) : ctx.valBusy ? 'valuing' : 'not run yet'} sub={ctx.valBusy && ctx.valuation ? 'Running again' : ''} />
         <Kpi label="Trades valued" value={String(valued.length)} sub={'of ' + vals.length + ' in the last run'} />
         <Kpi label="Left at zero" value={String(expired + later)} sub={expired + ' expired, ' + later + ' not traded yet'} cls={expired + later > 0 ? 'warn' : ''} />
-        <Kpi label="Valued as of" value={when || 'n/a'} sub={when ? 'UTC' + (valued.length && valued[0].spotDate ? ', spot from the ' + valued[0].spotDate.slice(0, 10) + ' close' : '') : ''} />
+        <Kpi label="Valued as of" value={when || 'n/a'} sub={when ? 'UTC' + (valued.length && valued[0].spotDate ? ', on the ' + valued[0].spotDate.slice(0, 10) + ' close' : '') : ''} />
       </div>
       <Panel title="Market value by underlying" right={<span className="hint">Long positions right of the line, short positions left</span>}>
         <BarList items={bars} format={(v) => signed(v)} />
       </Panel>
       <Panel
+        fill
         title="Results by trade"
         right={
           <div className="btns">
@@ -154,7 +155,7 @@ export function Valuation(p: { ctx: Ctx }) {
           </div>
         }
       >
-        <DataGrid cols={cols} rows={rows} id={(r) => r.id} dim={(r) => !r.v || r.v.status !== 'valued'} maxHeight={512} empty="No trades to value yet. Add one in Trades." />
+        <DataGrid cols={cols} rows={rows} id={(r) => r.id} dim={(r) => !r.v || r.v.status !== 'valued'} empty="No trades to value yet. Add one in Trades." />
       </Panel>
     </Shell>
   );

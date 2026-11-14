@@ -5,7 +5,7 @@ import { api, parseCloses, daysLeft, day, shortDate, monthYear } from './api';
 import type { UStats } from './api';
 import { Shell, book } from './shell';
 import type { Ctx } from './shell';
-import { Panel, Kpi, Seg, Field, Area, Btn, DataGrid, Notice, fmt, signed, tone } from './ui';
+import { Panel, Kpi, Seg, Field, Area, Btn, ConfirmDelete, DataGrid, Notice, fmt, signed, tone, useChartHeight } from './ui';
 import type { Col } from './ui';
 import { LineChart, Legend, Sparkline, C } from './charts';
 import type { HLine, Marker, XTick } from './charts';
@@ -20,6 +20,7 @@ export function Underlyings(p: { ctx: Ctx }) {
   const [sym, setSym] = useState('');
   const [name, setName] = useState('');
   const [closes, setCloses] = useState('');
+  const chartH = useChartHeight(320, 220);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const [edit, setEdit] = useState<{ id: number; name: string } | null>(null);
@@ -137,9 +138,6 @@ export function Underlyings(p: { ctx: Ctx }) {
   };
   const remove = async () => {
     if (!selected) return;
-    const used = options.filter((o) => o.underlyingId === selected.id).length;
-    const warn = 'Delete ' + selected.symbol + ' and its ' + selected.n + ' closes?' + (used ? ' Its ' + used + ' derivatives and their trades go with it.' : '') + ' This cannot be undone.';
-    if (!window.confirm(warn)) return;
     setMsg(''); setBusy(true);
     try {
       await api.deleteUnderlying(selected.id);
@@ -153,6 +151,10 @@ export function Underlyings(p: { ctx: Ctx }) {
   };
 
   const mine = selected ? options.filter((o) => o.underlyingId === selected.id) : [];
+  const direct = selected ? (ctx.trades || []).filter((t) => t.instrumentId === selected.id).length : 0;
+  const removeWarn = selected
+    ? 'Delete ' + selected.symbol + ' and its ' + fmt(selected.n, 0) + ' closes?' + (direct ? ' Its ' + direct + (direct === 1 ? ' trade goes' : ' trades go') + ' with it.' : '') + ' This cannot be undone.'
+    : '';
   const rail = (
     <>
       <h3>{selected ? 'Derivatives on ' + selected.symbol : 'Derivatives'}</h3>
@@ -177,8 +179,11 @@ export function Underlyings(p: { ctx: Ctx }) {
           <Field label="Name" mono={false} value={editName} onChange={(v) => setEdit({ id: selected.id, name: v })} />
           <div className="btns">
             <Btn onClick={rename} disabled={busy}>Save name</Btn>
-            <Btn kind="danger" onClick={remove} disabled={busy}>Delete</Btn>
+            {mine.length === 0 ? <ConfirmDelete key={selected.id} warn={removeWarn} onConfirm={remove} disabled={busy} /> : null}
           </div>
+          {mine.length > 0 ? (
+            <p className="note">{'To delete ' + selected.symbol + ', first delete its ' + (mine.length === 1 ? 'derivative' : mine.length + ' derivatives') + ' in Derivatives.'}</p>
+          ) : null}
         </>
       ) : null}
       <h3>Add an underlying</h3>
@@ -201,8 +206,8 @@ export function Underlyings(p: { ctx: Ctx }) {
         <div className="kpis">
           <Kpi label="Last close" value={fmt(selected.last)} sub={selected.lastDate} />
           <Kpi label="Day change" value={signed(selected.change)} sub={signed(selected.changePct) + '%'} cls={tone(cents(selected.change))} subCls={tone(cents(selected.change))} />
-          <Kpi label="52-week low" value={fmt(selected.lo52)} sub={'High ' + fmt(selected.hi52) + '. Now ' + fmt(where, 0) + '% up the range'} />
-          <Kpi label="Volatility used for pricing" value={selected.vol === null ? 'n/a' : fmt(selected.vol * 100, 1) + '%'} sub={'All ' + fmt(selected.n, 0) + ' closes since ' + monthYear(selected.first)} />
+          <Kpi label="52-week low" value={fmt(selected.lo52)} sub={'High ' + fmt(selected.hi52) + ', ' + fmt(where, 0) + '% up the range'} />
+          <Kpi label="Volatility used for pricing" value={selected.vol === null ? 'n/a' : fmt(selected.vol * 100, 1) + '%'} sub={fmt(selected.n, 0) + ' closes since ' + monthYear(selected.first)} />
         </div>
       ) : null}
       {selected ? (
@@ -215,7 +220,7 @@ export function Underlyings(p: { ctx: Ctx }) {
               <LineChart
                 label={'Daily close of ' + selected.symbol + ' from ' + chart.dates[0] + ' to ' + chart.dates[chart.dates.length - 1] + ', last ' + fmt(selected.last)}
                 series={[{ name: '', color: C.teal, values: chart.values, width: 2 }]}
-                height={320}
+                height={chartH}
                 xTicks={chart.xTicks}
                 yFormat={(v) => fmt(v)}
                 yTick={(v) => fmt(v, v < 10 ? 2 : 0)}
@@ -237,8 +242,14 @@ export function Underlyings(p: { ctx: Ctx }) {
         </Panel>
       ) : null}
       <Panel
+        fill
         title="All underlyings"
-        right={<div style={{ flex: '0 1 240px' }}><Seg label="Underlying group" options={['Predefined', 'Yours']} value={group} onChange={setGroup} /></div>}
+        right={
+          <div style={{ flex: '0 1 440px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 14 }}>
+            <span className="hint">Click a row to chart it</span>
+            <div style={{ flex: '0 1 240px' }}><Seg label="Underlying group" options={['Predefined', 'Yours']} value={group} onChange={setGroup} /></div>
+          </div>
+        }
       >
         <DataGrid
           cols={cols}
@@ -246,10 +257,8 @@ export function Underlyings(p: { ctx: Ctx }) {
           id={(r) => r.id}
           selected={selected ? selected.id : null}
           onPick={(r) => ctx.setSelUnderlying(r.id)}
-          maxHeight={392}
           empty={group === 'Yours' ? 'You have not added an underlying yet. Use the form on the right.' : 'Loading.'}
         />
-        <div className="panel-foot">{list.length + ' underlyings. Click a row to chart it, click a column to sort.'}</div>
       </Panel>
     </Shell>
   );

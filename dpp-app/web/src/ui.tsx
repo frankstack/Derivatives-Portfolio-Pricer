@@ -1,5 +1,5 @@
 // Small building blocks shared by every screen.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 const formats: { [digits: number]: Intl.NumberFormat } = {};
@@ -20,9 +20,21 @@ export function tone(x: number): string {
   return x > 0 ? 'pos' : x < 0 ? 'neg' : 'soft';
 }
 
-export function Panel(p: { title: ReactNode; right?: ReactNode; children: ReactNode }) {
+// Chart height follows the window, so the grid under a chart keeps some room on short screens.
+export function useChartHeight(max: number, min: number): number {
+  const calc = () => Math.round(Math.min(max, Math.max(min, window.innerHeight * 0.3)));
+  const [h, setH] = useState(calc);
+  useEffect(() => {
+    const on = () => setH(calc());
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, [max, min]);
+  return h;
+}
+
+export function Panel(p: { title: ReactNode; right?: ReactNode; fill?: boolean; children: ReactNode }) {
   return (
-    <section className="panel">
+    <section className={p.fill ? 'panel fill' : 'panel'}>
       <div className="panel-head">
         <h2>{p.title}</h2>
         {p.right}
@@ -47,6 +59,23 @@ export function Btn(p: { children: ReactNode; onClick?: () => void; kind?: 'prim
     <button type={p.submit ? 'submit' : 'button'} className={'btn ' + (p.kind || '')} onClick={p.onClick} disabled={p.disabled}>
       {p.children}
     </button>
+  );
+}
+
+// Deleting takes two clicks, both in place: the first one says what will be lost.
+export function ConfirmDelete(p: { warn: string; onConfirm: () => void; disabled?: boolean }) {
+  const [armed, setArmed] = useState(false);
+  if (!armed) {
+    return <Btn kind="danger" onClick={() => setArmed(true)} disabled={p.disabled}>Delete</Btn>;
+  }
+  return (
+    <div className="confirm" role="group" aria-label="Confirm delete">
+      <span>{p.warn}</span>
+      <div className="btns">
+        <Btn kind="danger" onClick={() => { setArmed(false); p.onConfirm(); }} disabled={p.disabled}>Yes, delete</Btn>
+        <Btn onClick={() => setArmed(false)}>Keep</Btn>
+      </div>
+    </div>
   );
 }
 
@@ -149,7 +178,6 @@ type GridProps<T> = {
   selected?: string | number | null;
   onPick?: (r: T) => void;
   dim?: (r: T) => boolean;
-  maxHeight?: number;
   empty?: string;
 };
 
@@ -171,7 +199,7 @@ export function DataGrid<T>(p: GridProps<T>) {
   const flip = (key: string) => setSort(sort && sort.key === key ? (sort.dir === 1 ? { key: key, dir: -1 } : null) : { key: key, dir: 1 });
   const pick = p.onPick;
   return (
-    <div className="grid-wrap" style={p.maxHeight ? { maxHeight: p.maxHeight } : undefined}>
+    <div className="grid-wrap">
       <table className="grid">
         <thead>
           <tr>

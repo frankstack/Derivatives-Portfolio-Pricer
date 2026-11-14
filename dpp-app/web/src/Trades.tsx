@@ -5,7 +5,7 @@ import { api, day, daysLeft, today, liveCurve, nearestRate } from './api';
 import type { OptionEntity, TradeBody } from './api';
 import { Shell, book, underlyingOf } from './shell';
 import type { Ctx } from './shell';
-import { Panel, Kpi, Seg, Field, Select, Btn, DataGrid, Notice, Kv, fmt, signed, tone } from './ui';
+import { Panel, Kpi, Seg, Field, Select, Btn, ConfirmDelete, DataGrid, Notice, Kv, fmt, signed, tone } from './ui';
 import type { Col } from './ui';
 
 type Row = {
@@ -163,7 +163,7 @@ export function Trades(p: { ctx: Ctx }) {
   };
 
   const remove = async () => {
-    if (!editing || !window.confirm('Delete trade ' + form.id + '? This cannot be undone.')) return;
+    if (!editing) return;
     setMsg(''); setBusy(true);
     try {
       await api.deleteTrade(form.id);
@@ -200,8 +200,8 @@ export function Trades(p: { ctx: Ctx }) {
         </div>
         <div className="btns">
           <Btn kind="primary" submit disabled={busy}>{busy ? 'Working' : editing ? 'Save changes' : 'Add trade'}</Btn>
-          {editing ? <Btn kind="danger" onClick={remove} disabled={busy}>Delete</Btn> : null}
           {editing ? <Btn kind="tall" onClick={reset} disabled={busy}>Cancel</Btn> : null}
+          {editing ? <ConfirmDelete key={form.id} warn={'Delete trade ' + form.id + '? This cannot be undone.'} onConfirm={remove} disabled={busy} /> : null}
         </div>
       </form>
       {msg ? <Notice bad>{msg}</Notice> : null}
@@ -219,7 +219,7 @@ export function Trades(p: { ctx: Ctx }) {
         <Kpi label="Market value" value={waiting ? 'valuing' : fmt(value)} sub={ctx.valuation ? 'As of ' + ctx.valuation.valuationDate.slice(0, 16).replace('T', ' ') + ' UTC' : ''} />
         <Kpi label="Unrealized P&L" value={waiting ? 'valuing' : signed(pl)} sub={waiting || !premium ? '' : signed((pl / Math.abs(premium)) * 100, 1) + '% of premium'} cls={waiting ? '' : tone(cents(pl))} subCls={waiting ? '' : tone(cents(pl))} />
       </div>
-      <Panel title="Blotter" right={<div style={{ flex: '0 1 330px' }}><Seg label="Group trades" options={['By trade', 'By instrument', 'By underlying']} value={mode} onChange={setMode} /></div>}>
+      <Panel fill title="Blotter" right={<div style={{ flex: '0 1 330px' }}><Seg label="Group trades" options={['By trade', 'By instrument', 'By underlying']} value={mode} onChange={setMode} /></div>}>
         <DataGrid
           cols={cols}
           rows={rows}
@@ -227,7 +227,6 @@ export function Trades(p: { ctx: Ctx }) {
           selected={editing ? 't' + form.id : null}
           onPick={mode === 'By trade' ? (r) => { setMsg(''); setForm({ id: r.id, instrumentId: String(r.instrumentId), side: r.net >= 0 ? 'Buy' : 'Sell', qty: String(Math.abs(r.net)), date: r.date, price: String(r.price) }); } : undefined}
           dim={(r) => !r.open}
-          maxHeight={692}
           empty="No trades yet. Add the first one with the ticket on the right."
         />
         <div className="totals">
