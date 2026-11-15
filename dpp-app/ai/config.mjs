@@ -1,5 +1,8 @@
 // Settings, all from the environment, with defaults that are safe for a public site.
 
+// The assistant's name as people read it. The screens carry the same name in web/src/ai.ts.
+export const NAME = 'Carlo';
+
 const num = (v, d) => {
   const n = Number(v);
   return v !== undefined && v !== '' && Number.isFinite(n) ? n : d;

@@ -1,6 +1,6 @@
-# DPP AI service
+# The assistant's service (dpp-ai)
 
-The chat in the site ("DPP AI") talks to Claude on Amazon Bedrock through this small
+The chat in the site (the assistant, called Carlo) talks to Claude on Amazon Bedrock through this small
 Node service. It is the only way from the site to the model, and it never touches the
 pricing data.
 
