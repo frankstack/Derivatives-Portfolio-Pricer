@@ -300,6 +300,13 @@ test('service: the passcode buys a token, the token unlocks write tools, a bad o
     assert.equal(s.seen[0].tools.length, READ_TOOLS.length + WRITE_TOOLS.length);
     assert.match(s.seen[0].system, /unlocked changes/);
     assert.match(s.seen[0].context, /Mode: owner/);
+    // the same token opens the door nginx guards for changes to the pricing API
+    const check = (t) => fetch(s.base + '/api/ai/owner-check', { headers: t === undefined ? {} : { 'X-DPP-Owner': t } });
+    assert.equal((await check(token)).status, 204);
+    assert.equal((await check(undefined)).status, 401);
+    assert.equal((await check('')).status, 401);
+    assert.equal((await check(String(Date.now() + 1e7) + '.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')).status, 401);
+    assert.equal((await (await check('nonsense')).json()).code, 'owner_required');
     const forged = await s.post('/api/ai/chat', { messages: [user('hi')], ownerToken: String(Date.now() + 1e7) + '.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' });
     assert.equal(forged.status, 401);
     assert.equal((await forged.json()).code, 'owner_expired');
@@ -325,6 +332,7 @@ test('service: without an owner passcode there is nothing to unlock', async () =
     assert.equal((await (await fetch(s.base + '/api/ai/status')).json()).ownerSetUp, false);
     assert.equal((await s.post('/api/ai/unlock', { passcode: 'anything' })).status, 404);
     assert.equal((await s.post('/api/ai/chat', { messages: [user('hi')], ownerToken: '1.x' })).status, 401);
+    assert.equal((await fetch(s.base + '/api/ai/owner-check', { headers: { 'X-DPP-Owner': '9999999999999.' + 'A'.repeat(43) } })).status, 401);
   } finally {
     await s.close();
   }
