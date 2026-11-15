@@ -6,6 +6,8 @@
 //   GET  /api/ai/status   is it on, which model, is an owner passcode set
 //   POST /api/ai/unlock   {passcode} -> {token, expiresAt}
 //   POST /api/ai/chat     {messages, context, ownerToken?} -> NDJSON stream
+//   GET  /api/ai/owner-check   204 when the X-DPP-Owner header carries a valid owner token, else 401.
+//                              nginx asks this before it lets a change through to the pricing API.
 //
 // Stream lines: {"t":"text","d":"..."}  {"t":"tool","id","name","input"}
 //               {"t":"done","stop":"end_turn|tool_use|..."}  {"t":"error","code","message"}
@@ -132,6 +134,16 @@ export function createHandler(deps) {
     return sendJson(res, 200, issueToken(key, cfg.tokenTtlMs, now()));
   };
 
+  const ownerCheck = (req, res) => {
+    const token = req.headers['x-dpp-owner'];
+    if (cfg.ownerHash && typeof token === 'string' && verifyToken(key, token, now())) {
+      res.writeHead(204, { 'Cache-Control': 'no-store' });
+      res.end();
+      return;
+    }
+    sendJson(res, 401, { code: 'owner_required', message: 'Changes are locked. Unlock them with the owner passcode.' });
+  };
+
   const chat = async (req, res) => {
     if (!allowedPost(req, res)) return;
     if (!cfg.enabled) return sendJson(res, 503, { code: 'off', message: 'DPP AI is switched off at the moment.' });
@@ -224,8 +236,9 @@ export function createHandler(deps) {
       req.method === 'GET' && path === '/api/ai/status' ? status
         : req.method === 'POST' && path === '/api/ai/unlock' ? unlock
           : req.method === 'POST' && path === '/api/ai/chat' ? chat
-            : req.method === 'GET' && path === '/healthz' ? (rq, rs) => sendJson(rs, 200, { ok: true })
-              : null;
+            : req.method === 'GET' && path === '/api/ai/owner-check' ? ownerCheck
+              : req.method === 'GET' && path === '/healthz' ? (rq, rs) => sendJson(rs, 200, { ok: true })
+                : null;
     if (!route) return sendJson(res, 404, { code: 'not_found', message: 'Nothing here.' });
     Promise.resolve(route(req, res)).catch((e) => {
       log({ ts: new Date(now()).toISOString(), ev: 'crash', message: String((e && e.stack) || e).slice(0, 600) });
