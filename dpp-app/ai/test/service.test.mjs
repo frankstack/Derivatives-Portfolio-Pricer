@@ -6,7 +6,7 @@ import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { loadConfig } from '../config.mjs';
+import { loadConfig, NAME } from '../config.mjs';
 import { Limits } from '../limits.mjs';
 import { hashPasscode, verifyPasscode, loadSigningKey, issueToken, verifyToken } from '../owner.mjs';
 import { toConverse, toToolSpecs, Invalid } from '../validate.mjs';
@@ -252,7 +252,7 @@ test('service: status, a streamed answer, usage booked, nothing of the conversat
     assert.equal(res.headers.get('x-accel-buffering'), 'no');
     assert.deepEqual(await lines(res), [{ t: 'text', d: 'Hello ' }, { t: 'text', d: 'there.' }, { t: 'done', stop: 'end_turn', dropped: 0 }]);
     // what the model was given
-    assert.match(s.seen[0].system, /You are DPP AI/);
+    assert.ok(s.seen[0].system.startsWith('You are ' + NAME + ', the AI assistant built into Derivatives Portfolio Pricer'));
     assert.match(s.seen[0].context, /on the trades screen/);
     assert.equal(s.seen[0].tools.length, READ_TOOLS.length);
     // 1000 in + 100 out = 0.002 + 0.001
