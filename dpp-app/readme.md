@@ -5,7 +5,7 @@ An open-source, full-stack derivatives portfolio valuation platform deployed on 
 **Live demo:** [derivativespricer.com](https://derivativespricer.com/)
 
 <p align="center">
-  <img src="overview-architecture.png" alt="DPP end-to-end architecture" width="850">
+  <img src="web/overview/architecture.svg" alt="DPP end-to-end architecture" width="850">
 </p>
 
 ---
@@ -90,12 +90,13 @@ dpp-app/
       Dockerfile                      # Multi-stage .NET 8 Docker build
       appsettings.json                # Connection string template
     MonteCarloSimulatorWebApp/
-      portfolioManager.html / .js / .css   # Previous UI, kept at /portfolioManager.html; the Overview text lives here
+      portfolioManager.html / .js / .css   # Previous UI, kept at /portfolioManager.html
       index.html                           # Landing page
-      *.svg / *.png                        # Diagrams and screenshots
+      *.svg / *.png                        # Diagrams and screenshots, also shown in the Overview page
   web/                                # Workstation UI (React, TypeScript, Vite)
     src/                              # Screens, charts, API client
-    scripts/prebuild.mjs              # Copies the Overview text and images from the previous UI
+    overview/                         # The Overview page: its text (overview.html) and the diagrams drawn for it
+    scripts/prebuild.mjs              # Puts the Overview text and its images into the build
     package.json / vite.config.ts     # Build setup
   infra/
     nginx/dpp.conf                    # Nginx reverse-proxy config
@@ -159,7 +160,7 @@ npm run typecheck   # tsc, prints nothing when clean
 npm run build       # writes web/dist
 ```
 
-`npm run build` first runs `scripts/prebuild.mjs`, which copies the Overview text and its images out of `MCSimulator/MonteCarloSimulatorWebApp`, so that folder has to sit next to `web/`.
+`npm run build` first runs `scripts/prebuild.mjs`, which puts the Overview page into the build: its text and diagrams from `web/overview/`, and the screenshots and reference diagrams from `MCSimulator/MonteCarloSimulatorWebApp`, so that folder has to sit next to `web/`.
 
 Deploy: copy `web/dist/` into the Nginx root (`/var/www/dpp-ui`). File names under `assets/` carry a content hash and can be cached for good; `index.html` should always be revalidated. The previous UI stays reachable at `/portfolioManager.html`.
 
