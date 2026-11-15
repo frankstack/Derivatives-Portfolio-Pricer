@@ -6,6 +6,7 @@ import { liveCurve, rateAt } from './api';
 import { fmt } from './ui';
 import { AiDock, AiPanel } from './AiChat';
 import type { Ai } from './AiChat';
+import { AI_TITLE } from './ai';
 
 export type ValSettings = {
   curveId: number; asOf: string; paths: number; steps: number; antithetic: boolean; controlVariate: boolean;
@@ -115,7 +116,7 @@ export function LeftRail(p: { ctx: Ctx }) {
       </div>
       <div className="nav">{SECTIONS.slice(0, 5).map((s) => item(s.key, s.label))}</div>
       <div className="nav second">
-        {item('ai', 'DPP AI')}
+        {item('ai', AI_TITLE)}
         {item('overview', 'Overview')}
       </div>
       <div className="grow" />

@@ -1,9 +1,9 @@
-// DPP AI in the interface: the conversation, the dock in the right rail and the
+// The assistant in the interface: the conversation, the dock in the right rail and the
 // panel that slides over it. The conversation itself lives in App, so it carries
 // across screens.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FormEvent, KeyboardEvent, MutableRefObject, ReactNode } from 'react';
-import { aiChat, aiStatus, aiUnlock, AiError, applyPlan, contextFor, isWriteTool, planWrite, runRead, stepLabel } from './ai';
+import { aiChat, aiStatus, aiUnlock, AiError, AI_NAME, AI_TITLE, applyPlan, contextFor, isWriteTool, planWrite, runRead, stepLabel } from './ai';
 import type { AiStatus, Block, Json, ToolCtx, WireMessage } from './ai';
 import { ownerAuth } from './api';
 import { Btn } from './ui';
@@ -95,7 +95,7 @@ export function useAi(ctxRef: MutableRefObject<ToolCtx>): Ai {
       writeOwner(next);
       return '';
     } catch (e) {
-      return e instanceof AiError ? e.message : 'DPP AI could not be reached. Try again.';
+      return e instanceof AiError ? e.message : AI_NAME + ' could not be reached. Try again.';
     }
   }, []);
 
@@ -200,7 +200,7 @@ export function useAi(ctxRef: MutableRefObject<ToolCtx>): Ai {
         got.calls.forEach((c) => blocks.push({ type: 'tool_use', id: c.id, name: c.name, input: c.input }));
         if (blocks.length === 0) {
           drop(key);
-          note('DPP AI had nothing to add.', false);
+          note(AI_NAME + ' had nothing to add.', false);
           break;
         }
         w.push({ role: 'assistant', content: blocks });
@@ -221,7 +221,7 @@ export function useAi(ctxRef: MutableRefObject<ToolCtx>): Ai {
           break;
         }
         if (round >= MAX_ROUNDS) {
-          note('DPP AI paused after ' + MAX_ROUNDS + ' steps. Say "continue" to let it go on.', false);
+          note(AI_NAME + ' paused after ' + MAX_ROUNDS + ' steps. Say "continue" to let it go on.', false);
           break;
         }
         await settle();
@@ -234,7 +234,7 @@ export function useAi(ctxRef: MutableRefObject<ToolCtx>): Ai {
         if (e.code === 'owner_expired' || e.code === 'owner_required') lock();
         if (e.code === 'off' || e.code.indexOf('budget_') === 0) refreshStatus();
       } else {
-        note('DPP AI ran into a problem. Try again.', true);
+        note(AI_NAME + ' ran into a problem. Try again.', true);
       }
     } finally {
       running.current = false;
@@ -447,10 +447,10 @@ export function AiConversation(p: { ai: Ai; focus?: boolean }) {
 
   const s = ai.status;
   const off = !ai.statusLoaded ? ''
-    : !s ? 'DPP AI is not available right now.'
-      : !s.enabled ? 'DPP AI is switched off at the moment.'
-        : s.resting === 'month' ? 'DPP AI has used up its budget for this month. It is back on the first of next month.'
-          : s.resting === 'day' ? 'DPP AI has used up its budget for today. It is back tomorrow (UTC).'
+    : !s ? AI_NAME + ' is not available right now.'
+      : !s.enabled ? AI_NAME + ' is switched off at the moment.'
+        : s.resting === 'month' ? AI_NAME + ' has used up its budget for this month. It is back on the first of next month.'
+          : s.resting === 'day' ? AI_NAME + ' has used up its budget for today. It is back tomorrow (UTC).'
             : '';
 
   const submit = (e?: FormEvent) => {
@@ -481,7 +481,7 @@ export function AiConversation(p: { ai: Ai; focus?: boolean }) {
       >
         {ai.entries.length === 0 ? (
           <div className="ai-empty">
-            <p>Ask about the book, price a what-if or run a valuation. DPP AI works on the same data and the same engine as these screens.</p>
+            <p>Ask about the book, price a what-if or run a valuation. {AI_NAME} works on the same data and the same engine as these screens.</p>
             <div className="ai-examples">
               {EXAMPLES.map((x) => (
                 <button key={x} type="button" className="ai-example" disabled={ai.busy || Boolean(off)} onClick={() => { follow.current = true; ai.send(x); }}>{x}</button>
@@ -495,7 +495,7 @@ export function AiConversation(p: { ai: Ai; focus?: boolean }) {
           const prev = i > 0 ? ai.entries[i - 1] : null;
           return (
             <div key={e.key} className="ai-msg bot">
-              {!prev || prev.kind !== 'assistant' ? <span className="who">DPP AI</span> : null}
+              {!prev || prev.kind !== 'assistant' ? <span className="who">{AI_NAME}</span> : null}
               {e.text ? <Rich text={e.text} /> : null}
               {e.streaming && !e.text && e.steps.length === 0 ? <span className="ai-wait">Thinking</span> : null}
               {e.steps.map((st) => <StepLine key={st.id} s={st} ai={ai} />)}
@@ -512,7 +512,7 @@ export function AiConversation(p: { ai: Ai; focus?: boolean }) {
           value={draft}
           disabled={Boolean(off)}
           placeholder="Ask about the book, a price or a what-if"
-          aria-label="Message to DPP AI"
+          aria-label={'Message to ' + AI_NAME}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKey}
         />
@@ -542,7 +542,7 @@ export function AiDock(p: { ai: Ai }) {
   return (
     <form className="dock" id="dpp-ai" onSubmit={submit}>
       <label>
-        Ask DPP AI
+        Ask {AI_NAME}
         <input type="text" value={q} maxLength={4000} placeholder="Value my NVDA trades on the Oct 30 curve" onChange={(e) => setQ(e.target.value)} />
       </label>
       <div className="btns">
@@ -559,11 +559,11 @@ export function AiPanel(p: { ai: Ai; go: (section: string) => void }) {
   return (
     <aside
       className="ai-panel"
-      aria-label="DPP AI"
+      aria-label={AI_TITLE}
       onKeyDown={(e) => { if (e.key === 'Escape') ai.setPanel(false); }}
     >
       <div className="rail-head">
-        <h2>DPP AI</h2>
+        <h2>{AI_TITLE}</h2>
         <button type="button" className="link" onClick={() => { ai.setPanel(false); p.go('ai'); }}>Full view</button>
         <button type="button" className="link" onClick={() => ai.setPanel(false)}>Close</button>
       </div>
