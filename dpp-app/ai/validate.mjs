@@ -3,6 +3,7 @@
 // service offers, and every tool call must have its answer.
 
 import { READ_NAMES, WRITE_NAMES } from './tools.mjs';
+import { NAME } from './config.mjs';
 
 export class Invalid extends Error {
   constructor(code, message) {
@@ -44,7 +45,7 @@ export function toConverse(input, cfg, owner) {
         const text = typeof b.text === 'string' ? b.text.trim() : '';
         if (!text) continue;
         if (role === 'user' && text.length > cfg.maxUserText) {
-          throw new Invalid('too_long', 'That message is too long for DPP AI. Keep it under ' + cfg.maxUserText + ' characters.');
+          throw new Invalid('too_long', 'That message is too long for ' + NAME + '. Keep it under ' + cfg.maxUserText + ' characters.');
         }
         content.push({ text: role === 'user' ? text : text.slice(0, 20000) });
       } else if (b.type === 'tool_use' && role === 'assistant') {

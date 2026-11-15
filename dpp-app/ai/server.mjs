@@ -1,4 +1,4 @@
-// DPP AI service: the only way from the site to the model.
+// The assistant's service (dpp-ai): the only way from the site to the model.
 // It decides what the model is told (prompt and tools), who may call it and how
 // much it may cost. It never touches the pricing data: the tools the model asks
 // for are carried out by the site in the visitor's browser.
@@ -15,7 +15,7 @@
 import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { loadConfig } from './config.mjs';
+import { loadConfig, NAME } from './config.mjs';
 import { Limits } from './limits.mjs';
 import { loadSigningKey, issueToken, verifyToken, verifyPasscode } from './owner.mjs';
 import { toConverse, toToolSpecs, Invalid } from './validate.mjs';
@@ -70,15 +70,15 @@ export function describeUpstream(e) {
     return { code: 'busy', message: 'The model is busy right now. Try again in a moment.' };
   }
   if (/AccessDenied|UnrecognizedClient|Credentials|ResourceNotFound|ExpiredToken/.test(name)) {
-    return { code: 'unavailable', message: 'DPP AI is not available right now.' };
+    return { code: 'unavailable', message: NAME + ' is not available right now.' };
   }
   if (/MalformedToolUse/.test(name)) {
     return { code: 'cut', message: 'The answer was cut short. Ask again, or ask for less at once.' };
   }
   if (/Validation/.test(name)) {
-    return { code: 'invalid_upstream', message: 'DPP AI could not follow this conversation. Start a new one.' };
+    return { code: 'invalid_upstream', message: NAME + ' could not follow this conversation. Start a new one.' };
   }
-  return { code: 'error', message: 'DPP AI ran into a problem. Try again.' };
+  return { code: 'error', message: NAME + ' ran into a problem. Try again.' };
 }
 
 export function createHandler(deps) {
@@ -93,7 +93,7 @@ export function createHandler(deps) {
   const allowedPost = (req, res) => {
     const origin = req.headers.origin;
     if (origin && cfg.origins.indexOf(origin) < 0) {
-      sendJson(res, 403, { code: 'forbidden', message: 'DPP AI only answers its own site.' });
+      sendJson(res, 403, { code: 'forbidden', message: NAME + ' only answers its own site.' });
       return false;
     }
     if (!/^application\/json\b/i.test(String(req.headers['content-type'] || ''))) {
@@ -146,7 +146,7 @@ export function createHandler(deps) {
 
   const chat = async (req, res) => {
     if (!allowedPost(req, res)) return;
-    if (!cfg.enabled) return sendJson(res, 503, { code: 'off', message: 'DPP AI is switched off at the moment.' });
+    if (!cfg.enabled) return sendJson(res, 503, { code: 'off', message: NAME + ' is switched off at the moment.' });
     const ip = ipOf(req);
     let body;
     let conv;
@@ -242,7 +242,7 @@ export function createHandler(deps) {
     if (!route) return sendJson(res, 404, { code: 'not_found', message: 'Nothing here.' });
     Promise.resolve(route(req, res)).catch((e) => {
       log({ ts: new Date(now()).toISOString(), ev: 'crash', message: String((e && e.stack) || e).slice(0, 600) });
-      if (!res.headersSent) sendJson(res, 500, { code: 'error', message: 'DPP AI ran into a problem. Try again.' });
+      if (!res.headersSent) sendJson(res, 500, { code: 'error', message: NAME + ' ran into a problem. Try again.' });
       else res.end();
     });
     return undefined;

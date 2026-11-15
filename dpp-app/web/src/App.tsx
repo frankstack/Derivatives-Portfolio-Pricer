@@ -139,7 +139,7 @@ export default function App() {
     runRef.current(undefined, Object.assign({}, settingsRef.current, { asOf: '' }));
   }, [autoKey]);
 
-  // DPP AI works on whatever the screens hold right now: its tools read this on every call.
+  // The assistant works on whatever the screens hold right now: its tools read this on every call.
   const tools: ToolCtx = {
     underlyings: underlyings, stats: stats, options: options, trades: trades, curves: curves, valuation: valuation, reload: reload, go: go,
     setSelUnderlying: setSelUnderlying, setSelOption: setSelOption, section: section, selUnderlying: selUnderlying, selOption: selOption,

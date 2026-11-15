@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the DPP AI image from this folder and (re)starts the service on the server.
+# Builds the dpp-ai image from this folder and (re)starts the service on the server.
 # Safe to run again: settings in /etc/dpp-ai/env and the spend record in /var/lib/dpp-ai are kept.
 #
 #   bash deploy.sh          build and restart

@@ -4,6 +4,7 @@
 
 import { readFileSync, writeFileSync, renameSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { NAME } from './config.mjs';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -128,19 +129,19 @@ export class Limits {
     this.roll(now);
     const b = this.budget;
     if (b.monthSpend + this.reserved + estimateUsd > this.cfg.capMonthUsd) {
-      return refusal('budget_month', 'DPP AI has used up its budget for this month. It is back on the first of next month.');
+      return refusal('budget_month', NAME + ' has used up its budget for this month. It is back on the first of next month.');
     }
     if (b.daySpend + this.reserved + estimateUsd > this.cfg.capDayUsd) {
-      return refusal('budget_day', 'DPP AI has used up its budget for today. It is back tomorrow (UTC).');
+      return refusal('budget_day', NAME + ' has used up its budget for today. It is back tomorrow (UTC).');
     }
     if (this.active >= this.cfg.maxConcurrent || this.allMinute.count('all', now) >= this.cfg.globalPerMinute) {
-      return refusal('busy', 'DPP AI is busy with other questions right now. Try again in a few seconds.', 5);
+      return refusal('busy', NAME + ' is busy with other questions right now. Try again in a few seconds.', 5);
     }
     if (this.ipMinute.count(ip, now) >= this.cfg.perIpPerMinute) {
-      return refusal('rate_limited', 'That was a lot in one minute. Give DPP AI a moment and ask again.', this.ipMinute.wait(ip, now));
+      return refusal('rate_limited', 'That was a lot in one minute. Give ' + NAME + ' a moment and ask again.', this.ipMinute.wait(ip, now));
     }
     if (this.ipDay.count(ip, now) >= this.cfg.perIpPerDay) {
-      return refusal('rate_limited_day', 'You have reached the daily limit for DPP AI. It opens again within 24 hours.', this.ipDay.wait(ip, now));
+      return refusal('rate_limited_day', 'You have reached the daily limit for ' + NAME + '. It opens again within 24 hours.', this.ipDay.wait(ip, now));
     }
     return null;
   }

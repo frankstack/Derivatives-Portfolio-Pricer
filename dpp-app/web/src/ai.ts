@@ -1,4 +1,4 @@
-// DPP AI, the part that runs in the browser: the client for the AI service and
+// The assistant, the part that runs in the browser: the client for the AI service and
 // the tools the model may ask for. Tools work on the data the screens already
 // hold and call the same API functions the tickets use, so whatever the
 // assistant does shows up in the app like a change made by hand.
@@ -30,8 +30,13 @@ export class AiError extends Error {
   }
 }
 
+// The assistant's name as people read it. The service carries the same name in ai/config.mjs.
+export const AI_NAME = 'Carlo';
+// Where a label has to say what it is: the menu, the screen title, the panel.
+export const AI_TITLE = AI_NAME + ' AI';
+
 const BASE = '/api/ai';
-const UNREACHABLE = 'DPP AI could not be reached. Check the connection and try again.';
+const UNREACHABLE = AI_NAME + ' could not be reached. Check the connection and try again.';
 
 async function refusal(res: Response): Promise<AiError> {
   try {
@@ -40,7 +45,7 @@ async function refusal(res: Response): Promise<AiError> {
   } catch (e) {
     // not JSON: fall through to the generic sentence
   }
-  return new AiError('error', res.status === 404 || res.status === 502 ? 'DPP AI is not available right now.' : 'DPP AI answered ' + res.status + '. Try again.');
+  return new AiError('error', res.status === 404 || res.status === 502 ? AI_NAME + ' is not available right now.' : AI_NAME + ' answered ' + res.status + '. Try again.');
 }
 
 export async function aiStatus(): Promise<AiStatus | null> {
@@ -955,7 +960,7 @@ export function contextFor(ctx: ToolCtx): Json {
     selection = o ? o.symbol : '';
   }
   const latest = ctx.stats.filter((s) => s.predefined).reduce((m, s) => (s.lastDate > m ? s.lastDate : m), '');
-  return { screen: ctx.section === 'ai' ? 'DPP AI' : ctx.section, selection: selection, latestClose: latest };
+  return { screen: ctx.section === 'ai' ? 'assistant' : ctx.section, selection: selection, latestClose: latest };
 }
 
 const failed = (e: unknown): string =>

@@ -1,4 +1,4 @@
-// The tools DPP AI may ask for. The service only describes them to the model;
+// The tools the assistant may ask for. The service only describes them to the model;
 // the site itself carries them out in the visitor's browser, with the same calls
 // the screens use. Write tools are offered only after the owner passcode.
 
