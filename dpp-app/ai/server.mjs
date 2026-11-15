@@ -202,8 +202,10 @@ export function createHandler(deps) {
       }
     } finally {
       finished = true;
-      // A call that broke off still cost something: book a rough figure rather than nothing.
-      const booked = usage || { inputTokens: Math.round(promptChars / 3.5), outputTokens: Math.round(outChars / 3) };
+      // A call that broke off after it started still cost something: book a rough figure rather than nothing.
+      // A call the model service turned away before answering cost nothing.
+      const turnedAway = Boolean(failure) && !abort.signal.aborted && outChars === 0;
+      const booked = usage || (turnedAway ? { inputTokens: 0, outputTokens: 0 } : { inputTokens: Math.round(promptChars / 3.5), outputTokens: Math.round(outChars / 3) });
       const cost = limits.end(ticket, booked);
       log({
         ts: new Date(now()).toISOString(), ev: 'chat', who: tag(ip), owner, messages: conv.messages.length, promptChars,

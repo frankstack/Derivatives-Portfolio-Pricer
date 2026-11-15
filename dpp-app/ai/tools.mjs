@@ -53,7 +53,7 @@ export const READ_TOOLS = [
   },
   {
     name: 'run_valuation',
-    description: 'Run the Monte Carlo valuation on trades and return value, standard error and Greeks per trade plus the total. Choose the trades by ids, by underlying, by instrument, or leave all three out for the whole book. Optional: a past valuation date (uses closes up to that day and leaves out trades made later), a rate curve by name, and simulation settings. Takes a few seconds.',
+    description: 'Run the Monte Carlo valuation on trades. Returns totals for the selection (value, its standard error, and the position Greeks vega_1pt, theta_1d, rho_100bp), the same by underlying with delta_shares, and one row per trade. Choose the trades by ids, by underlying, by instrument, or leave all three out for the whole book. Optional: a past valuation date (uses closes up to that day and leaves out trades made later), a rate curve by name (leave out for the live curve), and simulation settings. Takes a few seconds.',
     input_schema: obj({
       trade_ids: { type: 'array', items: { type: 'integer' }, description: 'Trade ids to value.' },
       underlying: str('Value only trades on this underlying ticker.'),
@@ -68,12 +68,13 @@ export const READ_TOOLS = [
   },
   {
     name: 'price_option',
-    description: 'Price one hypothetical option with the Monte Carlo engine without saving anything: a what-if. Give the underlying ticker (spot, volatility and rate are then taken from the app data) or give spot yourself; any input you pass overrides the default. Returns price, standard error, Greeks and the inputs used.',
+    description: 'Price one hypothetical option with the Monte Carlo engine without saving anything: a what-if. Give the underlying ticker (spot, volatility and rate are then taken from the app data) or give spot yourself; any input you pass overrides the default. Returns price, standard error, Greeks per unit (vega_1pt, theta_1d, rho_100bp) and the inputs used.',
     input_schema: obj(
       {
         underlying: str('Ticker to take spot and volatility from.'),
         spot: num('Spot price. Default: last close of the underlying.'),
         strike: num('Strike price. Not used by range options.'),
+        strike_pct: num('Strike as a percent of spot instead of a price: 105 is 5% above spot, 95 is 5% below. Use it for "5% out of the money" so you do not compute the strike yourself.'),
         expiry: str('Expiry date. ' + DATE + ' Give this or years.'),
         years: num('Time to expiry in years. Give this or expiry.'),
         type: OPTION_TYPE,
@@ -92,7 +93,7 @@ export const READ_TOOLS = [
   },
   {
     name: 'open_screen',
-    description: 'Bring a screen of the app up for the person, optionally on one stock or contract, so they can see what you are describing. Changes nothing in the data.',
+    description: 'Bring a screen of the app up for the person, optionally on one stock or contract, so they can see what you are describing. Changes nothing in the data. Screens: underlyings (price chart and watchlist), derivatives (contract list), trades (blotter with value and profit or loss per trade), rates (curve charts), valuation (run settings, value by underlying, Greeks per trade), overview (the about page on how the app is built, not a portfolio summary).',
     input_schema: obj(
       {
         screen: { type: 'string', enum: ['underlyings', 'derivatives', 'trades', 'rates', 'valuation', 'overview'], description: 'Screen to show.' },
