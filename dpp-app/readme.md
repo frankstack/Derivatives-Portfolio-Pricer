@@ -90,7 +90,7 @@ dpp-app/
       Dockerfile                      # Multi-stage .NET 8 Docker build
       appsettings.json                # Connection string template
     MonteCarloSimulatorWebApp/
-      portfolioManager.html / .js / .css   # Previous UI, kept at /portfolioManager.html
+      portfolioManager.html / .js / .css   # Previous UI, retired: its address leads to the site
       index.html                           # Landing page
       *.svg / *.png                        # Diagrams and screenshots, also shown in the Overview page
   web/                                # Workstation UI (React, TypeScript, Vite)
@@ -162,7 +162,7 @@ npm run build       # writes web/dist
 
 `npm run build` first runs `scripts/prebuild.mjs`, which puts the Overview page into the build: its text and diagrams from `web/overview/`, and the screenshots and reference diagrams from `MCSimulator/MonteCarloSimulatorWebApp`, so that folder has to sit next to `web/`.
 
-Deploy: copy `web/dist/` into the Nginx root (`/var/www/dpp-ui`). File names under `assets/` carry a content hash and can be cached for good; `index.html` should always be revalidated. The previous UI stays reachable at `/portfolioManager.html`.
+Deploy: copy `web/dist/` into the Nginx root (`/var/www/dpp-ui`). File names under `assets/` carry a content hash and can be cached for good; `index.html` should always be revalidated. The previous UI is retired: Nginx sends `/portfolioManager.html` to the front page of the site.
 
 ---
 
