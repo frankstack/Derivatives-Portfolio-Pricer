@@ -18,6 +18,10 @@ pricing data.
 - Visitors get read tools only (look up, value, price a what-if, open a screen).
   Tools that add, edit or delete are offered only after the owner passcode has been
   entered, and the site shows each change for confirmation before it is applied.
+- The same owner token guards the screens and the pricing API: nginx lets a call that
+  changes data through only after this service has checked the token (the X-DPP-Owner
+  header). Reads, valuations and what-if pricing stay open, and the nightly job keeps
+  using its own key. See the maps and the /_owner/ blocks in dpp-app/infra/nginx/dpp.conf.
 - No AWS keys are stored: calls are signed with the EC2 instance role, which is
   allowed to invoke Anthropic models on Bedrock and nothing else in Bedrock.
 - The log has sizes, token counts and cost per call. It never has conversation text.
@@ -63,8 +67,12 @@ Look at it:
     docker logs --tail 50 dpp-ai
     cat /var/lib/dpp-ai/budget.json
 
-nginx needs the /api/ai/ block from dpp-app/infra/nginx/dpp.conf, placed before the
-/api/ block of the live config.
+nginx needs, from dpp-app/infra/nginx/dpp.conf: the three maps at the top, the /api/ai/
+block, the "if" at the top of the /api/ block, and the /_owner/ blocks after it.
+
+Maintenance without the passcode: on the server itself the pricing API answers at
+http://127.0.0.1:5022 without going through nginx, so curl from the server shell can
+still change data.
 
 ## Limits (defaults)
 

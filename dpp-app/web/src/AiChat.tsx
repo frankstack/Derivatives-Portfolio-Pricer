@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FormEvent, KeyboardEvent, MutableRefObject, ReactNode } from 'react';
 import { aiChat, aiStatus, aiUnlock, AiError, applyPlan, contextFor, isWriteTool, planWrite, runRead, stepLabel } from './ai';
 import type { AiStatus, Block, Json, ToolCtx, WireMessage } from './ai';
+import { ownerAuth } from './api';
 import { Btn } from './ui';
 
 export type Step = {
@@ -81,6 +82,9 @@ export function useAi(ctxRef: MutableRefObject<ToolCtx>): Ai {
   useEffect(() => { refreshStatus(); }, [refreshStatus]);
 
   const lock = useCallback(() => { setOwner(LOCKED); ownerRef.current = LOCKED; writeOwner(LOCKED); }, []);
+  // The screens' own tickets send the same token (api.ts) and lock again when the server refuses it.
+  ownerAuth.token = owner.token && owner.until > Date.now() ? owner.token : '';
+  ownerAuth.onRejected = lock;
 
   const unlock = useCallback(async (passcode: string): Promise<string> => {
     try {
@@ -410,6 +414,19 @@ function OwnerLock(p: { ai: Ai }) {
       <button type="button" className="link" onClick={() => { setOpen(false); setCode(''); setMsg(''); }}>Cancel</button>
       {msg ? <span className="neg" role="alert">{msg}</span> : null}
     </form>
+  );
+}
+
+// At the top of every ticket: says whether changes are open, and lets the owner unlock them.
+export function OwnerGate(p: { ai: Ai }) {
+  const ai = p.ai;
+  if (ai.unlockedUntil) return <div className="gate open"><OwnerLock ai={ai} /></div>;
+  const setUp = Boolean(ai.status && ai.status.ownerSetUp);
+  return (
+    <div className="gate">
+      <span>{setUp ? 'Read only. Adding, editing and deleting is reserved for the site owner.' : 'Read only. Changing data is not available right now.'}</span>
+      <OwnerLock ai={ai} />
+    </div>
   );
 }
 

@@ -251,6 +251,9 @@ table.grid { width: 100%; border-collapse: collapse; font-size: 12px; line-heigh
 .ai-panel .rail-head { gap: 14px; }
 .ai-panel .rail-head .link:first-of-type { margin-left: auto; }
 .dock .btn { height: 32px; }
+.gate { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line2); border-radius: 4px; font-size: 12px; line-height: 1.5; color: var(--text2); }
+.gate.open { border-color: var(--teal); }
+.gate .link { align-self: flex-start; }
 
 @media (max-width: 1180px) {
   .app { display: block; height: auto; }

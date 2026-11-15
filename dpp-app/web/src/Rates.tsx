@@ -5,6 +5,7 @@ import { api, curveKind, curvePoints, liveCurve, rateAt, snapshotDay, tenorLabel
 import type { RateCurve } from './api';
 import { Shell } from './shell';
 import type { Ctx } from './shell';
+import { OwnerGate } from './AiChat';
 import { Panel, Kpi, Field, Area, Btn, ConfirmDelete, Check, Select, DataGrid, Notice, fmt, signed, tone, useChartHeight } from './ui';
 import type { Col } from './ui';
 import { LineChart, Legend, C, OVERLAY_COLORS } from './charts';
@@ -29,6 +30,7 @@ export function Rates(p: { ctx: Ctx }) {
   const [newName, setNewName] = useState('');
   const chartH = useChartHeight(300, 220);
   const [busy, setBusy] = useState(false);
+  const locked = !ctx.ai.unlockedUntil;
   const [msg, setMsg] = useState('');
 
   const live = liveCurve(curves);
@@ -177,11 +179,12 @@ export function Rates(p: { ctx: Ctx }) {
       <div>{scenarios.length ? scenarios.map((c) => tick(c, c.name.replace(/^Scenario\s*/i, ''))) : <p className="note">None yet.</p>}</div>
       <h3>Yours</h3>
       <div>{yours.length ? yours.map((c) => tick(c, c.name)) : <p className="note">None yet.</p>}</div>
+      <OwnerGate ai={ctx.ai} />
       <h3>New curve</h3>
       <form onSubmit={create} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <Field label="Name" mono={false} value={name} onChange={setName} placeholder="My curve" />
         <Area label="Points: tenor in years, rate" value={text} onChange={setText} placeholder={'0.25, 4.32\n1, 4.65\n10, 5.10'} />
-        <Btn kind="primary" submit disabled={busy}>{busy ? 'Saving' : 'Save curve'}</Btn>
+        <Btn kind="primary" submit disabled={busy || locked}>{busy ? 'Saving' : 'Save curve'}</Btn>
       </form>
       {manageable.length ? (
         <>
@@ -189,11 +192,11 @@ export function Rates(p: { ctx: Ctx }) {
           <Select label="Curve" value={manage} onChange={setManage} options={[{ value: '', label: 'Choose a curve' }].concat(manageable.map((c) => ({ value: String(c.id), label: c.name })))} />
           <Field label="New name" mono={false} value={newName} onChange={setNewName} />
           <div className="btns">
-            <Btn onClick={rename} disabled={busy}>Rename</Btn>
+            <Btn onClick={rename} disabled={busy || locked}>Rename</Btn>
             {target ? (
-              <ConfirmDelete key={target.id} warn={'Delete the curve ' + target.name + '? This cannot be undone.'} onConfirm={remove} disabled={busy} />
+              <ConfirmDelete key={target.id} warn={'Delete the curve ' + target.name + '? This cannot be undone.'} onConfirm={remove} disabled={busy || locked} />
             ) : (
-              <Btn kind="danger" onClick={remove} disabled={busy}>Delete</Btn>
+              <Btn kind="danger" onClick={remove} disabled={busy || locked}>Delete</Btn>
             )}
           </div>
         </>
