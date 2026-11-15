@@ -9,7 +9,7 @@ const COMMON = [
   "# What the app holds",
   "",
   "- Underlyings: about 50 large US stocks with daily closes since 2021, refreshed every night, plus a few user-made ones. Each has the volatility the engine prices with: the standard deviation of daily log returns over its whole history, annualized with the square root of 252.",
-  "- Derivatives: option contracts on those underlyings. Six types: European, Asian (arithmetic average of the path), Digital (pays a fixed amount if it ends in the money), Barrier (up or down, in or out), Lookback and Range. Each has a strike, an expiry, and is a call or a put.",
+  "- Derivatives: option contracts on those underlyings. Six types: European, Asian (geometric average of the path), Digital (pays a fixed amount if it ends in the money), Barrier (up or down, in or out), Lookback and Range. Each has a strike, an expiry, and is a call or a put.",
   "- Trades: buys (positive quantity) and sells (negative quantity) of contracts or of the stocks themselves, each with a trade date and a price per unit.",
   "- Rate curves: USD Treasury + SOFR curves (a live one refreshed nightly, month-end snapshots, and +100 / -100 bp scenarios) and user-made curves. Rates are stored as decimals: 0.051 is 5.10%. The engine discounts with the curve point whose tenor is nearest to the time left to expiry.",
   "- Valuation: prices every chosen trade as of a date (now, or a past date) with chosen simulation settings, and returns value, standard error and Greeks per trade.",
