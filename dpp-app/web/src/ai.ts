@@ -239,6 +239,13 @@ const optionLine = (o: OptionEntity): string =>
   o.optionTypeName + (o.isCall ? ' call' : ' put') + ' on ' + (o.underlying ? o.underlying.symbol : 'its underlying') +
   (o.optionType === 6 ? '' : ', strike ' + money(o.strikePrice)) + ', expires ' + day(o.expirationDate);
 
+// The engine reports vega and rho per 1.00 (a hundred points) and theta as the value of the last 1% of the remaining life, times 100.
+// These are the same numbers in everyday units: per volatility point, per calendar day (negative: loses value), per +100 bp.
+type RawGreeks = { delta: number; gamma: number; vega: number; theta: number; rho: number };
+function plainGreeks(g: RawGreeks, years: number) {
+  return { delta: g.delta, gamma: g.gamma, vega_1pt: g.vega / 100, theta_1d: years > 0 ? -g.theta / (years * 365) : 0, rho_100bp: g.rho / 100 };
+}
+
 // ---------------------------------------------------------------- read tools
 
 const READ: { [name: string]: (a: Json, ctx: ToolCtx) => Promise<Done> | Done } = {
@@ -438,19 +445,44 @@ const READ: { [name: string]: (a: Json, ctx: ToolCtx) => Promise<Done> | Done } 
     if (asOf) req.valuationDate = asOf + 'T23:00:00Z';
     const res = await api.valuate(req);
     const count = { valued: 0, expired: 0, not_traded_yet: 0 };
+    type Pos = { underlying: string; trades: number; value: number; delta_shares: number; vega_1pt: number; theta_1d: number; rho_100bp: number };
+    const by: { [k: string]: Pos } = {};
+    const tot = { variance: 0, vega_1pt: 0, theta_1d: 0, rho_100bp: 0 };
     res.valuations.forEach((v) => {
       if (v.status === 'valued') count.valued += 1; else if (v.status === 'expired') count.expired += 1; else count.not_traded_yet += 1;
+      if (v.status !== 'valued') return;
+      const g = plainGreeks(v, v.timeToMaturity);
+      const trade = all.find((t) => t.id === v.tradeId);
+      const key = (trade ? underlyingSymbolOf(ctx, trade.instrumentId) : '') || 'other';
+      if (!by[key]) by[key] = { underlying: key, trades: 0, value: 0, delta_shares: 0, vega_1pt: 0, theta_1d: 0, rho_100bp: 0 };
+      const q = v.quantity;
+      by[key].trades += 1; by[key].value += v.price; by[key].delta_shares += q * g.delta;
+      by[key].vega_1pt += q * g.vega_1pt; by[key].theta_1d += q * g.theta_1d; by[key].rho_100bp += q * g.rho_100bp;
+      tot.variance += q * q * v.standardError * v.standardError;
+      tot.vega_1pt += q * g.vega_1pt; tot.theta_1d += q * g.theta_1d; tot.rho_100bp += q * g.rho_100bp;
     });
     return {
       result: {
         as_of: asOf || 'now', valuation_date: res.valuationDate, curve: curve.name, paths: req.simulations, steps: req.steps,
-        portfolio_value: round(res.portfolioValue, 2), trades: res.valuations.length, valued: count.valued, expired: count.expired, not_traded_yet: count.not_traded_yet,
-        note: 'value is unit_value times quantity; the Greeks are per unit',
-        rows: res.valuations.slice(0, 60).map((v) => ({
-          trade_id: v.tradeId, instrument: v.instrumentSymbol, quantity: v.quantity, status: v.status, unit_value: round(v.unitPrice, 2), value: round(v.price, 2),
-          std_error: round(v.standardError, 3), delta: round(v.delta, 4), gamma: round(v.gamma, 5), vega: round(v.vega, 2), theta: round(v.theta, 2), rho: round(v.rho, 2),
-          vol_pct: pct(v.volatility, 1), rate_pct: pct(v.riskFreeRate, 2), years_left: round(v.timeToMaturity, 3), spot: round(v.spot, 2),
+        trades: res.valuations.length, valued: count.valued, expired: count.expired, not_traded_yet: count.not_traded_yet,
+        note: 'totals and by_underlying are for the whole position (already times quantity). In rows, value is for the position; unit_std_error and the Greeks are per unit. vega_1pt: per volatility point. theta_1d: per calendar day, negative means it loses value. rho_100bp: per +100 bp. delta_shares: the position moves like that many shares.',
+        totals: {
+          value: round(res.portfolioValue, 2), std_error: round(Math.sqrt(tot.variance), 2),
+          vega_1pt: round(tot.vega_1pt, 2), theta_1d: round(tot.theta_1d, 2), rho_100bp: round(tot.rho_100bp, 2),
+        },
+        by_underlying: Object.keys(by).map((k) => by[k]).sort((x, y) => Math.abs(y.value) - Math.abs(x.value)).map((l) => ({
+          underlying: l.underlying, trades: l.trades, value: round(l.value, 2), delta_shares: round(l.delta_shares, 1),
+          vega_1pt: round(l.vega_1pt, 2), theta_1d: round(l.theta_1d, 2), rho_100bp: round(l.rho_100bp, 2),
         })),
+        rows: res.valuations.slice(0, 60).map((v) => {
+          const g = plainGreeks(v, v.timeToMaturity);
+          return {
+            trade_id: v.tradeId, instrument: v.instrumentSymbol, quantity: v.quantity, status: v.status, unit_value: round(v.unitPrice, 2), value: round(v.price, 2),
+            unit_std_error: round(v.standardError, 3), delta: round(g.delta, 4), gamma: round(g.gamma, 5), vega_1pt: round(g.vega_1pt, 4),
+            theta_1d: round(g.theta_1d, 4), rho_100bp: round(g.rho_100bp, 4),
+            vol_pct: pct(v.volatility, 1), rate_pct: pct(v.riskFreeRate, 2), years_left: round(v.timeToMaturity, 3), spot: round(v.spot, 2),
+          };
+        }),
         rows_cut: res.valuations.length > 60 ? res.valuations.length - 60 : undefined,
       },
       summary: plural(res.valuations.length, 'trade', 'trades') + ' as of ' + (asOf || 'now') + ': ' + money(res.portfolioValue),
@@ -480,8 +512,10 @@ const READ: { [name: string]: (a: Json, ctx: ToolCtx) => Promise<Done> | Done } 
       if (rate === null) throw new ToolError('The curve ' + curve.name + ' has no points. Pass a rate as a decimal.');
     }
     if (Math.abs(rate) > 1) throw new ToolError('The rate is a decimal: 0.045 means 4.5%.');
-    const strike = num(a, 'strike');
-    if (type !== 6 && !(strike !== null && strike > 0)) throw new ToolError('Give a strike above zero.');
+    let strike = num(a, 'strike');
+    const strikePct = num(a, 'strike_pct');
+    if (strike === null && strikePct !== null && strikePct > 0) strike = Math.round(spot * strikePct) / 100;
+    if (type !== 6 && !(strike !== null && strike > 0)) throw new ToolError('Give a strike above zero, or strike_pct as a percent of spot.');
     let barrier = 1;
     let barrierType = 1;
     if (type === 4) {
@@ -506,10 +540,13 @@ const READ: { [name: string]: (a: Json, ctx: ToolCtx) => Promise<Done> | Done } 
     if (curveName) inputs.rate_from = curveName;
     if (type === 4) { inputs.barrier = barrier; inputs.barrier_type = BARRIER_KEYS[barrierType]; }
     if (type === 3) inputs.pays = rebate;
+    const g = plainGreeks(r, years);
     return {
       result: {
-        price: round(r.price, 4), std_error: round(r.standardError, 4), delta: round(r.delta, 4), gamma: round(r.gamma, 5),
-        vega: round(r.vega, 3), theta: round(r.theta, 3), rho: round(r.rho, 3), inputs: inputs, saved: false,
+        price: round(r.price, 4), std_error: round(r.standardError, 4), delta: round(g.delta, 4), gamma: round(g.gamma, 5),
+        vega_1pt: round(g.vega_1pt, 4), theta_1d: round(g.theta_1d, 4), rho_100bp: round(g.rho_100bp, 4),
+        note: 'Per unit. vega_1pt: per volatility point. theta_1d: per calendar day, negative means it loses value. rho_100bp: per +100 bp.',
+        inputs: inputs, saved: false,
       },
       summary: OPTION_TYPES[type] + (a.call ? ' call' : ' put') + (u ? ' on ' + u.symbol : '') + ': ' + money(r.price),
     };
@@ -900,7 +937,7 @@ export function stepLabel(name: string, a: Json): string {
     case 'get_trades': return 'Looking up trades' + (on('underlying') || (str(a, 'instrument') ? ' in ' + str(a, 'instrument') : ''));
     case 'get_book': return 'Reading the book';
     case 'get_rate_curves': return 'Looking up rate curves' + (str(a, 'name') ? ': ' + str(a, 'name') : '');
-    case 'run_valuation': return 'Running the valuation' + (on('underlying') || (str(a, 'instrument') ? ' of ' + str(a, 'instrument') : '')) + (str(a, 'as_of') ? ' as of ' + str(a, 'as_of') : '');
+    case 'run_valuation': return 'Running the valuation' + (on('underlying') || (str(a, 'instrument') ? ' of ' + str(a, 'instrument') : '')) + (str(a, 'as_of') ? ' as of ' + str(a, 'as_of') : '') + (str(a, 'curve') ? ', curve ' + str(a, 'curve') : '');
     case 'price_option': return 'Pricing a ' + (str(a, 'type') || 'what-if') + (a.call === true ? ' call' : a.call === false ? ' put' : '') + on('underlying');
     case 'open_screen': return 'Opening ' + (str(a, 'screen') || 'a screen');
     default: return name.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());

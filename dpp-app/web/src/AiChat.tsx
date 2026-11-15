@@ -267,7 +267,7 @@ export function useAi(ctxRef: MutableRefObject<ToolCtx>): Ai {
 // ---------------------------------------------------------------- answers as text
 
 const TICK = String.fromCharCode(96);
-const INLINE = new RegExp('(\\*\\*[^*\\n]+\\*\\*|' + TICK + '[^' + TICK + '\\n]+' + TICK + ')', 'g');
+const INLINE = new RegExp('(\\*\\*[^*\\n]+\\*\\*|\\*[^*\\s](?:[^*\\n]*[^*\\s])?\\*|' + TICK + '[^' + TICK + '\\n]+' + TICK + ')', 'g');
 const BULLET = /^\s*[-*]\s+(.*)$/;
 const NUMBERED = /^\s*\d+[.)]\s+(.*)$/;
 const ROW = /^\s*\|.*\|\s*$/;
@@ -276,6 +276,7 @@ const RULE = /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/;
 function inline(text: string): ReactNode[] {
   return text.split(INLINE).map((part, i) => {
     if (part.length > 4 && part.slice(0, 2) === '**' && part.slice(-2) === '**') return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.length > 2 && part.charAt(0) === '*' && part.charAt(part.length - 1) === '*') return <em key={i}>{part.slice(1, -1)}</em>;
     if (part.length > 2 && part.charAt(0) === TICK && part.charAt(part.length - 1) === TICK) return <code key={i}>{part.slice(1, -1)}</code>;
     return part;
   });
