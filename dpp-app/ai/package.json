@@ -1,0 +1,15 @@
+{
+  "name": "dpp-ai",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "DPP AI: a small, rate-limited door between the site and Claude on Amazon Bedrock.",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "3.1169.0"
+  }
+}
