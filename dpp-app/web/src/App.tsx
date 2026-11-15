@@ -10,6 +10,9 @@ import { Trades } from './Trades';
 import { Rates } from './Rates';
 import { Valuation } from './Valuation';
 import { Overview } from './Overview';
+import { DppAi } from './DppAi';
+import { useAi } from './AiChat';
+import type { ToolCtx } from './ai';
 
 const DEFAULTS: ValSettings = {
   curveId: 0, asOf: '', paths: 5000, steps: 64, antithetic: true, controlVariate: false, vdc: false, base1: 2, base2: 5, multithreaded: true,
@@ -17,7 +20,7 @@ const DEFAULTS: ValSettings = {
 
 function readSection(): string {
   const key = window.location.hash.replace(/^#\/?/, '');
-  return SECTIONS.some((s) => s.key === key) ? key : 'underlyings';
+  return key === 'ai' || SECTIONS.some((s) => s.key === key) ? key : 'underlyings';
 }
 
 export default function App() {
@@ -136,11 +139,24 @@ export default function App() {
     runRef.current(undefined, Object.assign({}, settingsRef.current, { asOf: '' }));
   }, [autoKey]);
 
+  // DPP AI works on whatever the screens hold right now: its tools read this on every call.
+  const tools: ToolCtx = {
+    underlyings: underlyings, stats: stats, options: options, trades: trades, curves: curves, valuation: valuation, reload: reload, go: go,
+    setSelUnderlying: setSelUnderlying, setSelOption: setSelOption, section: section, selUnderlying: selUnderlying, selOption: selOption,
+  };
+  const toolsRef = useRef(tools);
+  toolsRef.current = tools;
+  const ai = useAi(toolsRef);
+  const closePanel = ai.setPanel;
+  useEffect(() => {
+    if (section === 'ai') closePanel(false);
+  }, [section, closePanel]);
+
   const ctx: Ctx = {
     underlyings: underlyings, stats: stats, options: options, trades: trades, curves: curves, error: error, reload: reload,
     valuation: valuation, valBusy: valBusy, valError: valError, valMs: valMs, valSettings: valSettings, setValSettings: setValSettings,
     runValuation: runValuation, section: section, go: go, selUnderlying: selUnderlying, setSelUnderlying: setSelUnderlying,
-    selOption: selOption, setSelOption: setSelOption,
+    selOption: selOption, setSelOption: setSelOption, ai: ai,
   };
 
   return (
@@ -152,6 +168,7 @@ export default function App() {
       {section === 'rates' ? <Rates ctx={ctx} /> : null}
       {section === 'valuation' ? <Valuation ctx={ctx} /> : null}
       {section === 'overview' ? <Overview ctx={ctx} /> : null}
+      {section === 'ai' ? <DppAi ctx={ctx} /> : null}
     </div>
   );
 }
