@@ -1,0 +1,813 @@
+<div class="ov">
+
+<section class="ov-sec" id="ov-1">
+  <h3>I. The System at a Glance</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>1.1. What is this platform about</h4>
+      <p>
+        The <strong>Derivatives Portfolio Pricer (DPP)</strong> is an open-source, full-stack derivatives portfolio valuation platform deployed entirely in the cloud
+        and designed for buy-side valuation workflows. It combines a browser user interface (UI), a pricing API, a relational database, an automated market-data pipeline,
+        and an AI assistant that can operate it on request.
+        Its goal is to manage instruments and trades using front-office-grade processes and controls in order to value the portfolio
+        with a Monte Carlo engine that returns both prices and risk metrics.
+      </p>
+      <p>
+        Every step of that workflow can be performed by hand in the screens, or requested in plain language to <strong>Carlo</strong>, the AI assistant embedded in the platform.
+      </p>
+      <p>
+        For more technical information, please visit the GitHub repository
+        <a href="https://github.com/frankstack/Derivatives-Portfolio-Pricer" target="_blank" rel="noreferrer">Derivatives-Portfolio-Pricer</a>.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>1.2. What the platform does</h4>
+      <p>
+        The workflow mirrors how valuation is handled by practitioners.
+        The first step is to define the market inputs; at the minimum, that includes underlyings with historical prices and interest rate curves.
+        The second step is to define the instruments, link them to underlyings, and create trades with quantities and dates.
+        Finally, the valuation engine uses those inputs to return prices and risk metrics for each trade, allowing an aggregated computation at the portfolio level.
+      </p>
+      <p>
+        The platform supports classical and exotic derivatives (European, Asian, digital, barrier, lookback, and range options).
+        The core outputs are driven by a multi-method Monte Carlo engine, and are the following:
+      </p>
+      <ul>
+        <li><strong>Price &amp; Standard Error.</strong> These are the theoretical value and estimation error of each trade.</li>
+        <li><strong>Risk Metrics</strong>, such as Delta, Gamma, Vega, Theta, and Rho.</li>
+      </ul>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>1.3. Architecture Overview</h4>
+      <p>
+        The most effective way to understand the DPP architecture is thinking of it as three connected “flows”:
+        the “interactive valuation,” the “assisted valuation,” and the “daily data ingestion.”
+      </p>
+      <div class="ov-tiles t3">
+        <div class="ov-tile">
+          <strong>Interactive valuation flow</strong>
+          <p>
+            This is what the user experiences in the browser. The DPP website is served by a software called “Nginx”,
+            which hosts the UI files and routes any action (like adding instruments, saving trades, etc.) to the API service.
+            The API then reads from and writes to the Postgres database, and it executes the pricing logic when the user
+            requests a valuation.
+          </p>
+        </div>
+        <div class="ov-tile">
+          <strong>Assisted valuation flow</strong>
+          <p>
+            This is the same workflow held as a conversation. A question typed to Carlo travels to a small service that attaches the platform’s
+            instructions and tools, and forwards it to a language model (Claude Sonnet 4.6, served by Amazon Bedrock).
+            Whenever the model needs data or a calculation, the browser executes that step against the same API used by the screens;
+            i.e., the assistant sees and does exactly what a user in front of the screen would.
+          </p>
+        </div>
+        <div class="ov-tile">
+          <strong>Daily ingestion flow</strong>
+          <p>
+            This is what keeps the system current. We use an Amazon Web Service (AWS) called EventBridge, which triggers a scheduled “job” (AWS Lambda) after each trading day.
+            That job pulls market data for our predefined underlyings and yield curves from external sources, pushes a cleaned version of the data into the API so the database stays up to date,
+            and writes raw snapshots into a centralized cloud storage (S3).
+            Other AWS tools involved are Glue crawlers, which catalog the S3 snapshots and their partitions, and Athena, which queries the history using SQL for audits, backfills, and quality checks.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <figure class="ov-fig wide">
+      <a href="architecture.svg" target="_blank" rel="noreferrer"><img src="architecture.svg" width="1600" height="944" alt="DPP architecture diagram" loading="lazy"></a>
+      <figcaption><strong>Figure 1. End-to-end DPP’s system architecture</strong><span>Diagram divided by operating task: user traffic, host services, and data pipeline.</span></figcaption>
+    </figure>
+
+    <article class="ov-card wide">
+      <h4>1.4. What makes this platform “production-style”</h4>
+      <div class="ov-two">
+        <div>
+          <p>
+            The intention of this platform is not to be a regular pricing option tool (which, indeed, is not the hard part).
+            Instead, it’s designed as an operating system that is able to perform a specific task reliably at a production level.
+            In this case, we implemented a valuation task, but the same system layout can be applied for many other financial tasks (budgeting, risk management, etc.).
+          </p>
+          <p>
+            In that sense, this platform deliberately prioritizes the <em>efficiency</em>, <em>operability</em> and <em>security</em> of the system by:
+          </p>
+        </div>
+        <ul>
+          <li>Defining a static and fast UI.</li>
+          <li>Building a hidden transactional “shadow” API.</li>
+          <li>Utilizing Postgres as the “source of truth” for the app.</li>
+          <li>Implementing a data lake (S3) as the append-only historical store for raw data.</li>
+          <li>Reserving every change of the data to the owner, while reading and pricing remain open to any visitor.</li>
+          <li>Giving the AI assistant the same doors as a regular user, and no others.</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>1.5. How security is handled by DPP</h4>
+      <p>
+        In DPP, only the web ports are public, while the API, the database and the assistant’s service are kept private behind Nginx and localhost routing.
+        In that sense, there are three types of callers, and each one holds exactly the access it needs:
+      </p>
+      <div class="ov-tiles t3">
+        <div class="ov-tile"><strong>Visitor</strong><p>Reads every screen, prices “what-if” contracts, runs valuations, and asks Carlo. This is open by design, since none of these actions modifies the stored data.</p></div>
+        <div class="ov-tile"><strong>Owner</strong><p>Adds, edits and deletes underlyings, derivatives, trades and curves, from the screens or through Carlo. A passcode unlocks a signed token that lasts eight hours, and Nginx verifies it on every request that changes data.</p></div>
+        <div class="ov-tile"><strong>Nightly job</strong><p>Loads prices and rate points. Thus, regular ingestion uses an authenticated API key header rather than exposing database credentials outside the host.</p></div>
+      </div>
+      <p>
+        Notice that the passcode is stored only as a salted hash, and that the language model is reached with the server’s own AWS role, so there is no model key to protect.
+        This is a common practice among internal systems designed to keep the public surface area small, concentrate trust in a single entry point,
+        and make control points explicit (authentication, logging, and permission boundaries).
+      </p>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>1.6. The layers of the platform</h4>
+      <p>Hence, we can summarize the production-style architecture in 8 layers:</p>
+      <div class="ov-tiles t4">
+        <div class="ov-tile"><strong>Front door</strong><p>Nginx serves the DPP UI at <em>https://derivativespricer.com/</em>. That URL returns the static UI files, and any request under <code>/api/</code> is then forwarded to the internal services running locally on the same EC2 host.</p></div>
+        <div class="ov-tile"><strong>User interface</strong><p>A React application organized as a workstation, with charts for the market data, grids and tickets for instruments and trades, and a valuation screen.</p></div>
+        <div class="ov-tile"><strong>Application layer</strong><p>API endpoints manage underlyings, options, trades, curves, and valuation.</p></div>
+        <div class="ov-tile"><strong>Database layer</strong><p>Postgres stores entities and time series (prices, rate points) used for valuation.</p></div>
+        <div class="ov-tile"><strong>Pricing layer</strong><p>Monte Carlo engine supports multi-method configurations, such as variance-reduction, low-discrepancy sequences and/or multi-threaded execution.</p></div>
+        <div class="ov-tile"><strong>AI assistant</strong><p>Carlo reads the book, prices “what-if” contracts, runs valuations and, for the owner, records changes.</p></div>
+        <div class="ov-tile"><strong>Data engineering layer</strong><p>Scheduled ingestion + S3 raw snapshots + Glue Catalog + Athena SQL.</p></div>
+        <div class="ov-tile"><strong>Observability</strong><p>CloudWatch centralizes logs, metrics and alarms across the stack.</p></div>
+      </div>
+      <p>Each layer will be discussed in further sections.</p>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>1.7. The tools behind each layer</h4>
+      <p>As a general outline, the following table lists the tools involved in each layer and the role they play in DPP:</p>
+      <table class="keys">
+        <thead><tr><th>Layer</th><th>Tools</th><th>Role in DPP</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Front door</strong></td><td>Nginx; TLS certificate from Let’s Encrypt</td><td>Hosts the static UI, routes the <code>/api/</code> requests, verifies the owner token, compresses responses and sets the caching rules</td></tr>
+          <tr><td><strong>User interface</strong></td><td>React 19, TypeScript and Vite; charts drawn in plain SVG; IBM Plex typefaces served by the site</td><td>Screens, tickets and charts of the workstation, plus Carlo’s panel</td></tr>
+          <tr><td><strong>Application layer</strong></td><td>ASP.NET Core Web API (.NET 8), Entity Framework Core, Npgsql, Swagger (OpenAPI)</td><td>REST endpoints, validation, persistence and valuation orchestration</td></tr>
+          <tr><td><strong>Database layer</strong></td><td>PostgreSQL 16</td><td>Instruments, trades, historical prices and rate curves</td></tr>
+          <tr><td><strong>Pricing layer</strong></td><td>Monte Carlo engine written in C#</td><td>Paths, payoffs, prices, standard errors and Greeks</td></tr>
+          <tr><td><strong>AI assistant</strong></td><td>Amazon Bedrock (Claude Sonnet 4.6); Node.js 22 service</td><td>Conversation, tool use, usage limits and owner tokens</td></tr>
+          <tr><td><strong>Data engineering layer</strong></td><td>EventBridge, Lambda (Python 3.12 container image), yfinance, FRED, S3, Glue, Athena</td><td>Nightly market data, raw archive, data catalog and SQL over the history</td></tr>
+          <tr><td><strong>Observability</strong></td><td>CloudWatch Logs, dashboard and alarms; SNS</td><td>Centralized logs, metrics and email alerts</td></tr>
+          <tr><td><strong>Hosting</strong></td><td>One EC2 instance (Ubuntu) running Docker</td><td>Runs Nginx, the API, the database and the assistant’s service</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-2">
+  <h3>II. Layer 1: Front Door</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>2.1. What “Front Door” means in DPP</h4>
+      <p>
+        In DPP, the front door is the only public entry point of the platform.
+        It receives a browser request, decides whether the request is asking for a static file (the UI) or an application action (an API call),
+        and then routes it safely to the correct internal component. In other words, this layer is the perimeter that defines what the internet can and cannot touch.
+      </p>
+      <p>
+        We implemented this with Nginx since it is a mature and production‑standard web server for hosting static sites and acting as a reverse proxy.
+        That dual role matters here. The UI should be fast and cacheable, while the API should be reachable only through a controlled gateway
+        that can enforce consistent routing and keep the public surface area small.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>2.2. How the front door keeps the platform fast</h4>
+      <p>
+        The front door also defines how fast the platform feels. The JavaScript and CSS files carry a fingerprint of their content in their names; thus,
+        the browser can keep them for a year, while the pages that reference them are always revalidated.
+        In that sense, a release reaches every visitor on the next page load, with no stale copies in between.
+      </p>
+      <p>
+        In addition, the API responses and the text assets travel compressed (gzip). That matters most for the largest download of the application,
+        the price history of every underlying, which travels at roughly one seventh of its size.
+      </p>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>2.3. How traffic is routed</h4>
+      <p>
+        A practical way to understand the routing is that DPP has four “types” of HTTP requests, and Nginx handles each one deterministically:
+      </p>
+      <div class="ov-tiles t4">
+        <div class="ov-tile"><strong>Static asset requests</strong><p>The browser asks for HTML, CSS, JavaScript, fonts and images. These are returned directly as files, with no application logic involved.</p></div>
+        <div class="ov-tile"><strong>Application requests</strong><p>The browser reads data, prices a contract, or requests a valuation. In the UI, these actions are implemented as calls under <code>/api/</code>, which Nginx forwards to the internal API service.</p></div>
+        <div class="ov-tile"><strong>Change requests</strong><p>The browser creates, edits or deletes a record (a trade, a curve, etc.). Before forwarding it, Nginx verifies that the request carries a valid owner token; otherwise, the request is answered with a “locked” message and never reaches the API.</p></div>
+        <div class="ov-tile"><strong>Assistant requests</strong><p>The conversation with Carlo travels under <code>/api/ai/</code> to the assistant’s service, and the answer is streamed back without buffering, so the text appears as it is written.</p></div>
+      </div>
+      <div class="ov-two">
+        <p>
+          <strong>Reverse proxy boundary:</strong> none of the internal services is exposed directly to the public internet. Each one listens on the host only, and Nginx is the single way in.
+        </p>
+        <p>
+          This split is deliberate. Applications usually load a lightweight UI once, and then the browser makes small, explicit API calls as needed.
+          That is a common pattern in internal trading and risk tools because it keeps the UI responsive while preserving a clean transactional boundary on the server side.
+        </p>
+      </div>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>2.4. Why this layer is a control point</h4>
+      <div class="ov-two">
+        <p>
+          The most important design decision is that only web traffic is public. Internal services are treated as private components and are reachable only through the application’s routing rules.
+          This keeps secrets and write access paths out of the public network path. In that sense, the system is easier to reason about: if something is reachable from the internet,
+          it is reachable through one door, under one hostname, with one routing policy.
+        </p>
+        <p>
+          From an operability perspective, this also accelerates debugging. For instance, if the UI loads but API actions fail,
+          the problem is downstream in the application tier. If the UI itself does not load, the issue is at the web server level (deployment, routing, or static assets).
+          That separation reduces the scope of failure and makes outages more diagnosable.
+        </p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-3">
+  <h3>III. Layer 2: User Interface</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>3.1. A workstation rather than a form</h4>
+      <p>
+        The UI is organized the way a trading workstation is. A fixed panel on the left tells users where they are; the center holds the data;
+        and a mirrored panel on the right holds what users can do there (the ticket or the settings of that section).
+        In that sense, the layout answers three questions at a glance: where am I, what am I looking at, and what can I do about it.
+      </p>
+      <p>
+        Notice that the UI is read-only by default. Every ticket shows a lock line; i.e., until the owner unlocks the platform with the passcode,
+        the buttons that save or delete stay off, while the buttons that price remain available to anyone.
+        Likewise, the predefined underlyings and the Treasury curves cannot be edited from the screens, since they belong to the nightly ingestion.
+      </p>
+      <p>
+        The colors are part of the design as well. Teal marks what is positive or bought, and orange marks what is negative or sold.
+        We preferred that pair over the usual green and red because it remains readable for color-blind users.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>3.2. What each screen shows</h4>
+      <table class="keys">
+        <thead><tr><th>Screen</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Underlyings</strong></td><td>The price chart of the selected stock, with the strikes of its open derivatives and its trades marked on it, plus a watchlist with a 26-week sparkline per stock</td></tr>
+          <tr><td><strong>Derivatives</strong></td><td>A dense grid of contracts filtered by option type, with the ticket to define a contract on the right</td></tr>
+          <tr><td><strong>Trades</strong></td><td>The blotter with premium, market value and profit or loss per trade, and a ticket that can take its price from the engine</td></tr>
+          <tr><td><strong>Rates</strong></td><td>The curve chart with other curves overlaid on it, the key tenors month by month, and the points of the selected curve</td></tr>
+          <tr><td><strong>Valuation</strong></td><td>The run settings (including the “as of” date), the value by underlying, and the results per trade with their Greeks</td></tr>
+          <tr><td><strong>Carlo AI</strong></td><td>The conversation with the assistant in full view; the same conversation is one click away from every other screen</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article class="ov-card">
+      <h4>3.3. How the UI is built</h4>
+      <p>
+        The UI is a React application written in TypeScript and bundled with Vite into static files, which is exactly what makes it fast to serve and easy to cache.
+        We deliberately avoided external component kits and chart libraries; i.e., every chart is drawn directly as SVG by the application itself.
+        The practical advantage is a small download (roughly 100 KB of compressed JavaScript) and a consistent look across screens.
+        In addition, the typefaces (IBM Plex) are served by the site itself, so the page does not depend on any third party to render.
+      </p>
+      <p>
+        The result is a single set of static files that is served to every visitor. In addition, each screen has its own address (for instance, <code>#/trades</code>), so a link can point directly to a specific screen.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>3.4. How the UI loads and stays consistent</h4>
+      <p>
+        On opening, the UI requests derivatives, trades and curves at once, and leaves the price history (the largest download) for last, so the screens are usable before the charts are complete.
+        Then it values the whole book once, as of now, and every screen reads from that same run: the unit values in Derivatives, the market value and the profit or loss in Trades,
+        and the bars and Greeks in Valuation. Thus, two screens never disagree about the same position.
+      </p>
+      <p>
+        The same principle applies after a change. The lists that depend on each other are reloaded together, and a newer valuation always replaces an older one.
+        Finally, deleting asks for confirmation inside the ticket itself, which keeps destructive actions explicit.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-4">
+  <h3>IV. Layer 3: Application Layer</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>4.1. The API as the platform’s transactional “shadow”</h4>
+      <p>
+        The application layer is where DPP stops being a static website and becomes a system.
+        The browser UI is intentionally lightweight; i.e., every meaningful action the user takes
+        (creating an underlying, defining an option contract, saving a trade, updating a curve, or running a valuation)
+        becomes an API request that is validated, persisted, and executed server‑side.
+      </p>
+      <p>
+        This is exactly how production tools are typically structured. The UI should be fast and user‑friendly,
+        but the “truth” must live behind a transactional boundary, where inputs can be validated consistently and where results can be reproduced later from stored records.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>4.2. What the API is responsible for</h4>
+      <p>
+        We think of the API as having two jobs. The first is portfolio and market‑data management: it enforces the relationships between objects
+        (an option references a valid underlying; a trade references a valid instrument; a curve contains coherent rate points).
+        The second job is valuation orchestration: it reads the current portfolio state and market inputs from the database,
+        calls the pricing engine with the selected simulation settings, and returns structured results back to the UI.
+      </p>
+      <p>
+        The practical advantage is consistency. The API is the only write path to the database, so the system can enforce the same validation rules
+        regardless of whether the request originated from a browser click, from the assistant, or from the automated ingestion pipeline.
+      </p>
+    </article>
+
+    <article class="ov-card wide">
+      <div class="ov-split">
+        <div>
+          <h4>4.3. The endpoints of the API</h4>
+          <p>As a general outline, the API exposes one group of endpoints per object of the workflow:</p>
+          <table class="keys">
+            <thead><tr><th>Group</th><th>Route</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Underlyings</strong></td><td><code>/api/Underlyings</code></td><td>Stocks and their daily closes, including the bulk upsert of prices by symbol used by the nightly job</td></tr>
+              <tr><td><strong>Derivatives</strong></td><td><code>/api/OptionEntities</code></td><td>Option contracts of the six supported types, each one with its own fields (rebate, barrier level, and barrier type)</td></tr>
+              <tr><td><strong>Trades</strong></td><td><code>/api/Trades</code></td><td>Buys and sells of an instrument, with quantity, trade date and price</td></tr>
+              <tr><td><strong>Rate curves</strong></td><td><code>/api/RateCurves</code></td><td>Curves and their rate points, including the full replacement of points used by the nightly job</td></tr>
+              <tr><td><strong>Valuation</strong></td><td><code>/api/Valuation</code></td><td>Prices a set of trades under the chosen simulation settings, as of now or as of a past date</td></tr>
+              <tr><td><strong>Single pricing</strong></td><td><code>/api/Simulation/price-option</code></td><td>Prices one contract that is not stored, which is what makes “what-if” questions possible</td></tr>
+            </tbody>
+          </table>
+          <h4>4.4. Swagger as an explicit contract surface</h4>
+          <p>
+            For transparency and testability, the API describes each endpoint through the OpenAPI standard, and Swagger renders that description as interactive documentation.
+            Each endpoint has a defined request/response shape, which makes the platform auditable and reduces the “black box” problem that often exists in financial tooling.
+            Notice that Swagger is served by the API inside the host, for whoever operates the server; it is not published through the front door.
+          </p>
+        </div>
+        <figure class="ov-fill">
+          <a href="api-ui-screenshot.png" target="_blank" rel="noreferrer"><img src="api-ui-screenshot.png" width="1302" height="1058" alt="DPP API Swagger UI screenshot" loading="lazy"></a>
+          <figcaption><strong>Figure 2. DPP API documentation via Swagger UI</strong><span>Interactive endpoint testing for entity management and valuation workflows.</span></figcaption>
+        </figure>
+      </div>
+    </article>
+
+    <article class="ov-card">
+      <h4>4.5. What a valuation request carries, and what it returns</h4>
+      <p>
+        A valuation request names the trades to value, the rate curve, and the simulation settings (number of paths and time steps, antithetic paths, control variate,
+        low‑discrepancy sequence, and multi‑threading). Optionally, it also carries a valuation date. In that case, the API uses only the closing prices on or before that date,
+        counts the time to expiry from it, and leaves out the trades executed afterwards; i.e., the book is valued as it stood on that day.
+      </p>
+      <p>
+        In return, each trade comes back with a status (valued, expired, or not traded yet), its quantity, unit price and position value, the spot price used and its date,
+        the time to maturity, the standard error, and the Greeks. Thus, an expired option returns zero with an explicit status instead of a misleading number.
+        Similarly, the list of derivatives is deliberately light: it returns the contract terms and a short reference to the underlying, rather than the full price history attached to it.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>4.6. A typical valuation lifecycle</h4>
+      <p>An example of a valuation cycle across the platform can be summarized in 4 steps:</p>
+      <ul>
+        <li><strong>Define market inputs</strong>: user creates or selects underlyings with historical prices, and selects an interest rate curve.</li>
+        <li><strong>Define instruments</strong>: user creates option contracts linked to the chosen underlyings, including strike and expiration details.</li>
+        <li><strong>Create trades</strong>: user records positions with quantities and trade dates, which makes valuation portfolio‑aware rather than “one‑off.”</li>
+        <li><strong>Run valuation</strong>: user submits simulation settings and selected trades; the API runs pricing and returns prices plus risk metrics.</li>
+      </ul>
+      <p>
+        The key point is that this lifecycle is stateful; i.e.,
+        the API persists the objects so valuation is reproducible, and it returns results in a way that supports aggregation at the portfolio level.
+        That is the difference between a simple calculator and an operating platform.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-5">
+  <h3>V. Layer 4: Database Layer</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>5.1. Postgres as the system’s “source of truth”</h4>
+      <p>
+        The database layer is what makes DPP reliable and repeatable.
+        In a valuation workflow, the hardest operational problem is not computing a price once; it is ensuring that users can reproduce a valuation later using the same portfolio state and the same market inputs.
+        DPP addresses that by using Postgres as the persistent store for both “portfolio objects” and the time series that drive pricing.
+      </p>
+      <p>
+        Importantly, the database is treated as a private component. The UI never talks to Postgres directly, and neither the assistant nor the ingestion pipeline bypasses the API.
+        All writes flow through one controlled path, which keeps schema rules, validation logic, and permission boundaries centralized.
+      </p>
+      <p>
+        In practice, the database is PostgreSQL 16 running in its own container with a persistent volume, and its schema is defined and versioned by the API through Entity Framework Core migrations.
+      </p>
+    </article>
+
+    <figure class="ov-fig tall">
+      <a href="database-diagram.svg" target="_blank" rel="noreferrer"><img src="database-diagram.svg" width="1347" height="1113" alt="DPP database schema diagram" loading="lazy"></a>
+      <figcaption><strong>Figure 3. Core DPP database model</strong><span>Entities and relationships of DPP’s database.</span></figcaption>
+    </figure>
+
+    <article class="ov-card">
+      <h4>5.2. Operational state versus historical archive</h4>
+      <p>
+        In the interactive flow, Postgres holds the operational state the application needs to function quickly. In parallel, the raw historical snapshots live in the data lake (S3).
+        In that sense, Postgres is optimized for “what the system needs right now,” while the data lake is optimized for “what the system has ever seen,” which is critical for audits and backfills.
+      </p>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>5.3. What is stored and why</h4>
+      <p>
+        At a high level, the schema has two connected domains:
+        (1) portfolio objects that define what is held, and
+        (2) market inputs that define how those holdings should be valued.
+        The following summary reflects the intent of the model rather than an exhaustive listing of every column:
+      </p>
+      <table class="keys">
+        <thead><tr><th>Domain</th><th>What it represents</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Instruments</strong></td><td>Underlyings plus option contracts (classical and exotic)</td><td>Preserves contract terms so trades can be re‑valued consistently</td></tr>
+          <tr><td><strong>Trades</strong></td><td>Positions that reference an instrument with quantity and dates</td><td>Makes valuation portfolio‑aware rather than “one‑off” pricing</td></tr>
+          <tr><td><strong>Historical prices</strong></td><td>Time series linked to an underlying</td><td>Supports volatility estimates and scenario generation</td></tr>
+          <tr><td><strong>Rate curves</strong></td><td>A curve header plus rate points across maturities</td><td>Enables discounting and rate sensitivity measurement</td></tr>
+        </tbody>
+      </table>
+      <div class="ov-two">
+        <p>
+          Under the hood, the model relies on basic relational guarantees: trades must reference a valid instrument, historical price rows must reference a valid underlying, and curve points must reference a valid curve.
+          Those constraints may sound mundane, but they are exactly what prevents “silent data corruption” in practice. Thus, if a dependency is missing, the system fails loudly instead of producing a misleading valuation.
+          In that sense, the database is the integrity layer that turns the platform into a controllable system and keeps the UI simple.
+        </p>
+        <p>
+          A subtle but important design choice is how option contracts are represented. DPP keeps common option parameters centralized while allowing contract‑specific fields
+          (barriers, averaging windows, lookback logic, digitals, and range constraints) to live in structured extensions.
+          This preserves clarity and makes it straightforward to add new exotic features without turning the schema into one oversized table.
+        </p>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-6">
+  <h3>VI. Layer 5: Pricing Layer</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>6.1. What the pricing layer does (and what it intentionally does not do)</h4>
+      <p>
+        The pricing layer is the computational core of DPP. Its job is to take a well‑defined contract, a well‑defined set of market inputs, and a well‑defined simulation configuration,
+        and then produce a valuation result that is both interpretable and reproducible. In practice, that means a Monte Carlo engine that generates price paths, maps them into payoffs,
+        discounts them, and aggregates them into a price estimate with an explicit measure of uncertainty.
+      </p>
+      <p>
+        What this layer intentionally does not do is “guess” the portfolio state. The portfolio (trades and instruments) and market inputs (prices and curves)
+        are retrieved from the database through the API.
+        This separation keeps the engine focused on the mathematics, while the application layer remains responsible for validation, persistence, and orchestration.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>6.2. How the simulation is executed</h4>
+      <p>
+        Conceptually, every valuation run follows a repeatable sequence: generate random shocks, evolve the underlying price through time,
+        compute the payoff at maturity (or along the path for path‑dependent contracts), discount the payoff back to today,
+        and then average across paths.
+        The same run also produces a standard error, which is a practical diagnostic: it tells the user whether the number of paths should be increased, or whether the estimate is already stable.
+      </p>
+      <p>
+        The market inputs of each run come from the stored data. The price of the underlying evolves as a geometric Brownian motion; its volatility is estimated from the stock’s own history
+        (the standard deviation of the daily log returns, annualized with 252 trading days), and the interest rate is read from the selected curve at the tenor nearest to the remaining life of the contract.
+      </p>
+    </article>
+
+    <figure class="ov-fig wide">
+      <a href="montecarlo-reference.svg" target="_blank" rel="noreferrer"><img src="montecarlo-reference.svg" width="1753" height="189" alt="Monte Carlo simulation reference diagram" loading="lazy"></a>
+      <figcaption><strong>Figure 4. Monte Carlo pricing intuition</strong><span>Simulated paths → payoff mapping → discounting → aggregation into price and uncertainty.</span></figcaption>
+    </figure>
+
+    <article class="ov-card">
+      <h4>6.3. The contracts the engine prices</h4>
+      <p>
+        Because the platform supports multiple option styles, the payoff logic is modular.
+        Thus, a European payoff depends only on the terminal price, while an Asian or lookback payoff depends on the full path:
+      </p>
+      <table class="keys">
+        <thead><tr><th>Contract</th><th>What the payoff depends on</th></tr></thead>
+        <tbody>
+          <tr><td><strong>European</strong></td><td>The price at expiry against the strike</td></tr>
+          <tr><td><strong>Asian</strong></td><td>The geometric average of the path against the strike</td></tr>
+          <tr><td><strong>Digital</strong></td><td>A fixed amount, paid only if the contract expires in the money</td></tr>
+          <tr><td><strong>Barrier</strong></td><td>The price at expiry, as long as the path touched (knock‑in) or never touched (knock‑out) the barrier, from above or from below</td></tr>
+          <tr><td><strong>Lookback</strong></td><td>The maximum of the path (call) or its minimum (put) against the strike</td></tr>
+          <tr><td><strong>Range</strong></td><td>The distance between the maximum and the minimum of the path</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article class="ov-card">
+      <h4>6.4. The methods embedded in the engine</h4>
+      <p>
+        DPP’s implementation supports practical Monte Carlo enhancements that are common in production settings.
+        These include antithetic sampling, a delta‑based control variate, optional low‑discrepancy sequences (Van der Corput), and parallel execution across the processor’s cores to accelerate runtime.
+        The objective is not to overwhelm the user with theory; it is to expose the knobs that matter when users have to balance accuracy, stability, and compute cost.
+      </p>
+      <p>
+        Notice that barrier and digital contracts introduce discontinuities, which is exactly where variance reduction and better sampling can materially improve stability.
+      </p>
+      <p>
+        The Greeks follow the same logic. Each sensitivity is obtained by revaluing the contract after a small bump of one input (spot, volatility, time, or rate)
+        over the same random numbers of the base run. In that sense, the difference between both valuations reflects the bump itself and not the simulation noise.
+      </p>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>6.5. The outputs the platform returns</h4>
+      <p>As a general outline, the platform returns the following information:</p>
+      <div class="ov-tiles t3">
+        <div class="ov-tile"><strong>Price &amp; Standard Error</strong><p>The estimated fair value and the Monte Carlo estimation error. This tells not only “the price,” but also “how stable the estimate is.”</p></div>
+        <div class="ov-tile"><strong>Greeks (risk metrics)</strong><p>Trade‑level sensitivities such as Delta, Gamma, Vega, Theta, and Rho. These are essential for interpreting valuation changes under market moves.</p></div>
+        <div class="ov-tile"><strong>Portfolio aggregation</strong><p>Once each selected trade is valued, the system can aggregate results into a portfolio‑level view, which is the natural end goal in buy‑side valuation workflows.</p></div>
+      </div>
+      <p>
+        In that sense, pricing in DPP is a callable service inside a system, with persisted inputs and structured outputs.
+        That is what makes the platform “production‑style”: the engine is operationally embedded and fully available for users.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-7">
+  <h3>VII. Layer 6: AI Assistant</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>7.1. What Carlo is</h4>
+      <p>
+        Carlo is the AI assistant embedded in DPP, and its name comes from Monte Carlo, the method that the engine prices with.
+        It reads the book, prices “what-if” contracts, runs valuations as of today or as of a past date on any curve, brings up the screen it is talking about and, for the owner, records changes.
+        In other words, the workflow of the screens is also available as a conversation.
+      </p>
+      <p>
+        What Carlo intentionally does not do is give investment advice. It explains and computes over a demonstration portfolio, and it stays within the platform:
+        its data, its pricing logic, and the option theory needed to read its results.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>7.2. Reading for everyone, changes for the owner</h4>
+      <p>
+        For a visitor, the model only receives the tools that read and compute. The tools that add, edit or delete are offered only when the request carries a valid owner token and,
+        even then, each change is displayed as a card that must be confirmed before it is applied.
+      </p>
+      <p>
+        In addition, the front door applies the same owner check to the API itself. In that sense, the rule holds regardless of the path a request takes:
+        a screen, the assistant, or a direct call to the API.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>7.3. How a question is answered</h4>
+      <p>As a general outline, each question follows the same sequence:</p>
+      <ol>
+        <li><strong>Request</strong>: the browser sends the conversation to the assistant’s service, a small Node.js program that runs on the same host.</li>
+        <li><strong>Context</strong>: the service attaches the platform’s instructions and the list of tools, verifies the usage limits, and calls the language model (Claude Sonnet 4.6) through Amazon Bedrock.</li>
+        <li><strong>Tool use</strong>: the model either answers in text or asks for a tool; e.g., “value the NVDA trades on this curve.”</li>
+        <li><strong>Execution</strong>: the tool runs in the browser, with the same API calls and the same data used by the screens, and its result goes back to the model.</li>
+        <li><strong>Answer</strong>: the reply is streamed to the panel as it is written, and each step is displayed while it runs.</li>
+      </ol>
+      <p>
+        The key point is the fourth step. The assistant’s service has no route to the pricing API or to the database; i.e.,
+        whatever Carlo does, it does through the user’s own browser session and under the user’s own permissions.
+        Thus, the assistant cannot reach anything that a person in front of the screen could not reach.
+      </p>
+    </article>
+
+    <figure class="ov-fig">
+      <a href="assistant-flow.svg" target="_blank" rel="noreferrer"><img src="assistant-flow.svg" width="900" height="610" alt="How Carlo answers a question" loading="lazy"></a>
+      <figcaption><strong>Figure 5. How Carlo answers a question</strong><span>The model decides, the browser executes, and the API remains the only path to the data.</span></figcaption>
+    </figure>
+
+    <article class="ov-card">
+      <h4>7.4. Answers that respect the numbers</h4>
+      <p>
+        A Monte Carlo figure always carries noise, and an assistant that ignores it can sound confident while being wrong.
+        For that reason, the valuation tool returns the totals of the position with their standard error, together with the position Greeks expressed in plain units
+        (per volatility point, per calendar day, and per 100 basis points of rates).
+      </p>
+      <p>
+        Carlo is instructed to answer any sensitivity question from the Greeks of a single run rather than from the difference between two runs,
+        and to say it plainly when a difference is too small to be told apart from noise.
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>7.5. Limits and privacy</h4>
+      <p>
+        Since the assistant is open to any visitor, its use is bounded. There are rate limits per visitor and for the site as a whole, plus a daily and a monthly spending cap;
+        once a cap is reached, Carlo rests until the next day or month, and says so.
+      </p>
+      <p>
+        Regarding privacy, the service logs sizes, token counts and cost, but never the text of a conversation, and no conversation is stored on the server.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-8">
+  <h3>VIII. Layer 7: Data Engineering Layer</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>8.1. Why a data engineering layer exists in a valuation system</h4>
+      <p>
+        A valuation engine is only as good as the inputs it consumes.
+        If market data becomes stale, the system becomes misleading even if the model is mathematically correct.
+        For that reason, DPP includes a dedicated data engineering layer that refreshes predefined market inputs on a schedule and keeps an auditable history of what was ingested and when.
+      </p>
+      <p>
+        Notice that the overall goal is not “big data”, but operational continuity; i.e., the platform should be usable on any day without manual data loading,
+        while still retaining the ability to trace and audit the snapshots that supported a given valuation.
+      </p>
+    </article>
+
+    <figure class="ov-fig dark">
+      <a href="data-engineer-screenshot.png" target="_blank" rel="noreferrer"><img src="data-engineer-screenshot.png" width="1624" height="659" alt="AWS data ingestion pipeline screenshot" loading="lazy"></a>
+      <figcaption><strong>Figure 6. DPP ingestion control plane (AWS)</strong><span>Core EventBridge schedule rule, and base Lambda target.</span></figcaption>
+    </figure>
+
+    <article class="ov-card wide">
+      <h4>8.2. The ingestion workflow, end to end</h4>
+      <p>As a general outline, the ingestion workflow can be summarized in the following steps:</p>
+      <div class="ov-tiles t4">
+        <div class="ov-tile"><strong>Schedule</strong><p>An AWS EventBridge rule runs the job at 03:30 UTC from Tuesday to Saturday (i.e., after each trading day in the US), making the cadence deterministic and inspectable. If a run cannot be delivered, it is retried and then parked in a dead‑letter queue.</p></div>
+        <div class="ov-tile"><strong>Extraction + normalization</strong><p>An AWS Lambda job, packaged as a container image, pulls the daily closes of the 50 predefined underlyings from Yahoo Finance and the Treasury and SOFR rates from FRED (12 series, from overnight to 30 years), and normalizes them into a consistent schema.</p></div>
+        <div class="ov-tile"><strong>Operational upsert</strong><p>The job pushes every trading day of its window into the DPP API, so Postgres reflects the current operational state used by the UI and the pricing engine. The upsert is idempotent per symbol and date; thus, sending the same day twice is harmless.</p></div>
+        <div class="ov-tile"><strong>Raw persistence</strong><p>Each run writes “append‑only” raw snapshots into S3 (one partition per trading day), together with a manifest‑style record that captures “what was produced.”</p></div>
+      </div>
+    </article>
+
+    <article class="ov-card">
+      <h4>8.3. Why S3 + Glue + Athena are included</h4>
+      <p>
+        In the current configuration, S3 stores raw snapshots as partitioned files using a <code>dt=YYYY-MM-DD</code> convention.
+        Equity price extracts are written under <code>raw/prices_ndx50/</code>, and rate series extracts are written under <code>raw/rates_fred/</code>,
+        with filenames that include a UTC run identifier so each execution produces a unique, append-only artifact.
+      </p>
+      <p>
+        Each run also writes a lightweight manifest under <code>raw/manifests/</code>. The manifest records the run identifier, the window covered, the “as-of” dates used for prices and rates,
+        row counts sent to the API, the curve names updated, any split detected, and the exact S3 keys produced in that run. Glue crawlers catalog these prefixes and recognize the <code>dt=</code> partitions,
+        which keeps Athena queries stable and efficient.
+        In particular, in Athena, partition pruning can filter by snapshot date, and the manifest table can be joined back to the snapshot
+        tables to reconstruct the precise market inputs generated by a specific ingestion run.
+      </p>
+      <p>
+        This design also keeps concerns separated:
+        the application database stays lean and focused on operational needs, while the data lake retains the full ingestion lineage.
+        That is the same separation seen in production analytics stacks, even when the underlying dataset is small (like, arguably, in this case).
+      </p>
+    </article>
+
+    <article class="ov-card">
+      <h4>8.4. Reliability and auditability details</h4>
+      <p>
+        In practice, ingestion has to be resilient to real‑world data issues:
+        intermittent upstream outages, throttling, and partial responses.
+        That is why the job is designed around repeatable runs, retries, and clear “what happened” artifacts.
+      </p>
+      <p>
+        In particular, the job is able to heal itself. Its window widens automatically back to the last day archived in the data lake; thus,
+        a missed night (or even a long outage) is recovered by the next run without manual work.
+        Likewise, when the source reports a stock split inside the window, the job pulls the full history of that symbol again,
+        so the stored prices stay on a single share basis and the volatility estimate is not distorted.
+        The same job also accepts manual runs: a dry run that validates without writing, a backfill between two dates, or a correction for specific symbols.
+      </p>
+      <p>
+        Mainly, the manifest records act as the bridge between the operational system (Postgres) and the historical archive (S3).
+        In that sense, we can always point to a specific run and see what datasets were produced, instead of treating the data lake as an opaque folder.
+      </p>
+      <p>
+        Over time, this becomes a governance tool.
+        If a valuation is questioned, we can trace the market snapshot that supported it.
+        Similarly, if a backfill is required, Athena can query historical partitions without touching the operational database.
+        In that sense, the data engineering layer is both a refresh mechanism and an audit mechanism.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-9">
+  <h3>IX. Layer 8: Observability</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card">
+      <h4>9.1. Observability as an operational requirement</h4>
+      <p>
+        Observability is what makes DPP operable day to day. In a valuation platform, a silent failure is worse than an obvious one: if a scheduled ingestion does not run
+        or if an application regression is introduced, the system can drift without the user noticing.
+        For that reason, we treat observability as a first‑class layer rather than an afterthought.
+      </p>
+    </article>
+
+    <figure class="ov-fig dark">
+      <a href="cloudwatch-screenshot.png" target="_blank" rel="noreferrer"><img src="cloudwatch-screenshot.png" width="1898" height="431" alt="CloudWatch screenshot for the DPP platform" loading="lazy"></a>
+      <figcaption><strong>Figure 7. CloudWatch operational visibility</strong><span>Logs, metrics, and alarms used to validate ingestion runs and monitor runtime errors.</span></figcaption>
+    </figure>
+
+    <article class="ov-card wide">
+      <h4>9.2. The three questions this layer must answer</h4>
+      <div class="ov-tiles t3">
+        <div class="ov-tile"><strong>Did the ingestion run successfully?</strong><p>This is the minimum requirement for keeping predefined underlyings and curves current, and it is also the fastest signal that “today’s state” is trustworthy.</p></div>
+        <div class="ov-tile"><strong>If something failed, where did it fail?</strong><p>Logs must be searchable and timestamped so a failure can be tied to a specific run, not guessed from symptoms.</p></div>
+        <div class="ov-tile"><strong>Is the platform behaving normally over time?</strong><p>Error counts, latency patterns, and runtime duration should make anomalies visible even when the UI still appears healthy.</p></div>
+      </div>
+    </article>
+
+    <article class="ov-card">
+      <h4>9.3. What signals are captured</h4>
+      <p>
+        DPP produces operational signals at each boundary. At the edge, web server logs capture request volume and failures.
+        In the application tier, API logs capture validation failures and runtime exceptions.
+        In the ingestion tier, each scheduled run emits a structured timeline that can be tied back to the artifacts written into the data lake.
+        None of these streams are useful in isolation; the value comes from having them centralized so we can reconstruct the sequence of events across layers.
+      </p>
+      <p>
+        In CloudWatch, that means four log groups (web server access, web server errors, API, and ingestion), each one retained for 14 days,
+        a dashboard that follows the CPU and network activity of the host, and the following alarms, which notify by email through SNS:
+      </p>
+      <table class="long">
+        <thead><tr><th>Alarm</th><th>What it catches</th></tr></thead>
+        <tbody>
+          <tr><td><strong>No ingestion run in the last 80 hours</strong></td><td>A schedule that silently stopped (the window is wide enough to cover a weekend)</td></tr>
+          <tr><td><strong>An ingestion run ended in error</strong></td><td>A failed extraction, upsert or archive</td></tr>
+          <tr><td><strong>An ingestion run lasted more than two minutes</strong></td><td>A source that is slowing down or throttling</td></tr>
+          <tr><td><strong>A message arrived in the dead‑letter queue</strong></td><td>A scheduled run that could not be delivered</td></tr>
+          <tr><td><strong>High CPU on the host</strong></td><td>A valuation load or a process that is saturating the server</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article class="ov-card">
+      <h4>9.4. How we structure monitoring in practice</h4>
+      <p>
+        DPP centralizes logs from the ingestion runtime, the web server edge, and the API runtime, which provides a coherent timeline of system behavior.
+        In addition, basic metrics (invocations, errors, and duration) allow for alarms when something deviates from the expected pattern.
+        The objective is to reduce “time to diagnosis”: when something breaks, the system should reveal the problem quickly and with enough context to fix it.
+      </p>
+      <p>
+        From the user’s perspective, this shows up as predictability and faster fixes. If ingestion fails, it is visible immediately and can be corrected before it affects the next valuation.
+        If the API begins returning errors, the logs can be traced to the exact endpoint and request path involved.
+        In fact, the left panel of every screen displays the date of the latest close and whether the nightly update is on schedule.
+        In that sense, observability is not “extra”; it is the mechanism that makes the platform trustworthy as an operating system rather than a fragile demo.
+      </p>
+      <p>
+        Finally, this layer closes the loop with security. When the public surface area is intentionally small, logs become the audit trail that proves the boundary is working.
+        Over time, that auditability is what enables stricter controls (user roles, change tracking) without losing the ability to diagnose issues quickly.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="ov-sec" id="ov-10">
+  <h3>X. Further Improvements</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card wide">
+      <p>
+        DPP is intentionally “small but complete.” At its core, it proves an end-to-end valuation workflow, and it proves the ability to operate that workflow on cloud infrastructure.
+        The natural next step is to deepen governance and market realism without losing clarity.
+        In that sense, DPP as a software has some <strong>natural extensions and improvements</strong>:
+      </p>
+      <div class="ov-tiles t4">
+        <div class="ov-tile"><strong>Separate the application and database residence</strong><p>So far, the UI, the API, the assistant’s service and the database live in the same EC2 instance. This is sensible for an implementation of this size, since it saves resources (AWS credits); however, a more well-designed infrastructure involves the use of separate instances.</p></div>
+        <div class="ov-tile"><strong>Richer market models</strong><p>This is more a theoretical/academic improvement. In practice, we could add volatility surfaces, stochastic volatility, and calibration workflows to improve the overall user experience and the deliverable pricing product.</p></div>
+        <div class="ov-tile"><strong>User access controls</strong><p>So far, a single owner passcode separates reading from changing. This could be extended by adding named users and role-based permissions, so different users (or teams) see only the portfolios, trades, and market inputs they are allowed to manage, with changes tracked per user.</p></div>
+        <div class="ov-tile"><strong>Reproducible simulations</strong><p>A fixed random seed per valuation would make two runs directly comparable, which matters when the question is the effect of a scenario rather than the level of a price.</p></div>
+      </div>
+      <p>
+        In that sense, the project is both a valuation tool and a financial database &amp; software architecture.
+        It connects instrument mechanics, data engineering, an AI assistant, and cloud deployment into one coherent system that, at least in this implementation, is completely open source.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+</div>

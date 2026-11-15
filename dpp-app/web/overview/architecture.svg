@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 944" width="1600" height="944" font-family="Inter, Helvetica, Arial, sans-serif" role="img" aria-label="DPP architecture: user traffic, host services, data pipeline">
+<title>DPP architecture: user traffic, host services, data pipeline</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e3a46"/></marker><marker id="t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1abc9c"/></marker></defs>
+<rect width="1600" height="944" fill="#f5f7fa"/>
+<rect x="48" y="20" width="1530" height="186" rx="6" fill="#ffffff" stroke="#cfd6de" stroke-width="1"/>
+<text x="30" y="113.0" font-size="15" font-weight="700" fill="#2e3a46" text-anchor="middle" transform="rotate(-90 30 113.0)">User traffic</text>
+<rect x="48" y="226" width="1530" height="244" rx="6" fill="#ffffff" stroke="#cfd6de" stroke-width="1"/>
+<text x="30" y="348.0" font-size="15" font-weight="700" fill="#2e3a46" text-anchor="middle" transform="rotate(-90 30 348.0)">Host services (one EC2 instance)</text>
+<rect x="48" y="490" width="1530" height="262" rx="6" fill="#ffffff" stroke="#cfd6de" stroke-width="1"/>
+<text x="30" y="621.0" font-size="15" font-weight="700" fill="#2e3a46" text-anchor="middle" transform="rotate(-90 30 621.0)">Data pipeline and analytics</text>
+<rect x="72" y="42" width="300" height="142" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M75 42h294a3 3 0 0 1 3 3v33h-300v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="222.0" y="66.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Browser (UI)</text>
+<circle cx="91" cy="100" r="2.6" fill="#1abc9c"/>
+<text x="102" y="105" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">React workstation</text>
+<circle cx="91" cy="123" r="2.6" fill="#1abc9c"/>
+<text x="102" y="128" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Charts, grids, tickets, valuation</text>
+<circle cx="91" cy="146" r="2.6" fill="#1abc9c"/>
+<text x="102" y="151" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Carlo's panel and its tools</text>
+<circle cx="91" cy="169" r="2.6" fill="#1abc9c"/>
+<text x="102" y="174" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Static files, cached</text>
+<path d="M372 113 L528 113" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<text x="450" y="100" font-size="14" font-weight="700" fill="#2e3a46" text-anchor="middle">HTTPS</text>
+<text x="450" y="135" font-size="13" font-weight="400" fill="#2e3a46" text-anchor="middle">derivativespricer.com</text>
+<rect x="530" y="42" width="680" height="142" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M533 42h674a3 3 0 0 1 3 3v33h-680v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="870.0" y="66.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Nginx (front door)</text>
+<circle cx="549.0" cy="100" r="2.6" fill="#1abc9c"/>
+<text x="560.0" y="105" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Serves the static UI</text>
+<circle cx="549.0" cy="123" r="2.6" fill="#1abc9c"/>
+<text x="560.0" y="128" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">TLS certificate (Let's Encrypt)</text>
+<circle cx="549.0" cy="146" r="2.6" fill="#1abc9c"/>
+<text x="560.0" y="151" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Compression and cache rules</text>
+<circle cx="889.0" cy="100" r="2.6" fill="#1abc9c"/>
+<text x="900.0" y="105" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">/api/ to dpp-api</text>
+<circle cx="889.0" cy="123" r="2.6" fill="#1abc9c"/>
+<text x="900.0" y="128" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">/api/ai/ to dpp-ai, streamed</text>
+<circle cx="889.0" cy="146" r="2.6" fill="#1abc9c"/>
+<text x="900.0" y="151" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Owner check on every change</text>
+<rect x="1274" y="42" width="280" height="142" rx="3" fill="#eef1f4" stroke="#cfd6de" stroke-width="1"/>
+<text x="1292" y="70" font-size="16" font-weight="700" fill="#2e3a46" text-anchor="start">Arrows</text>
+<path d="M1292 98 L1356 98" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<text x="1370" y="103" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Interactive HTTPS traffic</text>
+<path d="M1292 130 L1356 130" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<text x="1370" y="135" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Scheduled automation</text>
+<path d="M1292 162 L1356 162" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)" marker-start="url(#a)"/>
+<text x="1370" y="167" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Reads and writes</text>
+<rect x="72" y="250" width="322" height="196" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M75 250h316a3 3 0 0 1 3 3v33h-322v-33a3 3 0 0 1 3 -3z" fill="#2e3a46"/>
+<text x="233.0" y="274.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">dpp-postgres</text>
+<circle cx="91" cy="308" r="2.6" fill="#1abc9c"/>
+<text x="102" y="313" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">PostgreSQL 16</text>
+<circle cx="91" cy="331" r="2.6" fill="#1abc9c"/>
+<text x="102" y="336" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Underlyings and historical prices</text>
+<circle cx="91" cy="354" r="2.6" fill="#1abc9c"/>
+<text x="102" y="359" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Rate curves and rate points</text>
+<circle cx="91" cy="377" r="2.6" fill="#1abc9c"/>
+<text x="102" y="382" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Instruments and trades</text>
+<circle cx="91" cy="400" r="2.6" fill="#1abc9c"/>
+<text x="102" y="405" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Option contracts of six types</text>
+<circle cx="91" cy="423" r="2.6" fill="#1abc9c"/>
+<text x="102" y="428" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Persistent Docker volume</text>
+<rect x="464" y="250" width="350" height="196" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M467 250h344a3 3 0 0 1 3 3v33h-350v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="639.0" y="274.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">dpp-api</text>
+<circle cx="483" cy="308" r="2.6" fill="#1abc9c"/>
+<text x="494" y="313" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">.NET 8 Web API (REST)</text>
+<circle cx="483" cy="331" r="2.6" fill="#1abc9c"/>
+<text x="494" y="336" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Underlyings, derivatives, trades, curves</text>
+<circle cx="483" cy="354" r="2.6" fill="#1abc9c"/>
+<text x="494" y="359" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Valuation and what-if pricing</text>
+<circle cx="483" cy="377" r="2.6" fill="#1abc9c"/>
+<text x="494" y="382" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Monte Carlo engine and Greeks</text>
+<circle cx="483" cy="400" r="2.6" fill="#1abc9c"/>
+<text x="494" y="405" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Entity Framework Core (Npgsql)</text>
+<circle cx="483" cy="423" r="2.6" fill="#1abc9c"/>
+<text x="494" y="428" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Swagger on the host only</text>
+<rect x="880" y="250" width="330" height="196" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M883 250h324a3 3 0 0 1 3 3v33h-330v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="1045.0" y="274.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">dpp-ai</text>
+<circle cx="899" cy="308" r="2.6" fill="#1abc9c"/>
+<text x="910" y="313" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Node.js 22 service</text>
+<circle cx="899" cy="331" r="2.6" fill="#1abc9c"/>
+<text x="910" y="336" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Instructions and tools for the model</text>
+<circle cx="899" cy="354" r="2.6" fill="#1abc9c"/>
+<text x="910" y="359" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Rate limits and spending caps</text>
+<circle cx="899" cy="377" r="2.6" fill="#1abc9c"/>
+<text x="910" y="382" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Owner passcode and tokens</text>
+<circle cx="899" cy="400" r="2.6" fill="#1abc9c"/>
+<text x="910" y="405" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">No route to the API or database</text>
+<circle cx="899" cy="423" r="2.6" fill="#1abc9c"/>
+<text x="910" y="428" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">No conversation text stored</text>
+<rect x="1274" y="250" width="280" height="196" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M1277 250h274a3 3 0 0 1 3 3v33h-280v-33a3 3 0 0 1 3 -3z" fill="#8795a3"/>
+<text x="1414.0" y="274.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Amazon Bedrock</text>
+<circle cx="1293" cy="308" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="313" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Claude Sonnet 4.6</text>
+<circle cx="1293" cy="331" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="336" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Reached with the server's</text>
+<text x="1304" y="359" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">AWS role, no stored key</text>
+<circle cx="1293" cy="377" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="382" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Answers streamed back</text>
+<path d="M640 184 L640 248" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<text x="652" y="222" font-size="14" font-weight="700" fill="#2e3a46" text-anchor="start">/api/</text>
+<path d="M1045 184 L1045 248" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<text x="1057" y="222" font-size="14" font-weight="700" fill="#2e3a46" text-anchor="start">/api/ai/</text>
+<path d="M462 348 L396 348" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)" marker-start="url(#a)"/>
+<text x="429" y="335" font-size="13" font-weight="400" fill="#2e3a46" text-anchor="middle">SQL</text>
+<path d="M1210 348 L1272 348" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<text x="1241" y="335" font-size="13" font-weight="400" fill="#2e3a46" text-anchor="middle">Converse</text>
+<rect x="72" y="582" width="300" height="150" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M75 582h294a3 3 0 0 1 3 3v33h-300v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="222.0" y="606.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">EventBridge</text>
+<circle cx="91" cy="640" r="2.6" fill="#1abc9c"/>
+<text x="102" y="645" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Rule dpp-daily-ingest-daily</text>
+<circle cx="91" cy="663" r="2.6" fill="#1abc9c"/>
+<text x="102" y="668" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">03:30 UTC, Tuesday to Saturday</text>
+<circle cx="91" cy="686" r="2.6" fill="#1abc9c"/>
+<text x="102" y="691" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Target: Lambda alias "prod"</text>
+<circle cx="91" cy="709" r="2.6" fill="#1abc9c"/>
+<text x="102" y="714" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Retries, then a dead-letter queue</text>
+<rect x="440" y="572" width="374" height="170" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M443 572h368a3 3 0 0 1 3 3v33h-374v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="627.0" y="596.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Lambda</text>
+<circle cx="459" cy="630" r="2.6" fill="#1abc9c"/>
+<text x="470" y="635" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Python 3.12 container image</text>
+<circle cx="459" cy="652" r="2.6" fill="#1abc9c"/>
+<text x="470" y="657" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Closes of 50 stocks, Treasury and SOFR</text>
+<circle cx="459" cy="674" r="2.6" fill="#1abc9c"/>
+<text x="470" y="679" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Upserts every day of its window</text>
+<circle cx="459" cy="696" r="2.6" fill="#1abc9c"/>
+<text x="470" y="701" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Heals missed days and stock splits</text>
+<circle cx="459" cy="718" r="2.6" fill="#1abc9c"/>
+<text x="470" y="723" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Raw snapshots and manifest to S3</text>
+<rect x="880" y="571" width="330" height="172" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M883 571h324a3 3 0 0 1 3 3v33h-330v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="1045.0" y="595.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">S3 data lake</text>
+<circle cx="899" cy="629" r="2.6" fill="#1abc9c"/>
+<text x="910" y="634" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">raw/prices_ndx50/dt=YYYY-MM-DD/</text>
+<circle cx="899" cy="652" r="2.6" fill="#1abc9c"/>
+<text x="910" y="657" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">raw/rates_fred/dt=YYYY-MM-DD/</text>
+<circle cx="899" cy="675" r="2.6" fill="#1abc9c"/>
+<text x="910" y="680" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">raw/manifests/dt=YYYY-MM-DD/</text>
+<circle cx="899" cy="698" r="2.6" fill="#1abc9c"/>
+<text x="910" y="703" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Append-only history</text>
+<circle cx="899" cy="721" r="2.6" fill="#1abc9c"/>
+<text x="910" y="726" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Audit trail, backfills and QA</text>
+<rect x="1274" y="510" width="280" height="100" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M1277 510h274a3 3 0 0 1 3 3v33h-280v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="1414.0" y="534.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">AWS Glue</text>
+<circle cx="1293" cy="568" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="573" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Crawlers and Data Catalog</text>
+<circle cx="1293" cy="591" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="596" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Database dpp_raw</text>
+<rect x="1274" y="636" width="280" height="100" rx="3" fill="#ffffff" stroke="#2e3a46" stroke-width="1.2"/>
+<path d="M1277 636h274a3 3 0 0 1 3 3v33h-280v-33a3 3 0 0 1 3 -3z" fill="#1abc9c"/>
+<text x="1414.0" y="660.0" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Athena</text>
+<circle cx="1293" cy="694" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="699" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">SQL over the S3 history</text>
+<circle cx="1293" cy="717" r="2.6" fill="#1abc9c"/>
+<text x="1304" y="722" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="start">Views: latest prices and rates</text>
+<rect x="600" y="506" width="138" height="34" rx="3" fill="#eef1f4" stroke="#8795a3" stroke-width="1.2"/>
+<text x="669" y="528" font-size="14" font-weight="700" fill="#2e3a46" text-anchor="middle">Yahoo Finance</text>
+<rect x="750" y="506" width="62" height="34" rx="3" fill="#eef1f4" stroke="#8795a3" stroke-width="1.2"/>
+<text x="781" y="528" font-size="14" font-weight="700" fill="#2e3a46" text-anchor="middle">FRED</text>
+<path d="M669 540 L669 570" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<path d="M781 540 L781 570" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<path d="M372 657 L438 657" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<text x="405" y="644" font-size="13" font-weight="400" fill="#2e3a46" text-anchor="middle">cron</text>
+<path d="M814 657 L878 657" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<path d="M1210 590 L1272 590" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<path d="M1414 610 L1414 634" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<path d="M520 570 L520 448" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<text x="508" y="520" font-size="13" font-weight="400" fill="#2e3a46" text-anchor="end">Upsert through /api/</text>
+<text x="508" y="537" font-size="13" font-weight="400" fill="#2e3a46" text-anchor="end">with its own key</text>
+<rect x="48" y="772" width="754" height="152" rx="6" fill="#2e3a46" stroke="#2e3a46" stroke-width="1.2"/>
+<text x="68" y="804" font-size="17" font-weight="700" fill="#ffffff" text-anchor="start">Security</text>
+<circle cx="71.0" cy="831" r="2.8" fill="#1abc9c"/>
+<text x="82.0" y="836" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Only ports 80 and 443 are public</text>
+<circle cx="71.0" cy="856" r="2.8" fill="#1abc9c"/>
+<text x="82.0" y="861" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">SSH only through EC2 Instance Connect</text>
+<circle cx="71.0" cy="881" r="2.8" fill="#1abc9c"/>
+<text x="82.0" y="886" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">API, database and assistant: host only</text>
+<circle cx="438.0" cy="831" r="2.8" fill="#1abc9c"/>
+<text x="449.0" y="836" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Changes require the owner passcode</text>
+<circle cx="438.0" cy="856" r="2.8" fill="#1abc9c"/>
+<text x="449.0" y="861" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Ingestion uses its own API key</text>
+<circle cx="438.0" cy="881" r="2.8" fill="#1abc9c"/>
+<text x="449.0" y="886" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">No database credentials leave the host</text>
+<rect x="824" y="772" width="754" height="152" rx="6" fill="#2e3a46" stroke="#2e3a46" stroke-width="1.2"/>
+<text x="844" y="804" font-size="17" font-weight="700" fill="#ffffff" text-anchor="start">Observability (CloudWatch)</text>
+<circle cx="847.0" cy="831" r="2.8" fill="#1abc9c"/>
+<text x="858.0" y="836" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Logs: Nginx, API and Lambda</text>
+<circle cx="847.0" cy="856" r="2.8" fill="#1abc9c"/>
+<text x="858.0" y="861" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Dashboard: CPU and network of the host</text>
+<circle cx="847.0" cy="881" r="2.8" fill="#1abc9c"/>
+<text x="858.0" y="886" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Email alerts through SNS</text>
+<circle cx="1214.0" cy="831" r="2.8" fill="#1abc9c"/>
+<text x="1225.0" y="836" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">Alarms: stale or failed ingestion,</text>
+<text x="1225.0" y="861" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">slow runs, dead-letter queue,</text>
+<text x="1225.0" y="886" font-size="15" font-weight="400" fill="#ffffff" text-anchor="start">high CPU</text>
+</svg>
