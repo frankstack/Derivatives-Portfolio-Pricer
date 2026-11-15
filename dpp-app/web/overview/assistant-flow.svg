@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 610" width="900" height="610" font-family="Inter, Helvetica, Arial, sans-serif" role="img" aria-label="How Carlo answers a question">
+<title>How Carlo answers a question</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e3a46"/></marker><marker id="t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1abc9c"/></marker></defs>
+<rect width="900" height="610" fill="#f5f7fa"/>
+<rect x="30.0" y="24" width="150" height="46" rx="4" fill="#2e3a46"/>
+<text x="105" y="53" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">dpp-api</text>
+<path d="M105 70V520" stroke="#b8c1cb" stroke-width="1.4" stroke-dasharray="4 5"/>
+<rect x="250.0" y="24" width="170" height="46" rx="4" fill="#1abc9c"/>
+<text x="335" y="53" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Browser</text>
+<path d="M335 70V520" stroke="#b8c1cb" stroke-width="1.4" stroke-dasharray="4 5"/>
+<rect x="515.0" y="24" width="150" height="46" rx="4" fill="#1abc9c"/>
+<text x="590" y="53" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">dpp-ai</text>
+<path d="M590 70V520" stroke="#b8c1cb" stroke-width="1.4" stroke-dasharray="4 5"/>
+<rect x="715.0" y="24" width="170" height="46" rx="4" fill="#8795a3"/>
+<text x="800" y="53" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">Amazon Bedrock</text>
+<path d="M800 70V520" stroke="#b8c1cb" stroke-width="1.4" stroke-dasharray="4 5"/>
+<text x="105" y="92" font-size="13" font-weight="400" fill="#5b6875" text-anchor="middle">pricing and data</text>
+<text x="335" y="92" font-size="13" font-weight="400" fill="#5b6875" text-anchor="middle">Carlo's panel and tools</text>
+<text x="590" y="92" font-size="13" font-weight="400" fill="#5b6875" text-anchor="middle">instructions, tools, limits</text>
+<text x="800" y="92" font-size="13" font-weight="400" fill="#5b6875" text-anchor="middle">Claude Sonnet 4.6</text>
+<path d="M341 150 L584 150" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<circle cx="355" cy="133" r="11" fill="#1abc9c"/>
+<text x="355" y="138" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<text x="373" y="139" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">The conversation so far</text>
+<path d="M596 205 L794 205" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<circle cx="610" cy="188" r="11" fill="#1abc9c"/>
+<text x="610" y="193" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+<text x="628" y="194" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Calls the model</text>
+<path d="M794 262 L596 262" fill="none" stroke="#1abc9c" stroke-width="1.8" marker-end="url(#t)"/>
+<circle cx="610" cy="245" r="11" fill="#1abc9c"/>
+<text x="610" y="250" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+<text x="628" y="251" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Asks for a tool</text>
+<path d="M584 262 L341 262" fill="none" stroke="#1abc9c" stroke-width="1.8" marker-end="url(#t)"/>
+<text x="462.5" y="253" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle"></text>
+<text x="462.5" y="253" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle">relayed as a stream</text>
+<path d="M329 330 L111 330" fill="none" stroke="#2e3a46" stroke-width="1.8" marker-end="url(#a)"/>
+<circle cx="125" cy="313" r="11" fill="#1abc9c"/>
+<text x="125" y="318" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+<text x="143" y="319" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Runs the tool</text>
+<path d="M111 376 L329 376" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<text x="220.0" y="367" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle">result</text>
+<path d="M341 432 L584 432" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<text x="462.5" y="423" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle">tool result</text>
+<path d="M596 432 L794 432" fill="none" stroke="#2e3a46" stroke-width="1.8" stroke-dasharray="7 5" marker-end="url(#a)"/>
+<text x="695.0" y="423" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle"></text>
+<path d="M794 492 L596 492" fill="none" stroke="#1abc9c" stroke-width="1.8" marker-end="url(#t)"/>
+<circle cx="610" cy="475" r="11" fill="#1abc9c"/>
+<text x="610" y="480" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+<text x="628" y="481" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="start">Writes the answer</text>
+<path d="M584 492 L341 492" fill="none" stroke="#1abc9c" stroke-width="1.8" marker-end="url(#t)"/>
+<text x="462.5" y="483" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle"></text>
+<text x="462.5" y="483" font-size="14" font-weight="400" fill="#2e3a46" text-anchor="middle">streamed to the panel</text>
+<rect x="24" y="540" width="852" height="50" rx="4" fill="#eef1f4" stroke="#cfd6de" stroke-width="1"/>
+<text x="450" y="571" font-size="15" font-weight="400" fill="#2e3a46" text-anchor="middle">A change follows the same path, with the owner token and a confirmation card.</text>
+</svg>

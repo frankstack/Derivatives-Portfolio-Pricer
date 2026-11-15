@@ -1,33 +1,29 @@
-// Copies what the new UI reuses from the current site into public/:
-// the Overview text (as an HTML fragment) and the images it shows.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
+// Puts the Overview page into public/: its text (the HTML fragment in overview/overview.html)
+// and the images it shows. The diagrams drawn for this page live in overview/; the screenshots
+// and the two reference diagrams are read from MonteCarloSimulatorWebApp, where they also live.
+// public/ holds nothing else, so it is rebuilt from scratch on every build.
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const legacy = join(here, '..', '..', 'MCSimulator', 'MonteCarloSimulatorWebApp');
+const own = join(here, '..', 'overview');
+const shared = join(here, '..', '..', 'MCSimulator', 'MonteCarloSimulatorWebApp');
 const pub = join(here, '..', 'public');
+rmSync(pub, { recursive: true, force: true });
 mkdirSync(pub, { recursive: true });
 
-const page = readFileSync(join(legacy, 'portfolioManager.html'), 'utf8');
-const start = page.indexOf('<section id="overviewSection"');
-if (start < 0) throw new Error('Overview section not found in portfolioManager.html');
-const open = page.indexOf('>', start) + 1;
-const end = page.indexOf('</section>', open);
-if (end < 0) throw new Error('Overview section is not closed in portfolioManager.html');
-const fragment = page.slice(open, end);
+const fragment = readFileSync(join(own, 'overview.html'), 'utf8');
 writeFileSync(join(pub, 'overview.html'), fragment);
 
 const assets = new Set(['pm-logo.svg', 'og-logo-512.png']);
 const re = /(?:src|href)="([^"#:]+\.(?:png|svg|jpg|jpeg|gif|webp))"/g;
 let m;
 while ((m = re.exec(fragment)) !== null) assets.add(m[1]);
-let copied = 0;
 for (const name of assets) {
-  const from = join(legacy, name);
-  if (!existsSync(from)) { console.warn('prebuild: missing asset ' + name); continue; }
-  mkdirSync(dirname(join(pub, name)), { recursive: true });
+  const from = [join(own, name), join(shared, name)].find((f) => existsSync(f));
+  // A figure that cannot be found stops the build: better than a page with a hole in it.
+  if (!from) throw new Error('prebuild: the Overview refers to ' + name + ', which is in neither overview/ nor MonteCarloSimulatorWebApp/');
   copyFileSync(from, join(pub, name));
-  copied += 1;
 }
-console.log('prebuild: overview.html (' + fragment.length + ' chars) and ' + copied + ' assets');
+console.log('prebuild: overview.html (' + fragment.length + ' chars) and ' + assets.size + ' images');
