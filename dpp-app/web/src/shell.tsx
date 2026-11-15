@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import type { Underlying, OptionEntity, Trade, RateCurve, ValuationResult, TradeValuation, UStats } from './api';
 import { liveCurve, rateAt } from './api';
 import { fmt } from './ui';
+import { AiDock, AiPanel } from './AiChat';
+import type { Ai } from './AiChat';
 
 export type ValSettings = {
   curveId: number; asOf: string; paths: number; steps: number; antithetic: boolean; controlVariate: boolean;
@@ -33,6 +35,7 @@ export type Ctx = {
   setSelUnderlying: (id: number | null) => void;
   selOption: number | null;
   setSelOption: (id: number | null) => void;
+  ai: Ai;
 };
 
 export const SECTIONS = [
@@ -112,17 +115,7 @@ export function LeftRail(p: { ctx: Ctx }) {
       </div>
       <div className="nav">{SECTIONS.slice(0, 5).map((s) => item(s.key, s.label))}</div>
       <div className="nav second">
-        <a
-          href="#/ai"
-          onClick={(e) => {
-            e.preventDefault();
-            const dock = document.getElementById('dpp-ai');
-            if (dock) dock.scrollIntoView({ behavior: 'smooth', block: 'end' });
-          }}
-        >
-          <span>DPP AI</span>
-          <span className="count">next</span>
-        </a>
+        {item('ai', 'DPP AI')}
         {item('overview', 'Overview')}
       </div>
       <div className="grow" />
@@ -181,19 +174,7 @@ function Find(p: { ctx: Ctx }) {
   );
 }
 
-function AiDock() {
-  return (
-    <div className="dock" id="dpp-ai">
-      <label>
-        Ask DPP AI
-        <input type="text" disabled placeholder="Value my NVDA trades on the Oct 30 curve" />
-      </label>
-      <p className="note">Coming next. It will add data and run valuations from this panel, in every section.</p>
-    </div>
-  );
-}
-
-export function Shell(p: { ctx: Ctx; title: string; sub: string; railTitle: string; rail: ReactNode; children: ReactNode }) {
+export function Shell(p: { ctx: Ctx; title: string; sub: string; railTitle: string; rail: ReactNode; children: ReactNode; noDock?: boolean }) {
   return (
     <>
       <main className="main" id="workspace">
@@ -211,8 +192,9 @@ export function Shell(p: { ctx: Ctx; title: string; sub: string; railTitle: stri
         <div className="rail-head"><h2>{p.railTitle}</h2></div>
         <div className="rail-body">{p.rail}</div>
         <div className="grow" />
-        <AiDock />
+        {p.noDock ? null : <AiDock ai={p.ctx.ai} />}
       </aside>
+      {p.noDock ? null : <AiPanel ai={p.ctx.ai} go={p.ctx.go} />}
     </>
   );
 }
