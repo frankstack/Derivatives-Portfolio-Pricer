@@ -5,6 +5,7 @@ import { api, OPTION_TYPES, BARRIER_TYPES, day, daysLeft, liveCurve, nearestRate
 import type { OptionEntity, OptionBody, PriceResult } from './api';
 import { Shell, book } from './shell';
 import type { Ctx } from './shell';
+import { OwnerGate } from './AiChat';
 import { Panel, Seg, Field, Select, Btn, ConfirmDelete, DataGrid, Notice, Kv, fmt, signed, tone } from './ui';
 import type { Col } from './ui';
 
@@ -36,6 +37,7 @@ export function Derivatives(p: { ctx: Ctx }) {
   const [filter, setFilter] = useState(0);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
+  const locked = !ctx.ai.unlockedUntil;
   const [msg, setMsg] = useState('');
   const [quick, setQuick] = useState<{ id: number; r: PriceResult } | null>(null);
   const bk = useMemo(() => book(ctx), [ctx.trades, ctx.valuation]);
@@ -183,6 +185,7 @@ export function Derivatives(p: { ctx: Ctx }) {
 
   const rail = draft ? (
     <>
+      <OwnerGate ai={ctx.ai} />
       {draft.id ? <p className="mono pos" style={{ fontSize: 12, fontWeight: 500, overflowWrap: 'anywhere' }}>{draft.symbol}</p> : <p className="note">A new contract. Fill it in and save.</p>}
       <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <Field label="Symbol" value={draft.symbol} onChange={(v) => set('symbol', v)} placeholder="AAPL-19MAR27-340-C" />
@@ -211,8 +214,8 @@ export function Derivatives(p: { ctx: Ctx }) {
           </>
         ) : null}
         <div className="btns">
-          <Btn kind="primary" submit disabled={busy}>{busy ? 'Working' : draft.id ? 'Save changes' : 'Create derivative'}</Btn>
-          {draft.id ? <ConfirmDelete key={draft.id} warn={removeWarn} onConfirm={remove} disabled={busy} /> : null}
+          <Btn kind="primary" submit disabled={busy || locked}>{busy ? 'Working' : draft.id ? 'Save changes' : 'Create derivative'}</Btn>
+          {draft.id ? <ConfirmDelete key={draft.id} warn={removeWarn} onConfirm={remove} disabled={busy || locked} /> : null}
         </div>
       </form>
       {msg ? <Notice bad>{msg}</Notice> : null}

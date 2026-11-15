@@ -47,6 +47,7 @@ function describe(status: number, body: string): string {
     const j = JSON.parse(body);
     if (j && j.errors) msg = Object.keys(j.errors).map((k) => String(j.errors[k])).join(' ');
     else if (j && j.title) msg = String(j.title);
+    else if (j && typeof j.message === 'string') msg = j.message;
     else if (typeof j === 'string') msg = j;
   } catch (e) {
     // plain text answer: keep it as it is
@@ -55,14 +56,26 @@ function describe(status: number, body: string): string {
   return msg || 'The server answered ' + status + '.';
 }
 
+// Changing data needs the owner's token (see AiChat: the passcode buys one). The server checks it;
+// this only attaches it. onRejected tells the interface that the token is no longer good.
+export const ownerAuth = { token: '', onRejected: () => {} };
+
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
+  const changes = Boolean(init && init.method && init.method !== 'GET');
+  const withOwner = changes && ownerAuth.token
+    ? Object.assign({}, init, { headers: Object.assign({}, init && init.headers, { 'X-DPP-Owner': ownerAuth.token }) })
+    : init;
   try {
-    res = await fetch(BASE + path, init);
+    res = await fetch(BASE + path, withOwner);
   } catch (e) {
     throw new Error('The pricing server could not be reached. Check the connection and try again.');
   }
   const text = await res.text();
+  if (res.status === 401 && changes) {
+    ownerAuth.onRejected();
+    throw new Error('Changes are locked. Unlock them with the owner passcode.');
+  }
   if (!res.ok) throw new Error(describe(res.status, text));
   return (text ? JSON.parse(text) : undefined) as T;
 }

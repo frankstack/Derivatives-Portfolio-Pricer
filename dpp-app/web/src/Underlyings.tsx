@@ -5,6 +5,7 @@ import { api, parseCloses, daysLeft, day, shortDate, monthYear } from './api';
 import type { UStats } from './api';
 import { Shell, book } from './shell';
 import type { Ctx } from './shell';
+import { OwnerGate } from './AiChat';
 import { Panel, Kpi, Seg, Field, Area, Btn, ConfirmDelete, DataGrid, Notice, fmt, signed, tone, useChartHeight } from './ui';
 import type { Col } from './ui';
 import { LineChart, Legend, Sparkline, C } from './charts';
@@ -22,6 +23,7 @@ export function Underlyings(p: { ctx: Ctx }) {
   const [closes, setCloses] = useState('');
   const chartH = useChartHeight(320, 220);
   const [busy, setBusy] = useState(false);
+  const locked = !ctx.ai.unlockedUntil;
   const [msg, setMsg] = useState('');
   const [edit, setEdit] = useState<{ id: number; name: string } | null>(null);
 
@@ -173,13 +175,14 @@ export function Underlyings(p: { ctx: Ctx }) {
           </div>
         );
       })}
+      <OwnerGate ai={ctx.ai} />
       {selected && !selected.predefined ? (
         <>
           <h3>{'Manage ' + selected.symbol}</h3>
           <Field label="Name" mono={false} value={editName} onChange={(v) => setEdit({ id: selected.id, name: v })} />
           <div className="btns">
-            <Btn onClick={rename} disabled={busy}>Save name</Btn>
-            {mine.length === 0 ? <ConfirmDelete key={selected.id} warn={removeWarn} onConfirm={remove} disabled={busy} /> : null}
+            <Btn onClick={rename} disabled={busy || locked}>Save name</Btn>
+            {mine.length === 0 ? <ConfirmDelete key={selected.id} warn={removeWarn} onConfirm={remove} disabled={busy || locked} /> : null}
           </div>
           {mine.length > 0 ? (
             <p className="note">{'To delete ' + selected.symbol + ', first delete its ' + (mine.length === 1 ? 'derivative' : mine.length + ' derivatives') + ' in Derivatives.'}</p>
@@ -191,7 +194,7 @@ export function Underlyings(p: { ctx: Ctx }) {
         <Field label="Symbol" value={sym} onChange={setSym} placeholder="MYSTOCK" />
         <Field label="Name" mono={false} value={name} onChange={setName} placeholder="My stock" />
         <Area label="Daily closes" value={closes} onChange={setCloses} placeholder={'2026-11-12, 101.50\n2026-11-13, 102.25'} />
-        <Btn kind="primary" submit disabled={busy}>{busy ? 'Saving' : 'Save underlying'}</Btn>
+        <Btn kind="primary" submit disabled={busy || locked}>{busy ? 'Saving' : 'Save underlying'}</Btn>
       </form>
       {msg ? <Notice bad>{msg}</Notice> : null}
       <p className="note">One date and price per line, or a JSON list. Predefined underlyings update every night and are read-only.</p>

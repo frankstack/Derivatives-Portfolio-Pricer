@@ -5,6 +5,7 @@ import { api, day, daysLeft, today, liveCurve, nearestRate } from './api';
 import type { OptionEntity, TradeBody } from './api';
 import { Shell, book, underlyingOf } from './shell';
 import type { Ctx } from './shell';
+import { OwnerGate } from './AiChat';
 import { Panel, Kpi, Seg, Field, Select, Btn, ConfirmDelete, DataGrid, Notice, Kv, fmt, signed, tone } from './ui';
 import type { Col } from './ui';
 
@@ -24,6 +25,7 @@ export function Trades(p: { ctx: Ctx }) {
   const [mode, setMode] = useState('By trade');
   const [form, setForm] = useState<Form>({ id: 0, instrumentId: '', side: 'Buy', qty: '', date: today(), price: '' });
   const [busy, setBusy] = useState(false);
+  const locked = !ctx.ai.unlockedUntil;
   const [msg, setMsg] = useState('');
   const bk = useMemo(() => book(ctx), [ctx.trades, ctx.valuation]);
 
@@ -185,6 +187,7 @@ export function Trades(p: { ctx: Ctx }) {
 
   const rail = (
     <>
+      <OwnerGate ai={ctx.ai} />
       {editing ? <p className="mono pos" style={{ fontSize: 12, fontWeight: 500 }}>{'Editing trade ' + form.id}</p> : null}
       <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <Select label="Instrument" value={form.instrumentId} onChange={(v) => set('instrumentId', v)} options={choices} />
@@ -199,9 +202,9 @@ export function Trades(p: { ctx: Ctx }) {
           <Kv k="Position after" v={instrumentId && qty > 0 ? signed(before + signedQty, 0) : ''} />
         </div>
         <div className="btns">
-          <Btn kind="primary" submit disabled={busy}>{busy ? 'Working' : editing ? 'Save changes' : 'Add trade'}</Btn>
+          <Btn kind="primary" submit disabled={busy || locked}>{busy ? 'Working' : editing ? 'Save changes' : 'Add trade'}</Btn>
           {editing ? <Btn kind="tall" onClick={reset} disabled={busy}>Cancel</Btn> : null}
-          {editing ? <ConfirmDelete key={form.id} warn={'Delete trade ' + form.id + '? This cannot be undone.'} onConfirm={remove} disabled={busy} /> : null}
+          {editing ? <ConfirmDelete key={form.id} warn={'Delete trade ' + form.id + '? This cannot be undone.'} onConfirm={remove} disabled={busy || locked} /> : null}
         </div>
       </form>
       {msg ? <Notice bad>{msg}</Notice> : null}
