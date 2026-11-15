@@ -393,6 +393,19 @@ test('service: tool calls are passed through, model failures become a plain erro
   } finally {
     await failing.close();
   }
+  const refused = await start({}, async function* m() {
+    const e = new Error('Model access is denied');
+    e.name = 'AccessDeniedException';
+    throw e;
+  });
+  try {
+    const out = await lines(await refused.post('/api/ai/chat', { messages: [user('hi')] }));
+    assert.equal(out[0].code, 'unavailable');
+    assert.equal(refused.limits.budget.daySpend, 0, 'a call turned away before it answered costs nothing');
+    assert.equal(refused.limits.active, 0);
+  } finally {
+    await refused.close();
+  }
   const cut = await start({}, async function* m() {
     yield { t: 'text', d: 'A very long ans' };
     yield { t: 'done', stop: 'max_tokens', usage: { inputTokens: 10, outputTokens: 4000 } };
