@@ -42,6 +42,12 @@ export const BARRIER_TYPES = ['', 'Up-and-In', 'Up-and-Out', 'Down-and-In', 'Dow
 const BASE = '/api';
 
 function describe(status: number, body: string): string {
+  // nginx answers a timeout or a stopped service with an HTML page: say what happened instead of showing it.
+  if (/^\s*</.test(body || '')) {
+    if (status === 504) return 'The pricing server took too long to answer (504). Try again in a minute, or value fewer trades or paths.';
+    if (status === 502 || status === 503) return 'The pricing server is not answering right now (' + status + '). Try again in a minute.';
+    return 'The server answered ' + status + '.';
+  }
   let msg = body || '';
   try {
     const j = JSON.parse(body);
