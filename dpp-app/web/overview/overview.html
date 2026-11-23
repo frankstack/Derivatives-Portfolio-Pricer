@@ -1,5 +1,53 @@
 <div class="ov">
 
+<section class="ov-sec" id="ov-0">
+  <h3>0. A Note on Authorship</h3>
+  <div class="ov-grid">
+
+    <article class="ov-card wide">
+      <h4>0.1. Who built what</h4>
+      <div class="ov-tiles t3">
+        <div class="ov-tile">
+          <strong>The foundation</strong>
+          <p>
+            I designed and built the core of DPP: the Monte Carlo engine and its variance-reduction methods, the pricing API and its data model,
+            the cloud architecture, the daily data pipeline, and the first version of the screens.
+            DPP started as a course final project in 2024 and was deployed as a platform in early 2026.
+          </p>
+        </div>
+        <div class="ov-tile">
+          <strong>The second phase</strong>
+          <p>
+            In November 2026, I brought in Claude, Anthropic’s AI model, as a coding agent.
+            Under my direction, it rebuilt the screens, built Carlo, repaired and hardened the data pipeline, fixed defects in the valuation logic,
+            and helped rewrite this overview while keeping my wording where it still held.
+          </p>
+        </div>
+        <div class="ov-tile">
+          <strong>The split</strong>
+          <p>
+            About 46% of the code in the repository today came from those sessions, most of it in the screens and in Carlo; the pricing engine is untouched.
+            Weighted by design, quantitative content and decisions rather than by lines, the project is roughly two thirds human and one third AI.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <article class="ov-card wide">
+      <h4>0.2. Why it is worth stating</h4>
+      <p>
+        Notice that the AI was used the way a trading desk uses any model: it is fast and useful, but never trusted without validation.
+        It read the entire codebase in minutes, wrote tests I would not have had the time to write, and found errors I had missed
+        (e.g., past trades that were never aged to the valuation date).
+        However, it did not decide what the platform should do, what a fair price looks like, or which risks were acceptable, and some of its own mistakes had to be caught by me.
+        In that sense, DPP is a small but complete example of the combination I believe works best: a model that widens what one person can build and verify,
+        and a person who decides what is worth building and whether the numbers make sense.
+      </p>
+    </article>
+
+  </div>
+</section>
+
 <section class="ov-sec" id="ov-1">
   <h3>I. The System at a Glance</h3>
   <div class="ov-grid">
